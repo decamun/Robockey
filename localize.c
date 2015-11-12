@@ -1,7 +1,8 @@
 #define LOCALIZE_LPF 0.93
 
 static uint16_t dropped_frames = 0;
-static float CENTER_XY[2];
+static float LOCALIZE_CENTER_XY[2];
+static float LOCALIZE_ANGLE;
 
 
 void localize(int data[12]) {
@@ -75,9 +76,15 @@ void localize(int data[12]) {
     float T[2] = [512, 384];
     float centerxy[2] = [(data[(north_star) * 3] + data[(south_star) * 3])/2 - T[1], (data[(north_star + 1) * 3] + data[(south_star + 1) * 3])/2 - T[2]];
     float centerxy_tx[2] = [-R[0, 1] * centerxy[0] - R[0, 1] * centerxy[1] , -[R[1, 0] * centerxy[0] - R[1, 1] * centerxy[1]];
-    CENTER_XY = [CENTER_XY[0] * (LOCALIZE_LPF) + centerxy_tx[0] * (1 - LOCALIZE_LPF), CENTER_XY[1] * (LOCALIZE_LPF) + centerxy_tx[1] * (1 - LOCALIZE_LPF)];
+    LOCALIZE_CENTER_XY = [LOCALIZE_CENTER_XY[0] * (LOCALIZE_LPF) + centerxy_tx[0] * (1 - LOCALIZE_LPF), LOCALIZE_CENTER_XY[1] * (LOCALIZE_LPF) + centerxy_tx[1] * (1 - LOCALIZE_LPF)]; //low pass transformed location
+    LOCALIZE_ANGLE = -angle_adg; //save transformed angle of robot (negative because it is in field coordinates, not robot coordinates)
 
   } else {
     dropped_frames++;
   }
+}
+
+
+float[3] localize_location() {
+  return [LOCALIZE_CENTER_XY[0], LOCALIZE_CENTER_XY[1], LOCALIZE_ANGLE];
 }
