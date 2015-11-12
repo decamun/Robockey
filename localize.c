@@ -1,4 +1,7 @@
+#define LOCALIZE_LPF 0.93
+
 static uint16_t dropped_frames = 0;
+static float CENTER_XY[2];
 
 
 void localize(int data[12]) {
@@ -71,7 +74,8 @@ void localize(int data[12]) {
     float R[2, 2] = [cosf(-angle_adg), -sinf(-angle_adg); sinf(-angle_adg) cosf(-angle_adg)];
     float T[2] = [512, 384];
     float centerxy[2] = [(data[(north_star) * 3] + data[(south_star) * 3])/2 - T[1], (data[(north_star + 1) * 3] + data[(south_star + 1) * 3])/2 - T[2]];
-    float centerxy_tx[2] = [-R[1, 1] * centerxy[1] - R[1, 2] * centerxy[2] , -[R[2, 1] * centerxy[1] - R[2, 2] * centerxy[2]];
+    float centerxy_tx[2] = [-R[0, 1] * centerxy[0] - R[0, 1] * centerxy[1] , -[R[1, 0] * centerxy[0] - R[1, 1] * centerxy[1]];
+    CENTER_XY = [CENTER_XY[0] * (LOCALIZE_LPF) + centerxy_tx[0] * (1 - LOCALIZE_LPF), CENTER_XY[1] * (LOCALIZE_LPF) + centerxy_tx[1] * (1 - LOCALIZE_LPF)];
 
   } else {
     dropped_frames++;
