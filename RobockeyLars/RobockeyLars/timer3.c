@@ -2,10 +2,10 @@
 #include "timer3.h"
 
 
-volatile uint16_t _max_value1 = 0;
+volatile uint16_t _max_value3 = 0;
 
 void start_pwm3(uint16_t resolution, float duty_cycle) {
-  _max_value1 = resolution; //save resolution
+  _max_value3 = resolution; //save resolution
 
   ICR3 = resolution;  //frequency
   OCR3A = (uint16_t)(((float)resolution) * duty_cycle); //duty cycle
@@ -28,7 +28,7 @@ void start_pwm3(uint16_t resolution, float duty_cycle) {
 }
 
 void set_duty3(float duty_cycle) {
-  OCR3A = (uint16_t)(((float)_max_value1) * duty_cycle); //duty OCR3A
+  OCR3A = (uint16_t)(((float)_max_value3) * duty_cycle); //duty OCR3A
 }
 
 //stop timer3

@@ -9,7 +9,6 @@
 
 #include "timer1.h" //output B6
 #include "timer3.h" //output C6
-#include "globalVariables.h"
 #include "localize.h"
 #include <math.h>
 

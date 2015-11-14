@@ -8,6 +8,9 @@
  
  */ 
 
+#ifndef GLOBAL_VARIABLES
+#define GLOBAL_VARIABLES
+
 volatile enum STATE
 {
 	state0 = 0,
@@ -37,3 +40,5 @@ float *getPosition()
 {
 	return current_position;
 }
+
+#endif
