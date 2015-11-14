@@ -85,6 +85,6 @@ void localize(int data[12]) {
 }
 
 
-float[3] localize_location() {
-  return [LOCALIZE_CENTER_XY[0], LOCALIZE_CENTER_XY[1], LOCALIZE_ANGLE];
+int* localize_location() {
+  return &[LOCALIZE_CENTER_XY[0], LOCALIZE_CENTER_XY[1], LOCALIZE_ANGLE];
 }

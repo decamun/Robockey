@@ -8,9 +8,13 @@
 #include "timer1.h"
 #include "localize.h"
 #include "ADC.h"
+#include "globalVariables.h"
 #include <math.h>
+#include <stdint.h>
 
 
-void main() {
+
+void main() 
+{
 
 }

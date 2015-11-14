@@ -8,10 +8,14 @@
  */ 
 
 #include "timer1.h" //output B6
+#include "timer3.h" //output C6
+#include "globalVariables.h"
+#include "localize.h"
+#include <math.h>
 
-#define LEFT 0
-#define RIGHT 1
+#define FORWARDS 0
+#define BACKWARDS 1
 
 void goTo(int x, int y); //goes to the specified position on the field (in cm)
-void turn(int angle); //turns a certain number of DEGREES
-void goStraight(int distance, int direction); //goes straight a certain distance (in cm)
+void turn(int angle, float velocity); //turns a certain angle in RAD
+void goStraight(int distance, int direction, float velocity); //goes straight a certain distance (in cm)
