@@ -15,7 +15,7 @@ volatile enum STATE
 	state2
 } current_state;
 	
-float current_position[3]; 
+float *current_position; 
 
 
 void setState(int state)
@@ -33,7 +33,7 @@ void setPosition(float *pos)
 	current_position = pos;
 }
 
-float* getPosition()
+float *getPosition()
 {
 	return current_position;
 }

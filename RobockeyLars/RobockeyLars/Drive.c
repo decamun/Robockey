@@ -28,8 +28,9 @@ void goStraight(int distance, int direction, float velocity) //goes straight a c
 {
 	start_pwm1(256,velocity); 
 	start_pwm3(256, velocity);
-	float current_position[3] = {0,0,0};
-	current_position = getPosition();
+	float current_position[3] = {0};
+	float *current_position_p;
+	current_position_p = getPosition();
 	float target_position[2] = {current_position[1]+distance*cos(current_position[3]), current_position[2]+sin(current_position[3])};
 	
 	if (abs(target_position[1] - current_position[1])  < ACCURACY && abs(target_position[2] - current_position[2]) < ACCURACY )
