@@ -12,8 +12,8 @@
 # to include code supplied by maevarm, add a .o target
 # tag to the parents line (e.g. "PARENTS = "m_bus.o")
 # --------------------------------------------------------
-MAIN       = main.o timer1.o timer0.o ADC.o m_usb.o m_bus.o m_rf.o m_imu.o localize.o
-CHILDREN   =
+MAIN       = main.o
+CHILDREN   = globalVariables.o timer1.o timer0.o timer3.o Drive.o ADC.o m_usb.o m_bus.o m_rf.o localize.o 
 PARENTS    =
 
 # --------------------------------------------------------

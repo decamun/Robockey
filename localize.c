@@ -10,7 +10,7 @@ static uint16_t dropped_frames = 0;
 static float LOCALIZE_CENTER_XY[2];
 static float LOCALIZE_ANGLE;
 static char LOCALIZE_INIT = 0;
-static uint data[12];
+static uint16_t data[12];
 
 void localize_init() {
   m_wii_open();
@@ -27,7 +27,7 @@ void localize_update() {
   }
 }
 
-void localize_calculate(uint* data)
+void localize_calculate(uint16_t* data)
 {
   static int remove[4] = {0, 0, 0, 0};
   int i = 0;
