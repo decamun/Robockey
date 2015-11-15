@@ -46,7 +46,8 @@ void goStraight(int distance, int direction, float velocity) //goes straight a c
 
 void leftON(float power, int direction)
 {
-	set(DDRB, 0);
+	start_pwm1(1024,power); 
+	
 	if (direction == FORWARDS)
 	{
 		set(PORTB, 0);
@@ -59,12 +60,14 @@ void leftON(float power, int direction)
 
 void leftOFF()
 {
-	clear(DDRB, 0);
+	stop1();
 }
 
-void reightON(float power, int direction)
+void rightON(float power, int direction)
 {
-	set(DDRB, 1);
+
+	
+	start_pwm3(1024,power); 
 	
 	if (direction == FORWARDS)
 	{
@@ -78,5 +81,5 @@ void reightON(float power, int direction)
 
 void rightOFF()
 {
-	clear(DDRB, 1);
+	stop3();
 }

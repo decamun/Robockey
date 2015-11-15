@@ -23,7 +23,7 @@ main.d main.o: .././main.c \
  .././m_bus.h \
  c:\program\ files\ (x86)\atmel\atmel\ toolchain\avr8\ gcc\native\3.4.1061\avr8-gnu-toolchain\avr\include\util\twi.h \
  .././m_rf.h .././timer0.h .././timer1.h .././localize.h \
- .././globalVariables.h .././ADC.h
+ .././globalVariables.h .././ADC.h .././Drive.h .././timer3.h
 
 c:\program\ files\ (x86)\atmel\atmel\ toolchain\avr8\ gcc\native\3.4.1061\avr8-gnu-toolchain\avr\include\avr\io.h:
 
@@ -82,3 +82,7 @@ c:\program\ files\ (x86)\atmel\atmel\ toolchain\avr8\ gcc\native\3.4.1061\avr8-g
 .././globalVariables.h:
 
 .././ADC.h:
+
+.././Drive.h:
+
+.././timer3.h:

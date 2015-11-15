@@ -21,5 +21,5 @@ void turn(int angle, float velocity); //turns a certain angle in RAD
 void goStraight(int distance, int direction, float velocity); //goes straight a certain distance (in cm)
 void leftON(float power, int direction);
 void leftOFF();
-void reightON(float power, int direction);
+void rightON(float power, int direction);
 void rightOFF();

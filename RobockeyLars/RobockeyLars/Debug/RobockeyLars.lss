@@ -3,29 +3,29 @@ RobockeyLars.elf:     file format elf32-avr
 
 Sections:
 Idx Name          Size      VMA       LMA       File off  Algn
-  0 .data         00000008  00800100  0000052a  000005be  2**0
+  0 .data         00000008  00800100  000008e2  00000976  2**0
                   CONTENTS, ALLOC, LOAD, DATA
-  1 .text         0000052a  00000000  00000000  00000094  2**1
+  1 .text         000008e2  00000000  00000000  00000094  2**1
                   CONTENTS, ALLOC, LOAD, READONLY, CODE
-  2 .bss          00000003  00800108  00800108  000005c6  2**0
+  2 .bss          00000007  00800108  00800108  0000097e  2**0
                   ALLOC
-  3 .comment      00000030  00000000  00000000  000005c6  2**0
+  3 .comment      00000030  00000000  00000000  0000097e  2**0
                   CONTENTS, READONLY
-  4 .debug_aranges 00000100  00000000  00000000  000005f6  2**0
+  4 .debug_aranges 000001b0  00000000  00000000  000009ae  2**0
                   CONTENTS, READONLY, DEBUGGING
-  5 .debug_info   00001066  00000000  00000000  000006f6  2**0
+  5 .debug_info   000017e0  00000000  00000000  00000b5e  2**0
                   CONTENTS, READONLY, DEBUGGING
-  6 .debug_abbrev 00000343  00000000  00000000  0000175c  2**0
+  6 .debug_abbrev 000006aa  00000000  00000000  0000233e  2**0
                   CONTENTS, READONLY, DEBUGGING
-  7 .debug_line   0000067e  00000000  00000000  00001a9f  2**0
+  7 .debug_line   000009c0  00000000  00000000  000029e8  2**0
                   CONTENTS, READONLY, DEBUGGING
-  8 .debug_frame  00000358  00000000  00000000  00002120  2**2
+  8 .debug_frame  000004e0  00000000  00000000  000033a8  2**2
                   CONTENTS, READONLY, DEBUGGING
-  9 .debug_str    0000056c  00000000  00000000  00002478  2**0
+  9 .debug_str    000006bf  00000000  00000000  00003888  2**0
                   CONTENTS, READONLY, DEBUGGING
- 10 .debug_loc    00001981  00000000  00000000  000029e4  2**0
+ 10 .debug_loc    00001e42  00000000  00000000  00003f47  2**0
                   CONTENTS, READONLY, DEBUGGING
- 11 .debug_ranges 00000118  00000000  00000000  00004365  2**0
+ 11 .debug_ranges 00000198  00000000  00000000  00005d89  2**0
                   CONTENTS, READONLY, DEBUGGING
 
 Disassembly of section .text:
@@ -41,8 +41,8 @@ Disassembly of section .text:
   1c:	0c 94 cd 00 	jmp	0x19a	; 0x19a <__bad_interrupt>
   20:	0c 94 cd 00 	jmp	0x19a	; 0x19a <__bad_interrupt>
   24:	0c 94 cd 00 	jmp	0x19a	; 0x19a <__bad_interrupt>
-  28:	0c 94 d0 00 	jmp	0x1a0	; 0x1a0 <__vector_10>
-  2c:	0c 94 0e 01 	jmp	0x21c	; 0x21c <__vector_11>
+  28:	0c 94 0b 01 	jmp	0x216	; 0x216 <__vector_10>
+  2c:	0c 94 49 01 	jmp	0x292	; 0x292 <__vector_11>
   30:	0c 94 cd 00 	jmp	0x19a	; 0x19a <__bad_interrupt>
   34:	0c 94 cd 00 	jmp	0x19a	; 0x19a <__bad_interrupt>
   38:	0c 94 cd 00 	jmp	0x19a	; 0x19a <__bad_interrupt>
@@ -137,8 +137,8 @@ Disassembly of section .text:
  16c:	11 e0       	ldi	r17, 0x01	; 1
  16e:	a0 e0       	ldi	r26, 0x00	; 0
  170:	b1 e0       	ldi	r27, 0x01	; 1
- 172:	ea e2       	ldi	r30, 0x2A	; 42
- 174:	f5 e0       	ldi	r31, 0x05	; 5
+ 172:	e2 ee       	ldi	r30, 0xE2	; 226
+ 174:	f8 e0       	ldi	r31, 0x08	; 8
  176:	02 c0       	rjmp	.+4      	; 0x17c <__do_copy_data+0x10>
  178:	05 90       	lpm	r0, Z+
  17a:	0d 92       	st	X+, r0
@@ -156,763 +156,1382 @@ Disassembly of section .text:
  18a:	1d 92       	st	X+, r1
 
 0000018c <.do_clear_bss_start>:
- 18c:	ab 30       	cpi	r26, 0x0B	; 11
+ 18c:	af 30       	cpi	r26, 0x0F	; 15
  18e:	b2 07       	cpc	r27, r18
  190:	e1 f7       	brne	.-8      	; 0x18a <.do_clear_bss_loop>
- 192:	0e 94 cf 00 	call	0x19e	; 0x19e <main>
- 196:	0c 94 93 02 	jmp	0x526	; 0x526 <_exit>
+ 192:	0e 94 f1 00 	call	0x1e2	; 0x1e2 <main>
+ 196:	0c 94 6f 04 	jmp	0x8de	; 0x8de <_exit>
 
 0000019a <__bad_interrupt>:
  19a:	0c 94 00 00 	jmp	0	; 0x0 <__vectors>
 
-0000019e <main>:
-#include <stdint.h>
+0000019e <leftON>:
+		setMainState(WAITING);
+	}
+}
+
+void leftON(float power, int direction)
+{
+ 19e:	cf 93       	push	r28
+ 1a0:	df 93       	push	r29
+ 1a2:	ea 01       	movw	r28, r20
+	start_pwm1(1024,power); 
+ 1a4:	ab 01       	movw	r20, r22
+ 1a6:	bc 01       	movw	r22, r24
+ 1a8:	80 e0       	ldi	r24, 0x00	; 0
+ 1aa:	94 e0       	ldi	r25, 0x04	; 4
+ 1ac:	0e 94 ce 02 	call	0x59c	; 0x59c <start_pwm1>
+	
+	if (direction == FORWARDS)
+ 1b0:	cd 2b       	or	r28, r29
+ 1b2:	11 f4       	brne	.+4      	; 0x1b8 <leftON+0x1a>
+	{
+		set(PORTB, 0);
+ 1b4:	28 9a       	sbi	0x05, 0	; 5
+ 1b6:	01 c0       	rjmp	.+2      	; 0x1ba <leftON+0x1c>
+	}
+	else
+	{
+		clear(PORTB, 0);
+ 1b8:	28 98       	cbi	0x05, 0	; 5
+	}
+}
+ 1ba:	df 91       	pop	r29
+ 1bc:	cf 91       	pop	r28
+ 1be:	08 95       	ret
+
+000001c0 <rightON>:
+{
+	stop1();
+}
+
+void rightON(float power, int direction)
+{
+ 1c0:	cf 93       	push	r28
+ 1c2:	df 93       	push	r29
+ 1c4:	ea 01       	movw	r28, r20
+
+	
+	start_pwm3(1024,power); 
+ 1c6:	ab 01       	movw	r20, r22
+ 1c8:	bc 01       	movw	r22, r24
+ 1ca:	80 e0       	ldi	r24, 0x00	; 0
+ 1cc:	94 e0       	ldi	r25, 0x04	; 4
+ 1ce:	0e 94 10 03 	call	0x620	; 0x620 <start_pwm3>
+	
+	if (direction == FORWARDS)
+ 1d2:	cd 2b       	or	r28, r29
+ 1d4:	11 f4       	brne	.+4      	; 0x1da <rightON+0x1a>
+	{
+		set(PORTB, 0);
+ 1d6:	28 9a       	sbi	0x05, 0	; 5
+ 1d8:	01 c0       	rjmp	.+2      	; 0x1dc <rightON+0x1c>
+	}
+	else
+	{
+		clear(PORTB, 0);
+ 1da:	28 98       	cbi	0x05, 0	; 5
+	}
+}
+ 1dc:	df 91       	pop	r29
+ 1de:	cf 91       	pop	r28
+ 1e0:	08 95       	ret
+
+000001e2 <main>:
 
 
 
 void main() 
 {
- 19e:	08 95       	ret
+	m_clockdivide(0);
+ 1e2:	e1 e6       	ldi	r30, 0x61	; 97
+ 1e4:	f0 e0       	ldi	r31, 0x00	; 0
+ 1e6:	80 e8       	ldi	r24, 0x80	; 128
+ 1e8:	80 83       	st	Z, r24
+ 1ea:	10 82       	st	Z, r1
+	
+	//driver board enable line
+	set(DDRB, 2); //enable output
+ 1ec:	22 9a       	sbi	0x04, 2	; 4
+	set(PORTB, 2); //pull high 
+ 1ee:	2a 9a       	sbi	0x05, 2	; 5
+	
+	//enable direction lines
+	set(DDRB, 1);
+ 1f0:	21 9a       	sbi	0x04, 1	; 4
+	set(DDRB, 2);
+ 1f2:	22 9a       	sbi	0x04, 2	; 4
+	
+	leftON(0.3, FORWARDS);
+ 1f4:	40 e0       	ldi	r20, 0x00	; 0
+ 1f6:	50 e0       	ldi	r21, 0x00	; 0
+ 1f8:	6a e9       	ldi	r22, 0x9A	; 154
+ 1fa:	79 e9       	ldi	r23, 0x99	; 153
+ 1fc:	89 e9       	ldi	r24, 0x99	; 153
+ 1fe:	9e e3       	ldi	r25, 0x3E	; 62
+ 200:	0e 94 cf 00 	call	0x19e	; 0x19e <leftON>
+	
+	rightON(0.3, FORWARDS);
+ 204:	40 e0       	ldi	r20, 0x00	; 0
+ 206:	50 e0       	ldi	r21, 0x00	; 0
+ 208:	6a e9       	ldi	r22, 0x9A	; 154
+ 20a:	79 e9       	ldi	r23, 0x99	; 153
+ 20c:	89 e9       	ldi	r24, 0x99	; 153
+ 20e:	9e e3       	ldi	r25, 0x3E	; 62
+ 210:	0e 94 e0 00 	call	0x1c0	; 0x1c0 <rightON>
+ 214:	ff cf       	rjmp	.-2      	; 0x214 <main+0x32>
 
-000001a0 <__vector_10>:
-			case 60: UEDATX = *buffer++;
-			case 59: UEDATX = *buffer++;
-			case 58: UEDATX = *buffer++;
-			case 57: UEDATX = *buffer++;
-			case 56: UEDATX = *buffer++;
-			case 55: UEDATX = *buffer++;
- 1a0:	1f 92       	push	r1
- 1a2:	0f 92       	push	r0
- 1a4:	0f b6       	in	r0, 0x3f	; 63
- 1a6:	0f 92       	push	r0
- 1a8:	11 24       	eor	r1, r1
- 1aa:	8f 93       	push	r24
-			case 54: UEDATX = *buffer++;
- 1ac:	9f 93       	push	r25
- 1ae:	ef 93       	push	r30
- 1b0:	ff 93       	push	r31
- 1b2:	e1 ee       	ldi	r30, 0xE1	; 225
- 1b4:	f0 e0       	ldi	r31, 0x00	; 0
- 1b6:	80 81       	ld	r24, Z
- 1b8:	10 82       	st	Z, r1
- 1ba:	83 ff       	sbrs	r24, 3
-		write_size = CDC_TX_SIZE - UEBCLX;
-		if (write_size > size) write_size = size;
-		size -= write_size;
-
-		// write the packet
-		switch (write_size) {
- 1bc:	11 c0       	rjmp	.+34     	; 0x1e0 <__vector_10+0x40>
-			case 58: UEDATX = *buffer++;
-			case 57: UEDATX = *buffer++;
-			case 56: UEDATX = *buffer++;
-			case 55: UEDATX = *buffer++;
-			case 54: UEDATX = *buffer++;
-			case 53: UEDATX = *buffer++;
- 1be:	10 92 e9 00 	sts	0x00E9, r1
- 1c2:	91 e0       	ldi	r25, 0x01	; 1
- 1c4:	90 93 eb 00 	sts	0x00EB, r25
- 1c8:	10 92 ec 00 	sts	0x00EC, r1
- 1cc:	92 e1       	ldi	r25, 0x12	; 18
-			case 52: UEDATX = *buffer++;
- 1ce:	90 93 ed 00 	sts	0x00ED, r25
- 1d2:	98 e0       	ldi	r25, 0x08	; 8
- 1d4:	90 93 f0 00 	sts	0x00F0, r25
- 1d8:	10 92 0a 01 	sts	0x010A, r1
- 1dc:	10 92 08 01 	sts	0x0108, r1
-			case 51: UEDATX = *buffer++;
- 1e0:	82 ff       	sbrs	r24, 2
- 1e2:	13 c0       	rjmp	.+38     	; 0x20a <__vector_10+0x6a>
- 1e4:	80 91 0a 01 	lds	r24, 0x010A
- 1e8:	88 23       	and	r24, r24
- 1ea:	79 f0       	breq	.+30     	; 0x20a <__vector_10+0x6a>
- 1ec:	80 91 09 01 	lds	r24, 0x0109
-			case 50: UEDATX = *buffer++;
- 1f0:	88 23       	and	r24, r24
- 1f2:	59 f0       	breq	.+22     	; 0x20a <__vector_10+0x6a>
- 1f4:	81 50       	subi	r24, 0x01	; 1
- 1f6:	80 93 09 01 	sts	0x0109, r24
- 1fa:	81 11       	cpse	r24, r1
- 1fc:	06 c0       	rjmp	.+12     	; 0x20a <__vector_10+0x6a>
- 1fe:	84 e0       	ldi	r24, 0x04	; 4
-		write_size = CDC_TX_SIZE - UEBCLX;
-		if (write_size > size) write_size = size;
-		size -= write_size;
-
-		// write the packet
-		switch (write_size) {
- 200:	80 93 e9 00 	sts	0x00E9, r24
-			case 54: UEDATX = *buffer++;
+00000216 <__vector_10>:
 			case 53: UEDATX = *buffer++;
 			case 52: UEDATX = *buffer++;
 			case 51: UEDATX = *buffer++;
 			case 50: UEDATX = *buffer++;
 			case 49: UEDATX = *buffer++;
- 204:	8a e3       	ldi	r24, 0x3A	; 58
- 206:	80 93 e8 00 	sts	0x00E8, r24
- 20a:	ff 91       	pop	r31
- 20c:	ef 91       	pop	r30
- 20e:	9f 91       	pop	r25
- 210:	8f 91       	pop	r24
 			case 48: UEDATX = *buffer++;
- 212:	0f 90       	pop	r0
- 214:	0f be       	out	0x3f, r0	; 63
- 216:	0f 90       	pop	r0
- 218:	1f 90       	pop	r1
- 21a:	18 95       	reti
-
-0000021c <__vector_11>:
- 21c:	1f 92       	push	r1
- 21e:	0f 92       	push	r0
- 220:	0f b6       	in	r0, 0x3f	; 63
+ 216:	1f 92       	push	r1
+ 218:	0f 92       	push	r0
+ 21a:	0f b6       	in	r0, 0x3f	; 63
+ 21c:	0f 92       	push	r0
+ 21e:	11 24       	eor	r1, r1
+ 220:	8f 93       	push	r24
 		write_size = CDC_TX_SIZE - UEBCLX;
 		if (write_size > size) write_size = size;
 		size -= write_size;
 
 		// write the packet
 		switch (write_size) {
- 222:	0f 92       	push	r0
+ 222:	9f 93       	push	r25
 			case 52: UEDATX = *buffer++;
 			case 51: UEDATX = *buffer++;
 			case 50: UEDATX = *buffer++;
 			case 49: UEDATX = *buffer++;
 			case 48: UEDATX = *buffer++;
 			case 47: UEDATX = *buffer++;
- 224:	11 24       	eor	r1, r1
- 226:	0f 93       	push	r16
- 228:	1f 93       	push	r17
- 22a:	2f 93       	push	r18
- 22c:	3f 93       	push	r19
- 22e:	4f 93       	push	r20
- 230:	5f 93       	push	r21
- 232:	6f 93       	push	r22
+ 224:	ef 93       	push	r30
+ 226:	ff 93       	push	r31
+ 228:	e1 ee       	ldi	r30, 0xE1	; 225
+ 22a:	f0 e0       	ldi	r31, 0x00	; 0
+ 22c:	80 81       	ld	r24, Z
+ 22e:	10 82       	st	Z, r1
+ 230:	83 ff       	sbrs	r24, 3
+ 232:	11 c0       	rjmp	.+34     	; 0x256 <__vector_10+0x40>
 			case 46: UEDATX = *buffer++;
- 234:	7f 93       	push	r23
- 236:	8f 93       	push	r24
- 238:	9f 93       	push	r25
- 23a:	af 93       	push	r26
- 23c:	bf 93       	push	r27
- 23e:	cf 93       	push	r28
- 240:	df 93       	push	r29
- 242:	ef 93       	push	r30
+ 234:	10 92 e9 00 	sts	0x00E9, r1
+ 238:	91 e0       	ldi	r25, 0x01	; 1
+ 23a:	90 93 eb 00 	sts	0x00EB, r25
+ 23e:	10 92 ec 00 	sts	0x00EC, r1
+ 242:	92 e1       	ldi	r25, 0x12	; 18
 		write_size = CDC_TX_SIZE - UEBCLX;
 		if (write_size > size) write_size = size;
 		size -= write_size;
 
 		// write the packet
 		switch (write_size) {
- 244:	ff 93       	push	r31
+ 244:	90 93 ed 00 	sts	0x00ED, r25
 			case 50: UEDATX = *buffer++;
 			case 49: UEDATX = *buffer++;
 			case 48: UEDATX = *buffer++;
 			case 47: UEDATX = *buffer++;
 			case 46: UEDATX = *buffer++;
 			case 45: UEDATX = *buffer++;
- 246:	10 92 e9 00 	sts	0x00E9, r1
- 24a:	80 91 e8 00 	lds	r24, 0x00E8
- 24e:	83 ff       	sbrs	r24, 3
- 250:	4e c1       	rjmp	.+668    	; 0x4ee <__vector_11+0x2d2>
- 252:	e1 ef       	ldi	r30, 0xF1	; 241
- 254:	f0 e0       	ldi	r31, 0x00	; 0
+ 248:	98 e0       	ldi	r25, 0x08	; 8
+ 24a:	90 93 f0 00 	sts	0x00F0, r25
+ 24e:	10 92 0a 01 	sts	0x010A, r1
+ 252:	10 92 08 01 	sts	0x0108, r1
 			case 44: UEDATX = *buffer++;
- 256:	c0 81       	ld	r28, Z
- 258:	40 81       	ld	r20, Z
- 25a:	20 81       	ld	r18, Z
- 25c:	80 81       	ld	r24, Z
- 25e:	30 e0       	ldi	r19, 0x00	; 0
- 260:	38 2b       	or	r19, r24
- 262:	80 81       	ld	r24, Z
- 264:	50 81       	ld	r21, Z
+ 256:	82 ff       	sbrs	r24, 2
+ 258:	13 c0       	rjmp	.+38     	; 0x280 <__vector_10+0x6a>
+ 25a:	80 91 0a 01 	lds	r24, 0x010A
+ 25e:	88 23       	and	r24, r24
+ 260:	79 f0       	breq	.+30     	; 0x280 <__vector_10+0x6a>
+ 262:	80 91 09 01 	lds	r24, 0x0109
 		write_size = CDC_TX_SIZE - UEBCLX;
 		if (write_size > size) write_size = size;
 		size -= write_size;
 
 		// write the packet
 		switch (write_size) {
- 266:	90 e0       	ldi	r25, 0x00	; 0
+ 266:	88 23       	and	r24, r24
 			case 48: UEDATX = *buffer++;
 			case 47: UEDATX = *buffer++;
 			case 46: UEDATX = *buffer++;
 			case 45: UEDATX = *buffer++;
 			case 44: UEDATX = *buffer++;
 			case 43: UEDATX = *buffer++;
- 268:	bc 01       	movw	r22, r24
- 26a:	75 2b       	or	r23, r21
- 26c:	b0 81       	ld	r27, Z
- 26e:	a0 81       	ld	r26, Z
- 270:	82 ef       	ldi	r24, 0xF2	; 242
- 272:	80 93 e8 00 	sts	0x00E8, r24
- 276:	46 30       	cpi	r20, 0x06	; 6
+ 268:	59 f0       	breq	.+22     	; 0x280 <__vector_10+0x6a>
+ 26a:	81 50       	subi	r24, 0x01	; 1
+ 26c:	80 93 09 01 	sts	0x0109, r24
+ 270:	81 11       	cpse	r24, r1
+ 272:	06 c0       	rjmp	.+12     	; 0x280 <__vector_10+0x6a>
+ 274:	84 e0       	ldi	r24, 0x04	; 4
+ 276:	80 93 e9 00 	sts	0x00E9, r24
 			case 42: UEDATX = *buffer++;
- 278:	09 f0       	breq	.+2      	; 0x27c <__vector_11+0x60>
- 27a:	58 c0       	rjmp	.+176    	; 0x32c <__vector_11+0x110>
- 27c:	04 c0       	rjmp	.+8      	; 0x286 <__vector_11+0x6a>
- 27e:	81 e2       	ldi	r24, 0x21	; 33
- 280:	80 93 eb 00 	sts	0x00EB, r24
- 284:	3b c1       	rjmp	.+630    	; 0x4fc <__vector_11+0x2e0>
- 286:	c6 e0       	ldi	r28, 0x06	; 6
+ 27a:	8a e3       	ldi	r24, 0x3A	; 58
+ 27c:	80 93 e8 00 	sts	0x00E8, r24
+ 280:	ff 91       	pop	r31
+ 282:	ef 91       	pop	r30
+ 284:	9f 91       	pop	r25
+ 286:	8f 91       	pop	r24
 		write_size = CDC_TX_SIZE - UEBCLX;
 		if (write_size > size) write_size = size;
 		size -= write_size;
 
 		// write the packet
 		switch (write_size) {
- 288:	8c ea       	ldi	r24, 0xAC	; 172
+ 288:	0f 90       	pop	r0
 			case 46: UEDATX = *buffer++;
 			case 45: UEDATX = *buffer++;
 			case 44: UEDATX = *buffer++;
 			case 43: UEDATX = *buffer++;
 			case 42: UEDATX = *buffer++;
 			case 41: UEDATX = *buffer++;
- 28a:	90 e0       	ldi	r25, 0x00	; 0
- 28c:	fc 01       	movw	r30, r24
- 28e:	45 91       	lpm	r20, Z+
- 290:	54 91       	lpm	r21, Z
- 292:	24 17       	cp	r18, r20
- 294:	35 07       	cpc	r19, r21
- 296:	11 f0       	breq	.+4      	; 0x29c <__vector_11+0x80>
- 298:	07 96       	adiw	r24, 0x07	; 7
+ 28a:	0f be       	out	0x3f, r0	; 63
+ 28c:	0f 90       	pop	r0
+ 28e:	1f 90       	pop	r1
+ 290:	18 95       	reti
+
+00000292 <__vector_11>:
+ 292:	1f 92       	push	r1
+ 294:	0f 92       	push	r0
+ 296:	0f b6       	in	r0, 0x3f	; 63
+ 298:	0f 92       	push	r0
 			case 40: UEDATX = *buffer++;
- 29a:	23 c0       	rjmp	.+70     	; 0x2e2 <__vector_11+0xc6>
- 29c:	fc 01       	movw	r30, r24
- 29e:	32 96       	adiw	r30, 0x02	; 2
- 2a0:	45 91       	lpm	r20, Z+
- 2a2:	54 91       	lpm	r21, Z
- 2a4:	64 17       	cp	r22, r20
- 2a6:	75 07       	cpc	r23, r21
- 2a8:	11 f0       	breq	.+4      	; 0x2ae <__vector_11+0x92>
+ 29a:	11 24       	eor	r1, r1
+ 29c:	0f 93       	push	r16
+ 29e:	1f 93       	push	r17
+ 2a0:	2f 93       	push	r18
+ 2a2:	3f 93       	push	r19
+ 2a4:	4f 93       	push	r20
+ 2a6:	5f 93       	push	r21
+ 2a8:	6f 93       	push	r22
 		write_size = CDC_TX_SIZE - UEBCLX;
 		if (write_size > size) write_size = size;
 		size -= write_size;
 
 		// write the packet
 		switch (write_size) {
- 2aa:	07 96       	adiw	r24, 0x07	; 7
+ 2aa:	7f 93       	push	r23
 			case 44: UEDATX = *buffer++;
 			case 43: UEDATX = *buffer++;
 			case 42: UEDATX = *buffer++;
 			case 41: UEDATX = *buffer++;
 			case 40: UEDATX = *buffer++;
 			case 39: UEDATX = *buffer++;
- 2ac:	1a c0       	rjmp	.+52     	; 0x2e2 <__vector_11+0xc6>
- 2ae:	fc 01       	movw	r30, r24
- 2b0:	34 96       	adiw	r30, 0x04	; 4
- 2b2:	25 91       	lpm	r18, Z+
- 2b4:	34 91       	lpm	r19, Z
- 2b6:	fc 01       	movw	r30, r24
- 2b8:	36 96       	adiw	r30, 0x06	; 6
- 2ba:	54 91       	lpm	r21, Z
+ 2ac:	8f 93       	push	r24
+ 2ae:	9f 93       	push	r25
+ 2b0:	af 93       	push	r26
+ 2b2:	bf 93       	push	r27
+ 2b4:	cf 93       	push	r28
+ 2b6:	df 93       	push	r29
+ 2b8:	ef 93       	push	r30
+ 2ba:	ff 93       	push	r31
 			case 38: UEDATX = *buffer++;
- 2bc:	8b 2f       	mov	r24, r27
- 2be:	90 e0       	ldi	r25, 0x00	; 0
- 2c0:	9a 2b       	or	r25, r26
- 2c2:	8f 3f       	cpi	r24, 0xFF	; 255
- 2c4:	91 05       	cpc	r25, r1
- 2c6:	19 f0       	breq	.+6      	; 0x2ce <__vector_11+0xb2>
- 2c8:	10 f0       	brcs	.+4      	; 0x2ce <__vector_11+0xb2>
- 2ca:	8f ef       	ldi	r24, 0xFF	; 255
+ 2bc:	10 92 e9 00 	sts	0x00E9, r1
+ 2c0:	80 91 e8 00 	lds	r24, 0x00E8
+ 2c4:	83 ff       	sbrs	r24, 3
+ 2c6:	4e c1       	rjmp	.+668    	; 0x564 <__vector_11+0x2d2>
+ 2c8:	e1 ef       	ldi	r30, 0xF1	; 241
+ 2ca:	f0 e0       	ldi	r31, 0x00	; 0
 		write_size = CDC_TX_SIZE - UEBCLX;
 		if (write_size > size) write_size = size;
 		size -= write_size;
 
 		// write the packet
 		switch (write_size) {
- 2cc:	90 e0       	ldi	r25, 0x00	; 0
+ 2cc:	c0 81       	ld	r28, Z
 			case 42: UEDATX = *buffer++;
 			case 41: UEDATX = *buffer++;
 			case 40: UEDATX = *buffer++;
 			case 39: UEDATX = *buffer++;
 			case 38: UEDATX = *buffer++;
 			case 37: UEDATX = *buffer++;
- 2ce:	85 17       	cp	r24, r21
- 2d0:	08 f4       	brcc	.+2      	; 0x2d4 <__vector_11+0xb8>
- 2d2:	58 2f       	mov	r21, r24
- 2d4:	a8 ee       	ldi	r26, 0xE8	; 232
- 2d6:	b0 e0       	ldi	r27, 0x00	; 0
- 2d8:	70 e1       	ldi	r23, 0x10	; 16
- 2da:	6e ef       	ldi	r22, 0xFE	; 254
- 2dc:	c1 ef       	ldi	r28, 0xF1	; 241
+ 2ce:	40 81       	ld	r20, Z
+ 2d0:	20 81       	ld	r18, Z
+ 2d2:	80 81       	ld	r24, Z
+ 2d4:	30 e0       	ldi	r19, 0x00	; 0
+ 2d6:	38 2b       	or	r19, r24
+ 2d8:	80 81       	ld	r24, Z
+ 2da:	50 81       	ld	r21, Z
+ 2dc:	90 e0       	ldi	r25, 0x00	; 0
 			case 36: UEDATX = *buffer++;
- 2de:	d0 e0       	ldi	r29, 0x00	; 0
- 2e0:	03 c0       	rjmp	.+6      	; 0x2e8 <__vector_11+0xcc>
- 2e2:	c1 50       	subi	r28, 0x01	; 1
- 2e4:	99 f6       	brne	.-90     	; 0x28c <__vector_11+0x70>
- 2e6:	cb cf       	rjmp	.-106    	; 0x27e <__vector_11+0x62>
- 2e8:	8c 91       	ld	r24, X
- 2ea:	98 2f       	mov	r25, r24
- 2ec:	95 70       	andi	r25, 0x05	; 5
+ 2de:	bc 01       	movw	r22, r24
+ 2e0:	75 2b       	or	r23, r21
+ 2e2:	b0 81       	ld	r27, Z
+ 2e4:	a0 81       	ld	r26, Z
+ 2e6:	82 ef       	ldi	r24, 0xF2	; 242
+ 2e8:	80 93 e8 00 	sts	0x00E8, r24
+ 2ec:	46 30       	cpi	r20, 0x06	; 6
 		write_size = CDC_TX_SIZE - UEBCLX;
 		if (write_size > size) write_size = size;
 		size -= write_size;
 
 		// write the packet
 		switch (write_size) {
- 2ee:	e1 f3       	breq	.-8      	; 0x2e8 <__vector_11+0xcc>
+ 2ee:	09 f0       	breq	.+2      	; 0x2f2 <__vector_11+0x60>
 			case 40: UEDATX = *buffer++;
 			case 39: UEDATX = *buffer++;
 			case 38: UEDATX = *buffer++;
 			case 37: UEDATX = *buffer++;
 			case 36: UEDATX = *buffer++;
 			case 35: UEDATX = *buffer++;
- 2f0:	82 fd       	sbrc	r24, 2
- 2f2:	04 c1       	rjmp	.+520    	; 0x4fc <__vector_11+0x2e0>
- 2f4:	45 2f       	mov	r20, r21
- 2f6:	51 31       	cpi	r21, 0x11	; 17
- 2f8:	08 f0       	brcs	.+2      	; 0x2fc <__vector_11+0xe0>
- 2fa:	47 2f       	mov	r20, r23
- 2fc:	44 23       	and	r20, r20
- 2fe:	09 f4       	brne	.+2      	; 0x302 <__vector_11+0xe6>
+ 2f0:	58 c0       	rjmp	.+176    	; 0x3a2 <__vector_11+0x110>
+ 2f2:	04 c0       	rjmp	.+8      	; 0x2fc <__vector_11+0x6a>
+ 2f4:	81 e2       	ldi	r24, 0x21	; 33
+ 2f6:	80 93 eb 00 	sts	0x00EB, r24
+ 2fa:	3b c1       	rjmp	.+630    	; 0x572 <__vector_11+0x2e0>
+ 2fc:	c6 e0       	ldi	r28, 0x06	; 6
+ 2fe:	8c ea       	ldi	r24, 0xAC	; 172
 			case 34: UEDATX = *buffer++;
- 300:	fa c0       	rjmp	.+500    	; 0x4f6 <__vector_11+0x2da>
- 302:	f9 01       	movw	r30, r18
- 304:	84 2f       	mov	r24, r20
- 306:	94 91       	lpm	r25, Z
- 308:	98 83       	st	Y, r25
- 30a:	81 50       	subi	r24, 0x01	; 1
- 30c:	31 96       	adiw	r30, 0x01	; 1
- 30e:	81 11       	cpse	r24, r1
+ 300:	90 e0       	ldi	r25, 0x00	; 0
+ 302:	fc 01       	movw	r30, r24
+ 304:	45 91       	lpm	r20, Z+
+ 306:	54 91       	lpm	r21, Z
+ 308:	24 17       	cp	r18, r20
+ 30a:	35 07       	cpc	r19, r21
+ 30c:	11 f0       	breq	.+4      	; 0x312 <__vector_11+0x80>
+ 30e:	07 96       	adiw	r24, 0x07	; 7
 		write_size = CDC_TX_SIZE - UEBCLX;
 		if (write_size > size) write_size = size;
 		size -= write_size;
 
 		// write the packet
 		switch (write_size) {
- 310:	fa cf       	rjmp	.-12     	; 0x306 <__vector_11+0xea>
+ 310:	23 c0       	rjmp	.+70     	; 0x358 <__vector_11+0xc6>
 			case 38: UEDATX = *buffer++;
 			case 37: UEDATX = *buffer++;
 			case 36: UEDATX = *buffer++;
 			case 35: UEDATX = *buffer++;
 			case 34: UEDATX = *buffer++;
 			case 33: UEDATX = *buffer++;
- 312:	8f ef       	ldi	r24, 0xFF	; 255
- 314:	84 0f       	add	r24, r20
- 316:	90 e0       	ldi	r25, 0x00	; 0
- 318:	01 96       	adiw	r24, 0x01	; 1
- 31a:	28 0f       	add	r18, r24
- 31c:	39 1f       	adc	r19, r25
- 31e:	54 1b       	sub	r21, r20
- 320:	6c 93       	st	X, r22
+ 312:	fc 01       	movw	r30, r24
+ 314:	32 96       	adiw	r30, 0x02	; 2
+ 316:	45 91       	lpm	r20, Z+
+ 318:	54 91       	lpm	r21, Z
+ 31a:	64 17       	cp	r22, r20
+ 31c:	75 07       	cpc	r23, r21
+ 31e:	11 f0       	breq	.+4      	; 0x324 <__vector_11+0x92>
+ 320:	07 96       	adiw	r24, 0x07	; 7
 			#endif
 			#if (CDC_TX_SIZE >= 32)
 			case 32: UEDATX = *buffer++;
- 322:	51 11       	cpse	r21, r1
- 324:	e1 cf       	rjmp	.-62     	; 0x2e8 <__vector_11+0xcc>
- 326:	40 31       	cpi	r20, 0x10	; 16
- 328:	f9 f2       	breq	.-66     	; 0x2e8 <__vector_11+0xcc>
- 32a:	e8 c0       	rjmp	.+464    	; 0x4fc <__vector_11+0x2e0>
- 32c:	45 30       	cpi	r20, 0x05	; 5
- 32e:	61 f4       	brne	.+24     	; 0x348 <__vector_11+0x12c>
- 330:	8e ef       	ldi	r24, 0xFE	; 254
+ 322:	1a c0       	rjmp	.+52     	; 0x358 <__vector_11+0xc6>
+ 324:	fc 01       	movw	r30, r24
+ 326:	34 96       	adiw	r30, 0x04	; 4
+ 328:	25 91       	lpm	r18, Z+
+ 32a:	34 91       	lpm	r19, Z
+ 32c:	fc 01       	movw	r30, r24
+ 32e:	36 96       	adiw	r30, 0x06	; 6
+ 330:	54 91       	lpm	r21, Z
 		write_size = CDC_TX_SIZE - UEBCLX;
 		if (write_size > size) write_size = size;
 		size -= write_size;
 
 		// write the packet
 		switch (write_size) {
- 332:	80 93 e8 00 	sts	0x00E8, r24
+ 332:	8b 2f       	mov	r24, r27
 			case 34: UEDATX = *buffer++;
 			case 33: UEDATX = *buffer++;
 			#endif
 			#if (CDC_TX_SIZE >= 32)
 			case 32: UEDATX = *buffer++;
 			case 31: UEDATX = *buffer++;
- 336:	e8 ee       	ldi	r30, 0xE8	; 232
- 338:	f0 e0       	ldi	r31, 0x00	; 0
- 33a:	80 81       	ld	r24, Z
- 33c:	80 ff       	sbrs	r24, 0
- 33e:	fd cf       	rjmp	.-6      	; 0x33a <__vector_11+0x11e>
- 340:	20 68       	ori	r18, 0x80	; 128
- 342:	20 93 e3 00 	sts	0x00E3, r18
+ 334:	90 e0       	ldi	r25, 0x00	; 0
+ 336:	9a 2b       	or	r25, r26
+ 338:	8f 3f       	cpi	r24, 0xFF	; 255
+ 33a:	91 05       	cpc	r25, r1
+ 33c:	19 f0       	breq	.+6      	; 0x344 <__vector_11+0xb2>
+ 33e:	10 f0       	brcs	.+4      	; 0x344 <__vector_11+0xb2>
+ 340:	8f ef       	ldi	r24, 0xFF	; 255
+ 342:	90 e0       	ldi	r25, 0x00	; 0
 			case 30: UEDATX = *buffer++;
- 346:	da c0       	rjmp	.+436    	; 0x4fc <__vector_11+0x2e0>
- 348:	49 30       	cpi	r20, 0x09	; 9
- 34a:	09 f0       	breq	.+2      	; 0x34e <__vector_11+0x132>
- 34c:	36 c0       	rjmp	.+108    	; 0x3ba <__vector_11+0x19e>
- 34e:	c1 11       	cpse	r28, r1
- 350:	5f c0       	rjmp	.+190    	; 0x410 <__vector_11+0x1f4>
- 352:	20 93 0a 01 	sts	0x010A, r18
-			case 29: UEDATX = *buffer++;
- 356:	10 92 08 01 	sts	0x0108, r1
- 35a:	10 92 09 01 	sts	0x0109, r1
- 35e:	8e ef       	ldi	r24, 0xFE	; 254
- 360:	80 93 e8 00 	sts	0x00E8, r24
- 364:	11 e0       	ldi	r17, 0x01	; 1
-			case 28: UEDATX = *buffer++;
- 366:	85 e5       	ldi	r24, 0x55	; 85
- 368:	91 e0       	ldi	r25, 0x01	; 1
- 36a:	c9 ee       	ldi	r28, 0xE9	; 233
- 36c:	d0 e0       	ldi	r29, 0x00	; 0
- 36e:	ab ee       	ldi	r26, 0xEB	; 235
- 370:	b0 e0       	ldi	r27, 0x00	; 0
- 372:	6c ee       	ldi	r22, 0xEC	; 236
- 374:	70 e0       	ldi	r23, 0x00	; 0
+ 344:	85 17       	cp	r24, r21
+ 346:	08 f4       	brcc	.+2      	; 0x34a <__vector_11+0xb8>
+ 348:	58 2f       	mov	r21, r24
+ 34a:	a8 ee       	ldi	r26, 0xE8	; 232
+ 34c:	b0 e0       	ldi	r27, 0x00	; 0
+ 34e:	70 e1       	ldi	r23, 0x10	; 16
+ 350:	6e ef       	ldi	r22, 0xFE	; 254
+ 352:	c1 ef       	ldi	r28, 0xF1	; 241
 		write_size = CDC_TX_SIZE - UEBCLX;
 		if (write_size > size) write_size = size;
 		size -= write_size;
 
 		// write the packet
 		switch (write_size) {
- 376:	4d ee       	ldi	r20, 0xED	; 237
+ 354:	d0 e0       	ldi	r29, 0x00	; 0
+			#endif
+			#if (CDC_TX_SIZE >= 32)
+			case 32: UEDATX = *buffer++;
+			case 31: UEDATX = *buffer++;
+			case 30: UEDATX = *buffer++;
+			case 29: UEDATX = *buffer++;
+ 356:	03 c0       	rjmp	.+6      	; 0x35e <__vector_11+0xcc>
+ 358:	c1 50       	subi	r28, 0x01	; 1
+ 35a:	99 f6       	brne	.-90     	; 0x302 <__vector_11+0x70>
+ 35c:	cb cf       	rjmp	.-106    	; 0x2f4 <__vector_11+0x62>
+ 35e:	8c 91       	ld	r24, X
+ 360:	98 2f       	mov	r25, r24
+ 362:	95 70       	andi	r25, 0x05	; 5
+ 364:	e1 f3       	breq	.-8      	; 0x35e <__vector_11+0xcc>
+			case 28: UEDATX = *buffer++;
+ 366:	82 fd       	sbrc	r24, 2
+ 368:	04 c1       	rjmp	.+520    	; 0x572 <__vector_11+0x2e0>
+ 36a:	45 2f       	mov	r20, r21
+ 36c:	51 31       	cpi	r21, 0x11	; 17
+ 36e:	08 f0       	brcs	.+2      	; 0x372 <__vector_11+0xe0>
+ 370:	47 2f       	mov	r20, r23
+ 372:	44 23       	and	r20, r20
+ 374:	09 f4       	brne	.+2      	; 0x378 <__vector_11+0xe6>
+		write_size = CDC_TX_SIZE - UEBCLX;
+		if (write_size > size) write_size = size;
+		size -= write_size;
+
+		// write the packet
+		switch (write_size) {
+ 376:	fa c0       	rjmp	.+500    	; 0x56c <__vector_11+0x2da>
 			case 32: UEDATX = *buffer++;
 			case 31: UEDATX = *buffer++;
 			case 30: UEDATX = *buffer++;
 			case 29: UEDATX = *buffer++;
 			case 28: UEDATX = *buffer++;
 			case 27: UEDATX = *buffer++;
- 378:	50 e0       	ldi	r21, 0x00	; 0
- 37a:	18 83       	st	Y, r17
- 37c:	9c 01       	movw	r18, r24
- 37e:	2f 5f       	subi	r18, 0xFF	; 255
- 380:	3f 4f       	sbci	r19, 0xFF	; 255
- 382:	fc 01       	movw	r30, r24
- 384:	04 91       	lpm	r16, Z
- 386:	0c 93       	st	X, r16
+ 378:	f9 01       	movw	r30, r18
+ 37a:	84 2f       	mov	r24, r20
+ 37c:	94 91       	lpm	r25, Z
+ 37e:	98 83       	st	Y, r25
+ 380:	81 50       	subi	r24, 0x01	; 1
+ 382:	31 96       	adiw	r30, 0x01	; 1
+ 384:	81 11       	cpse	r24, r1
+ 386:	fa cf       	rjmp	.-12     	; 0x37c <__vector_11+0xea>
 			case 26: UEDATX = *buffer++;
- 388:	00 23       	and	r16, r16
- 38a:	61 f0       	breq	.+24     	; 0x3a4 <__vector_11+0x188>
- 38c:	f9 01       	movw	r30, r18
- 38e:	24 91       	lpm	r18, Z
- 390:	fb 01       	movw	r30, r22
- 392:	20 83       	st	Z, r18
- 394:	9c 01       	movw	r18, r24
- 396:	2d 5f       	subi	r18, 0xFD	; 253
+ 388:	8f ef       	ldi	r24, 0xFF	; 255
+ 38a:	84 0f       	add	r24, r20
+ 38c:	90 e0       	ldi	r25, 0x00	; 0
+ 38e:	01 96       	adiw	r24, 0x01	; 1
+ 390:	28 0f       	add	r18, r24
+ 392:	39 1f       	adc	r19, r25
+ 394:	54 1b       	sub	r21, r20
+ 396:	6c 93       	st	X, r22
 		write_size = CDC_TX_SIZE - UEBCLX;
 		if (write_size > size) write_size = size;
 		size -= write_size;
 
 		// write the packet
 		switch (write_size) {
- 398:	3f 4f       	sbci	r19, 0xFF	; 255
+ 398:	51 11       	cpse	r21, r1
 			case 30: UEDATX = *buffer++;
 			case 29: UEDATX = *buffer++;
 			case 28: UEDATX = *buffer++;
 			case 27: UEDATX = *buffer++;
 			case 26: UEDATX = *buffer++;
 			case 25: UEDATX = *buffer++;
- 39a:	fc 01       	movw	r30, r24
- 39c:	32 96       	adiw	r30, 0x02	; 2
- 39e:	84 91       	lpm	r24, Z
- 3a0:	fa 01       	movw	r30, r20
- 3a2:	80 83       	st	Z, r24
- 3a4:	1f 5f       	subi	r17, 0xFF	; 255
- 3a6:	15 30       	cpi	r17, 0x05	; 5
- 3a8:	11 f0       	breq	.+4      	; 0x3ae <__vector_11+0x192>
+ 39a:	e1 cf       	rjmp	.-62     	; 0x35e <__vector_11+0xcc>
+ 39c:	40 31       	cpi	r20, 0x10	; 16
+ 39e:	f9 f2       	breq	.-66     	; 0x35e <__vector_11+0xcc>
+ 3a0:	e8 c0       	rjmp	.+464    	; 0x572 <__vector_11+0x2e0>
+ 3a2:	45 30       	cpi	r20, 0x05	; 5
+ 3a4:	61 f4       	brne	.+24     	; 0x3be <__vector_11+0x12c>
+ 3a6:	8e ef       	ldi	r24, 0xFE	; 254
+ 3a8:	80 93 e8 00 	sts	0x00E8, r24
 			case 24: UEDATX = *buffer++;
- 3aa:	c9 01       	movw	r24, r18
- 3ac:	e6 cf       	rjmp	.-52     	; 0x37a <__vector_11+0x15e>
- 3ae:	ea ee       	ldi	r30, 0xEA	; 234
- 3b0:	f0 e0       	ldi	r31, 0x00	; 0
- 3b2:	8e e1       	ldi	r24, 0x1E	; 30
- 3b4:	80 83       	st	Z, r24
- 3b6:	10 82       	st	Z, r1
- 3b8:	a1 c0       	rjmp	.+322    	; 0x4fc <__vector_11+0x2e0>
-		write_size = CDC_TX_SIZE - UEBCLX;
-		if (write_size > size) write_size = size;
-		size -= write_size;
-
-		// write the packet
-		switch (write_size) {
- 3ba:	48 30       	cpi	r20, 0x08	; 8
-			case 28: UEDATX = *buffer++;
-			case 27: UEDATX = *buffer++;
-			case 26: UEDATX = *buffer++;
-			case 25: UEDATX = *buffer++;
-			case 24: UEDATX = *buffer++;
+ 3ac:	e8 ee       	ldi	r30, 0xE8	; 232
+ 3ae:	f0 e0       	ldi	r31, 0x00	; 0
+ 3b0:	80 81       	ld	r24, Z
+ 3b2:	80 ff       	sbrs	r24, 0
+ 3b4:	fd cf       	rjmp	.-6      	; 0x3b0 <__vector_11+0x11e>
+ 3b6:	20 68       	ori	r18, 0x80	; 128
+ 3b8:	20 93 e3 00 	sts	0x00E3, r18
 			case 23: UEDATX = *buffer++;
- 3bc:	81 f4       	brne	.+32     	; 0x3de <__vector_11+0x1c2>
- 3be:	c0 38       	cpi	r28, 0x80	; 128
- 3c0:	09 f0       	breq	.+2      	; 0x3c4 <__vector_11+0x1a8>
- 3c2:	42 c0       	rjmp	.+132    	; 0x448 <__vector_11+0x22c>
- 3c4:	e8 ee       	ldi	r30, 0xE8	; 232
- 3c6:	f0 e0       	ldi	r31, 0x00	; 0
- 3c8:	80 81       	ld	r24, Z
- 3ca:	80 ff       	sbrs	r24, 0
+ 3bc:	da c0       	rjmp	.+436    	; 0x572 <__vector_11+0x2e0>
+ 3be:	49 30       	cpi	r20, 0x09	; 9
+ 3c0:	09 f0       	breq	.+2      	; 0x3c4 <__vector_11+0x132>
+ 3c2:	36 c0       	rjmp	.+108    	; 0x430 <__vector_11+0x19e>
+ 3c4:	c1 11       	cpse	r28, r1
+ 3c6:	5f c0       	rjmp	.+190    	; 0x486 <__vector_11+0x1f4>
+ 3c8:	20 93 0a 01 	sts	0x010A, r18
 			case 22: UEDATX = *buffer++;
- 3cc:	fd cf       	rjmp	.-6      	; 0x3c8 <__vector_11+0x1ac>
- 3ce:	80 91 0a 01 	lds	r24, 0x010A
- 3d2:	80 93 f1 00 	sts	0x00F1, r24
- 3d6:	8e ef       	ldi	r24, 0xFE	; 254
- 3d8:	80 93 e8 00 	sts	0x00E8, r24
+ 3cc:	10 92 08 01 	sts	0x0108, r1
+ 3d0:	10 92 09 01 	sts	0x0109, r1
+ 3d4:	8e ef       	ldi	r24, 0xFE	; 254
+ 3d6:	80 93 e8 00 	sts	0x00E8, r24
+ 3da:	11 e0       	ldi	r17, 0x01	; 1
 		write_size = CDC_TX_SIZE - UEBCLX;
 		if (write_size > size) write_size = size;
 		size -= write_size;
 
 		// write the packet
 		switch (write_size) {
- 3dc:	8f c0       	rjmp	.+286    	; 0x4fc <__vector_11+0x2e0>
+ 3dc:	85 e5       	ldi	r24, 0x55	; 85
 			case 26: UEDATX = *buffer++;
 			case 25: UEDATX = *buffer++;
 			case 24: UEDATX = *buffer++;
 			case 23: UEDATX = *buffer++;
 			case 22: UEDATX = *buffer++;
 			case 21: UEDATX = *buffer++;
- 3de:	41 32       	cpi	r20, 0x21	; 33
- 3e0:	b9 f4       	brne	.+46     	; 0x410 <__vector_11+0x1f4>
- 3e2:	c1 3a       	cpi	r28, 0xA1	; 161
- 3e4:	09 f0       	breq	.+2      	; 0x3e8 <__vector_11+0x1cc>
- 3e6:	40 c0       	rjmp	.+128    	; 0x468 <__vector_11+0x24c>
- 3e8:	e8 ee       	ldi	r30, 0xE8	; 232
- 3ea:	f0 e0       	ldi	r31, 0x00	; 0
- 3ec:	80 81       	ld	r24, Z
+ 3de:	91 e0       	ldi	r25, 0x01	; 1
+ 3e0:	c9 ee       	ldi	r28, 0xE9	; 233
+ 3e2:	d0 e0       	ldi	r29, 0x00	; 0
+ 3e4:	ab ee       	ldi	r26, 0xEB	; 235
+ 3e6:	b0 e0       	ldi	r27, 0x00	; 0
+ 3e8:	6c ee       	ldi	r22, 0xEC	; 236
+ 3ea:	70 e0       	ldi	r23, 0x00	; 0
+ 3ec:	4d ee       	ldi	r20, 0xED	; 237
 			case 20: UEDATX = *buffer++;
- 3ee:	80 ff       	sbrs	r24, 0
- 3f0:	fd cf       	rjmp	.-6      	; 0x3ec <__vector_11+0x1d0>
- 3f2:	e0 e0       	ldi	r30, 0x00	; 0
- 3f4:	f1 e0       	ldi	r31, 0x01	; 1
- 3f6:	87 e0       	ldi	r24, 0x07	; 7
- 3f8:	91 e0       	ldi	r25, 0x01	; 1
- 3fa:	a1 ef       	ldi	r26, 0xF1	; 241
- 3fc:	b0 e0       	ldi	r27, 0x00	; 0
+ 3ee:	50 e0       	ldi	r21, 0x00	; 0
+ 3f0:	18 83       	st	Y, r17
+ 3f2:	9c 01       	movw	r18, r24
+ 3f4:	2f 5f       	subi	r18, 0xFF	; 255
+ 3f6:	3f 4f       	sbci	r19, 0xFF	; 255
+ 3f8:	fc 01       	movw	r30, r24
+ 3fa:	04 91       	lpm	r16, Z
+ 3fc:	0c 93       	st	X, r16
 		write_size = CDC_TX_SIZE - UEBCLX;
 		if (write_size > size) write_size = size;
 		size -= write_size;
 
 		// write the packet
 		switch (write_size) {
- 3fe:	21 91       	ld	r18, Z+
+ 3fe:	00 23       	and	r16, r16
 			case 24: UEDATX = *buffer++;
 			case 23: UEDATX = *buffer++;
 			case 22: UEDATX = *buffer++;
 			case 21: UEDATX = *buffer++;
 			case 20: UEDATX = *buffer++;
 			case 19: UEDATX = *buffer++;
- 400:	2c 93       	st	X, r18
- 402:	e8 17       	cp	r30, r24
- 404:	f9 07       	cpc	r31, r25
- 406:	d9 f7       	brne	.-10     	; 0x3fe <__vector_11+0x1e2>
- 408:	8e ef       	ldi	r24, 0xFE	; 254
- 40a:	80 93 e8 00 	sts	0x00E8, r24
- 40e:	76 c0       	rjmp	.+236    	; 0x4fc <__vector_11+0x2e0>
+ 400:	61 f0       	breq	.+24     	; 0x41a <__vector_11+0x188>
+ 402:	f9 01       	movw	r30, r18
+ 404:	24 91       	lpm	r18, Z
+ 406:	fb 01       	movw	r30, r22
+ 408:	20 83       	st	Z, r18
+ 40a:	9c 01       	movw	r18, r24
+ 40c:	2d 5f       	subi	r18, 0xFD	; 253
+ 40e:	3f 4f       	sbci	r19, 0xFF	; 255
 			case 18: UEDATX = *buffer++;
- 410:	40 32       	cpi	r20, 0x20	; 32
- 412:	d1 f4       	brne	.+52     	; 0x448 <__vector_11+0x22c>
- 414:	c1 32       	cpi	r28, 0x21	; 33
- 416:	09 f0       	breq	.+2      	; 0x41a <__vector_11+0x1fe>
- 418:	43 c0       	rjmp	.+134    	; 0x4a0 <__vector_11+0x284>
- 41a:	e8 ee       	ldi	r30, 0xE8	; 232
- 41c:	f0 e0       	ldi	r31, 0x00	; 0
- 41e:	80 81       	ld	r24, Z
+ 410:	fc 01       	movw	r30, r24
+ 412:	32 96       	adiw	r30, 0x02	; 2
+ 414:	84 91       	lpm	r24, Z
+ 416:	fa 01       	movw	r30, r20
+ 418:	80 83       	st	Z, r24
+ 41a:	1f 5f       	subi	r17, 0xFF	; 255
+ 41c:	15 30       	cpi	r17, 0x05	; 5
+ 41e:	11 f0       	breq	.+4      	; 0x424 <__vector_11+0x192>
 		write_size = CDC_TX_SIZE - UEBCLX;
 		if (write_size > size) write_size = size;
 		size -= write_size;
 
 		// write the packet
 		switch (write_size) {
- 420:	82 ff       	sbrs	r24, 2
+ 420:	c9 01       	movw	r24, r18
 			case 22: UEDATX = *buffer++;
 			case 21: UEDATX = *buffer++;
 			case 20: UEDATX = *buffer++;
 			case 19: UEDATX = *buffer++;
 			case 18: UEDATX = *buffer++;
 			case 17: UEDATX = *buffer++;
- 422:	fd cf       	rjmp	.-6      	; 0x41e <__vector_11+0x202>
- 424:	e0 e0       	ldi	r30, 0x00	; 0
- 426:	f1 e0       	ldi	r31, 0x01	; 1
- 428:	87 e0       	ldi	r24, 0x07	; 7
- 42a:	91 e0       	ldi	r25, 0x01	; 1
- 42c:	a1 ef       	ldi	r26, 0xF1	; 241
- 42e:	b0 e0       	ldi	r27, 0x00	; 0
- 430:	2c 91       	ld	r18, X
+ 422:	e6 cf       	rjmp	.-52     	; 0x3f0 <__vector_11+0x15e>
+ 424:	ea ee       	ldi	r30, 0xEA	; 234
+ 426:	f0 e0       	ldi	r31, 0x00	; 0
+ 428:	8e e1       	ldi	r24, 0x1E	; 30
+ 42a:	80 83       	st	Z, r24
+ 42c:	10 82       	st	Z, r1
+ 42e:	a1 c0       	rjmp	.+322    	; 0x572 <__vector_11+0x2e0>
+ 430:	48 30       	cpi	r20, 0x08	; 8
 			#endif
 			#if (CDC_TX_SIZE >= 16)
 			case 16: UEDATX = *buffer++;
- 432:	21 93       	st	Z+, r18
- 434:	e8 17       	cp	r30, r24
- 436:	f9 07       	cpc	r31, r25
- 438:	d9 f7       	brne	.-10     	; 0x430 <__vector_11+0x214>
+ 432:	81 f4       	brne	.+32     	; 0x454 <__vector_11+0x1c2>
+ 434:	c0 38       	cpi	r28, 0x80	; 128
+ 436:	09 f0       	breq	.+2      	; 0x43a <__vector_11+0x1a8>
+ 438:	42 c0       	rjmp	.+132    	; 0x4be <__vector_11+0x22c>
  43a:	e8 ee       	ldi	r30, 0xE8	; 232
  43c:	f0 e0       	ldi	r31, 0x00	; 0
- 43e:	8b ef       	ldi	r24, 0xFB	; 251
- 440:	80 83       	st	Z, r24
+ 43e:	80 81       	ld	r24, Z
+ 440:	80 ff       	sbrs	r24, 0
 		write_size = CDC_TX_SIZE - UEBCLX;
 		if (write_size > size) write_size = size;
 		size -= write_size;
 
 		// write the packet
 		switch (write_size) {
- 442:	8e ef       	ldi	r24, 0xFE	; 254
+ 442:	fd cf       	rjmp	.-6      	; 0x43e <__vector_11+0x1ac>
 			case 18: UEDATX = *buffer++;
 			case 17: UEDATX = *buffer++;
 			#endif
 			#if (CDC_TX_SIZE >= 16)
 			case 16: UEDATX = *buffer++;
 			case 15: UEDATX = *buffer++;
- 444:	80 83       	st	Z, r24
- 446:	5a c0       	rjmp	.+180    	; 0x4fc <__vector_11+0x2e0>
- 448:	42 32       	cpi	r20, 0x22	; 34
- 44a:	71 f4       	brne	.+28     	; 0x468 <__vector_11+0x24c>
- 44c:	c1 32       	cpi	r28, 0x21	; 33
- 44e:	09 f0       	breq	.+2      	; 0x452 <__vector_11+0x236>
- 450:	4e c0       	rjmp	.+156    	; 0x4ee <__vector_11+0x2d2>
- 452:	20 93 08 01 	sts	0x0108, r18
+ 444:	80 91 0a 01 	lds	r24, 0x010A
+ 448:	80 93 f1 00 	sts	0x00F1, r24
+ 44c:	8e ef       	ldi	r24, 0xFE	; 254
+ 44e:	80 93 e8 00 	sts	0x00E8, r24
+ 452:	8f c0       	rjmp	.+286    	; 0x572 <__vector_11+0x2e0>
 			case 14: UEDATX = *buffer++;
- 456:	e8 ee       	ldi	r30, 0xE8	; 232
- 458:	f0 e0       	ldi	r31, 0x00	; 0
- 45a:	80 81       	ld	r24, Z
- 45c:	80 ff       	sbrs	r24, 0
- 45e:	fd cf       	rjmp	.-6      	; 0x45a <__vector_11+0x23e>
- 460:	8e ef       	ldi	r24, 0xFE	; 254
- 462:	80 93 e8 00 	sts	0x00E8, r24
-			case 13: UEDATX = *buffer++;
- 466:	4a c0       	rjmp	.+148    	; 0x4fc <__vector_11+0x2e0>
- 468:	41 11       	cpse	r20, r1
- 46a:	1a c0       	rjmp	.+52     	; 0x4a0 <__vector_11+0x284>
- 46c:	e8 ee       	ldi	r30, 0xE8	; 232
- 46e:	f0 e0       	ldi	r31, 0x00	; 0
- 470:	80 81       	ld	r24, Z
- 472:	80 ff       	sbrs	r24, 0
- 474:	fd cf       	rjmp	.-6      	; 0x470 <__vector_11+0x254>
-			case 12: UEDATX = *buffer++;
- 476:	c2 38       	cpi	r28, 0x82	; 130
- 478:	51 f4       	brne	.+20     	; 0x48e <__vector_11+0x272>
- 47a:	e9 ee       	ldi	r30, 0xE9	; 233
- 47c:	f0 e0       	ldi	r31, 0x00	; 0
- 47e:	60 83       	st	Z, r22
- 480:	80 91 eb 00 	lds	r24, 0x00EB
- 484:	85 fb       	bst	r24, 5
+ 454:	41 32       	cpi	r20, 0x21	; 33
+ 456:	b9 f4       	brne	.+46     	; 0x486 <__vector_11+0x1f4>
+ 458:	c1 3a       	cpi	r28, 0xA1	; 161
+ 45a:	09 f0       	breq	.+2      	; 0x45e <__vector_11+0x1cc>
+ 45c:	40 c0       	rjmp	.+128    	; 0x4de <__vector_11+0x24c>
+ 45e:	e8 ee       	ldi	r30, 0xE8	; 232
+ 460:	f0 e0       	ldi	r31, 0x00	; 0
+ 462:	80 81       	ld	r24, Z
 		write_size = CDC_TX_SIZE - UEBCLX;
 		if (write_size > size) write_size = size;
 		size -= write_size;
 
 		// write the packet
 		switch (write_size) {
- 486:	88 27       	eor	r24, r24
+ 464:	80 ff       	sbrs	r24, 0
+			#endif
+			#if (CDC_TX_SIZE >= 16)
+			case 16: UEDATX = *buffer++;
+			case 15: UEDATX = *buffer++;
+			case 14: UEDATX = *buffer++;
+			case 13: UEDATX = *buffer++;
+ 466:	fd cf       	rjmp	.-6      	; 0x462 <__vector_11+0x1d0>
+ 468:	e0 e0       	ldi	r30, 0x00	; 0
+ 46a:	f1 e0       	ldi	r31, 0x01	; 1
+ 46c:	87 e0       	ldi	r24, 0x07	; 7
+ 46e:	91 e0       	ldi	r25, 0x01	; 1
+ 470:	a1 ef       	ldi	r26, 0xF1	; 241
+ 472:	b0 e0       	ldi	r27, 0x00	; 0
+ 474:	21 91       	ld	r18, Z+
+			case 12: UEDATX = *buffer++;
+ 476:	2c 93       	st	X, r18
+ 478:	e8 17       	cp	r30, r24
+ 47a:	f9 07       	cpc	r31, r25
+ 47c:	d9 f7       	brne	.-10     	; 0x474 <__vector_11+0x1e2>
+ 47e:	8e ef       	ldi	r24, 0xFE	; 254
+ 480:	80 93 e8 00 	sts	0x00E8, r24
+ 484:	76 c0       	rjmp	.+236    	; 0x572 <__vector_11+0x2e0>
+		write_size = CDC_TX_SIZE - UEBCLX;
+		if (write_size > size) write_size = size;
+		size -= write_size;
+
+		// write the packet
+		switch (write_size) {
+ 486:	40 32       	cpi	r20, 0x20	; 32
 			case 16: UEDATX = *buffer++;
 			case 15: UEDATX = *buffer++;
 			case 14: UEDATX = *buffer++;
 			case 13: UEDATX = *buffer++;
 			case 12: UEDATX = *buffer++;
 			case 11: UEDATX = *buffer++;
- 488:	80 f9       	bld	r24, 0
- 48a:	10 82       	st	Z, r1
- 48c:	01 c0       	rjmp	.+2      	; 0x490 <__vector_11+0x274>
- 48e:	80 e0       	ldi	r24, 0x00	; 0
- 490:	e1 ef       	ldi	r30, 0xF1	; 241
+ 488:	d1 f4       	brne	.+52     	; 0x4be <__vector_11+0x22c>
+ 48a:	c1 32       	cpi	r28, 0x21	; 33
+ 48c:	09 f0       	breq	.+2      	; 0x490 <__vector_11+0x1fe>
+ 48e:	43 c0       	rjmp	.+134    	; 0x516 <__vector_11+0x284>
+ 490:	e8 ee       	ldi	r30, 0xE8	; 232
  492:	f0 e0       	ldi	r31, 0x00	; 0
- 494:	80 83       	st	Z, r24
- 496:	10 82       	st	Z, r1
+ 494:	80 81       	ld	r24, Z
+ 496:	82 ff       	sbrs	r24, 2
 			case 10: UEDATX = *buffer++;
- 498:	8e ef       	ldi	r24, 0xFE	; 254
- 49a:	80 93 e8 00 	sts	0x00E8, r24
- 49e:	2e c0       	rjmp	.+92     	; 0x4fc <__vector_11+0x2e0>
- 4a0:	84 2f       	mov	r24, r20
- 4a2:	8d 7f       	andi	r24, 0xFD	; 253
- 4a4:	81 30       	cpi	r24, 0x01	; 1
- 4a6:	19 f5       	brne	.+70     	; 0x4ee <__vector_11+0x2d2>
+ 498:	fd cf       	rjmp	.-6      	; 0x494 <__vector_11+0x202>
+ 49a:	e0 e0       	ldi	r30, 0x00	; 0
+ 49c:	f1 e0       	ldi	r31, 0x01	; 1
+ 49e:	87 e0       	ldi	r24, 0x07	; 7
+ 4a0:	91 e0       	ldi	r25, 0x01	; 1
+ 4a2:	a1 ef       	ldi	r26, 0xF1	; 241
+ 4a4:	b0 e0       	ldi	r27, 0x00	; 0
+ 4a6:	2c 91       	ld	r18, X
 		write_size = CDC_TX_SIZE - UEBCLX;
 		if (write_size > size) write_size = size;
 		size -= write_size;
 
 		// write the packet
 		switch (write_size) {
- 4a8:	c2 30       	cpi	r28, 0x02	; 2
+ 4a8:	21 93       	st	Z+, r18
 			case 14: UEDATX = *buffer++;
 			case 13: UEDATX = *buffer++;
 			case 12: UEDATX = *buffer++;
 			case 11: UEDATX = *buffer++;
 			case 10: UEDATX = *buffer++;
 			case  9: UEDATX = *buffer++;
- 4aa:	09 f5       	brne	.+66     	; 0x4ee <__vector_11+0x2d2>
- 4ac:	23 2b       	or	r18, r19
- 4ae:	f9 f4       	brne	.+62     	; 0x4ee <__vector_11+0x2d2>
- 4b0:	6f 77       	andi	r22, 0x7F	; 127
- 4b2:	8f ef       	ldi	r24, 0xFF	; 255
- 4b4:	86 0f       	add	r24, r22
- 4b6:	84 30       	cpi	r24, 0x04	; 4
- 4b8:	d0 f4       	brcc	.+52     	; 0x4ee <__vector_11+0x2d2>
+ 4aa:	e8 17       	cp	r30, r24
+ 4ac:	f9 07       	cpc	r31, r25
+ 4ae:	d9 f7       	brne	.-10     	; 0x4a6 <__vector_11+0x214>
+ 4b0:	e8 ee       	ldi	r30, 0xE8	; 232
+ 4b2:	f0 e0       	ldi	r31, 0x00	; 0
+ 4b4:	8b ef       	ldi	r24, 0xFB	; 251
+ 4b6:	80 83       	st	Z, r24
+ 4b8:	8e ef       	ldi	r24, 0xFE	; 254
 			#endif
 			case  8: UEDATX = *buffer++;
- 4ba:	8e ef       	ldi	r24, 0xFE	; 254
- 4bc:	80 93 e8 00 	sts	0x00E8, r24
- 4c0:	60 93 e9 00 	sts	0x00E9, r22
- 4c4:	43 30       	cpi	r20, 0x03	; 3
- 4c6:	21 f4       	brne	.+8      	; 0x4d0 <__vector_11+0x2b4>
- 4c8:	81 e2       	ldi	r24, 0x21	; 33
-		write_size = CDC_TX_SIZE - UEBCLX;
-		if (write_size > size) write_size = size;
-		size -= write_size;
-
-		// write the packet
-		switch (write_size) {
- 4ca:	80 93 eb 00 	sts	0x00EB, r24
-			case 11: UEDATX = *buffer++;
-			case 10: UEDATX = *buffer++;
-			case  9: UEDATX = *buffer++;
-			#endif
-			case  8: UEDATX = *buffer++;
+ 4ba:	80 83       	st	Z, r24
+ 4bc:	5a c0       	rjmp	.+180    	; 0x572 <__vector_11+0x2e0>
+ 4be:	42 32       	cpi	r20, 0x22	; 34
+ 4c0:	71 f4       	brne	.+28     	; 0x4de <__vector_11+0x24c>
+ 4c2:	c1 32       	cpi	r28, 0x21	; 33
+ 4c4:	09 f0       	breq	.+2      	; 0x4c8 <__vector_11+0x236>
+ 4c6:	4e c0       	rjmp	.+156    	; 0x564 <__vector_11+0x2d2>
+ 4c8:	20 93 08 01 	sts	0x0108, r18
 			case  7: UEDATX = *buffer++;
- 4ce:	16 c0       	rjmp	.+44     	; 0x4fc <__vector_11+0x2e0>
- 4d0:	89 e1       	ldi	r24, 0x19	; 25
- 4d2:	80 93 eb 00 	sts	0x00EB, r24
- 4d6:	81 e0       	ldi	r24, 0x01	; 1
- 4d8:	90 e0       	ldi	r25, 0x00	; 0
- 4da:	02 c0       	rjmp	.+4      	; 0x4e0 <__vector_11+0x2c4>
+ 4cc:	e8 ee       	ldi	r30, 0xE8	; 232
+ 4ce:	f0 e0       	ldi	r31, 0x00	; 0
+ 4d0:	80 81       	ld	r24, Z
+ 4d2:	80 ff       	sbrs	r24, 0
+ 4d4:	fd cf       	rjmp	.-6      	; 0x4d0 <__vector_11+0x23e>
+ 4d6:	8e ef       	ldi	r24, 0xFE	; 254
+ 4d8:	80 93 e8 00 	sts	0x00E8, r24
 			case  6: UEDATX = *buffer++;
- 4dc:	88 0f       	add	r24, r24
- 4de:	99 1f       	adc	r25, r25
- 4e0:	6a 95       	dec	r22
- 4e2:	e2 f7       	brpl	.-8      	; 0x4dc <__vector_11+0x2c0>
- 4e4:	ea ee       	ldi	r30, 0xEA	; 234
- 4e6:	f0 e0       	ldi	r31, 0x00	; 0
- 4e8:	80 83       	st	Z, r24
- 4ea:	10 82       	st	Z, r1
+ 4dc:	4a c0       	rjmp	.+148    	; 0x572 <__vector_11+0x2e0>
+ 4de:	41 11       	cpse	r20, r1
+ 4e0:	1a c0       	rjmp	.+52     	; 0x516 <__vector_11+0x284>
+ 4e2:	e8 ee       	ldi	r30, 0xE8	; 232
+ 4e4:	f0 e0       	ldi	r31, 0x00	; 0
+ 4e6:	80 81       	ld	r24, Z
+ 4e8:	80 ff       	sbrs	r24, 0
+ 4ea:	fd cf       	rjmp	.-6      	; 0x4e6 <__vector_11+0x254>
 		write_size = CDC_TX_SIZE - UEBCLX;
 		if (write_size > size) write_size = size;
 		size -= write_size;
 
 		// write the packet
 		switch (write_size) {
- 4ec:	07 c0       	rjmp	.+14     	; 0x4fc <__vector_11+0x2e0>
+ 4ec:	c2 38       	cpi	r28, 0x82	; 130
 			case  9: UEDATX = *buffer++;
 			#endif
 			case  8: UEDATX = *buffer++;
 			case  7: UEDATX = *buffer++;
 			case  6: UEDATX = *buffer++;
 			case  5: UEDATX = *buffer++;
- 4ee:	81 e2       	ldi	r24, 0x21	; 33
- 4f0:	80 93 eb 00 	sts	0x00EB, r24
- 4f4:	03 c0       	rjmp	.+6      	; 0x4fc <__vector_11+0x2e0>
- 4f6:	6c 93       	st	X, r22
- 4f8:	51 11       	cpse	r21, r1
- 4fa:	f6 ce       	rjmp	.-532    	; 0x2e8 <__vector_11+0xcc>
- 4fc:	ff 91       	pop	r31
+ 4ee:	51 f4       	brne	.+20     	; 0x504 <__vector_11+0x272>
+ 4f0:	e9 ee       	ldi	r30, 0xE9	; 233
+ 4f2:	f0 e0       	ldi	r31, 0x00	; 0
+ 4f4:	60 83       	st	Z, r22
+ 4f6:	80 91 eb 00 	lds	r24, 0x00EB
+ 4fa:	85 fb       	bst	r24, 5
+ 4fc:	88 27       	eor	r24, r24
 			case  4: UEDATX = *buffer++;
- 4fe:	ef 91       	pop	r30
- 500:	df 91       	pop	r29
- 502:	cf 91       	pop	r28
- 504:	bf 91       	pop	r27
- 506:	af 91       	pop	r26
- 508:	9f 91       	pop	r25
- 50a:	8f 91       	pop	r24
- 50c:	7f 91       	pop	r23
+ 4fe:	80 f9       	bld	r24, 0
+ 500:	10 82       	st	Z, r1
+ 502:	01 c0       	rjmp	.+2      	; 0x506 <__vector_11+0x274>
+ 504:	80 e0       	ldi	r24, 0x00	; 0
+ 506:	e1 ef       	ldi	r30, 0xF1	; 241
+ 508:	f0 e0       	ldi	r31, 0x00	; 0
+ 50a:	80 83       	st	Z, r24
+ 50c:	10 82       	st	Z, r1
 		write_size = CDC_TX_SIZE - UEBCLX;
 		if (write_size > size) write_size = size;
 		size -= write_size;
 
 		// write the packet
 		switch (write_size) {
- 50e:	6f 91       	pop	r22
+ 50e:	8e ef       	ldi	r24, 0xFE	; 254
 			case  8: UEDATX = *buffer++;
 			case  7: UEDATX = *buffer++;
 			case  6: UEDATX = *buffer++;
 			case  5: UEDATX = *buffer++;
 			case  4: UEDATX = *buffer++;
 			case  3: UEDATX = *buffer++;
- 510:	5f 91       	pop	r21
- 512:	4f 91       	pop	r20
- 514:	3f 91       	pop	r19
- 516:	2f 91       	pop	r18
- 518:	1f 91       	pop	r17
- 51a:	0f 91       	pop	r16
- 51c:	0f 90       	pop	r0
- 51e:	0f be       	out	0x3f, r0	; 63
+ 510:	80 93 e8 00 	sts	0x00E8, r24
+ 514:	2e c0       	rjmp	.+92     	; 0x572 <__vector_11+0x2e0>
+ 516:	84 2f       	mov	r24, r20
+ 518:	8d 7f       	andi	r24, 0xFD	; 253
+ 51a:	81 30       	cpi	r24, 0x01	; 1
+ 51c:	19 f5       	brne	.+70     	; 0x564 <__vector_11+0x2d2>
+ 51e:	c2 30       	cpi	r28, 0x02	; 2
 			case  2: UEDATX = *buffer++;
- 520:	0f 90       	pop	r0
- 522:	1f 90       	pop	r1
- 524:	18 95       	reti
+ 520:	09 f5       	brne	.+66     	; 0x564 <__vector_11+0x2d2>
+ 522:	23 2b       	or	r18, r19
+ 524:	f9 f4       	brne	.+62     	; 0x564 <__vector_11+0x2d2>
+ 526:	6f 77       	andi	r22, 0x7F	; 127
+ 528:	8f ef       	ldi	r24, 0xFF	; 255
+ 52a:	86 0f       	add	r24, r22
+ 52c:	84 30       	cpi	r24, 0x04	; 4
+ 52e:	d0 f4       	brcc	.+52     	; 0x564 <__vector_11+0x2d2>
+		write_size = CDC_TX_SIZE - UEBCLX;
+		if (write_size > size) write_size = size;
+		size -= write_size;
 
-00000526 <_exit>:
- 526:	f8 94       	cli
+		// write the packet
+		switch (write_size) {
+ 530:	8e ef       	ldi	r24, 0xFE	; 254
+			case  5: UEDATX = *buffer++;
+			case  4: UEDATX = *buffer++;
+			case  3: UEDATX = *buffer++;
+			case  2: UEDATX = *buffer++;
+			default:
+			case  1: UEDATX = *buffer++;
+ 532:	80 93 e8 00 	sts	0x00E8, r24
+ 536:	60 93 e9 00 	sts	0x00E9, r22
+ 53a:	43 30       	cpi	r20, 0x03	; 3
+ 53c:	21 f4       	brne	.+8      	; 0x546 <__vector_11+0x2b4>
+ 53e:	81 e2       	ldi	r24, 0x21	; 33
+ 540:	80 93 eb 00 	sts	0x00EB, r24
+			case  0: break;
+		}
+		// if this completed a packet, transmit it now!
+		if (!(UEINTX & (1<<RWAL))) UEINTX = 0x3A;
+ 544:	16 c0       	rjmp	.+44     	; 0x572 <__vector_11+0x2e0>
+ 546:	89 e1       	ldi	r24, 0x19	; 25
+ 548:	80 93 eb 00 	sts	0x00EB, r24
+		transmit_flush_timer = TRANSMIT_FLUSH_TIMEOUT;
+ 54c:	81 e0       	ldi	r24, 0x01	; 1
+			return -1;
+		}
+		transmit_previous_timeout = 0;
+	}
+	// each iteration of this loop transmits a packet
+	while (size) {
+ 54e:	90 e0       	ldi	r25, 0x00	; 0
+ 550:	02 c0       	rjmp	.+4      	; 0x556 <__vector_11+0x2c4>
+ 552:	88 0f       	add	r24, r24
+ 554:	99 1f       	adc	r25, r25
+		}
+		// if this completed a packet, transmit it now!
+		if (!(UEINTX & (1<<RWAL))) UEINTX = 0x3A;
+		transmit_flush_timer = TRANSMIT_FLUSH_TIMEOUT;
+	}
+	SREG = intr_state;
+ 556:	6a 95       	dec	r22
+	return 0;
+ 558:	e2 f7       	brpl	.-8      	; 0x552 <__vector_11+0x2c0>
+ 55a:	ea ee       	ldi	r30, 0xEA	; 234
+int8_t usb_serial_write(const uint8_t *buffer, uint16_t size)
+{
+	uint8_t timeout, intr_state, write_size;
 
-00000528 <__stop_program>:
- 528:	ff cf       	rjmp	.-2      	; 0x528 <__stop_program>
+	// if we're not online (enumerated and configured), error
+	if (!usb_configuration) return -1;
+ 55c:	f0 e0       	ldi	r31, 0x00	; 0
+ 55e:	80 83       	st	Z, r24
+			if (UDFNUML == timeout) {
+				transmit_previous_timeout = 1;
+				return -1;
+			}
+			// has the USB gone offline?
+			if (!usb_configuration) return -1;
+ 560:	10 82       	st	Z, r1
+ 562:	07 c0       	rjmp	.+14     	; 0x572 <__vector_11+0x2e0>
+ 564:	81 e2       	ldi	r24, 0x21	; 33
+		if (!(UEINTX & (1<<RWAL))) UEINTX = 0x3A;
+		transmit_flush_timer = TRANSMIT_FLUSH_TIMEOUT;
+	}
+	SREG = intr_state;
+	return 0;
+}
+ 566:	80 93 eb 00 	sts	0x00EB, r24
+ 56a:	03 c0       	rjmp	.+6      	; 0x572 <__vector_11+0x2e0>
+ 56c:	6c 93       	st	X, r22
+ 56e:	51 11       	cpse	r21, r1
+ 570:	f6 ce       	rjmp	.-532    	; 0x35e <__vector_11+0xcc>
+ 572:	ff 91       	pop	r31
+ 574:	ef 91       	pop	r30
+ 576:	df 91       	pop	r29
+ 578:	cf 91       	pop	r28
+ 57a:	bf 91       	pop	r27
+ 57c:	af 91       	pop	r26
+ 57e:	9f 91       	pop	r25
+ 580:	8f 91       	pop	r24
+ 582:	7f 91       	pop	r23
+ 584:	6f 91       	pop	r22
+ 586:	5f 91       	pop	r21
+ 588:	4f 91       	pop	r20
+			}
+		}
+		#endif
+        }
+	UECONX = (1<<STALLRQ) | (1<<EPEN);	// stall
+}
+ 58a:	3f 91       	pop	r19
+ 58c:	2f 91       	pop	r18
+ 58e:	1f 91       	pop	r17
+ 590:	0f 91       	pop	r16
+ 592:	0f 90       	pop	r0
+ 594:	0f be       	out	0x3f, r0	; 63
+ 596:	0f 90       	pop	r0
+ 598:	1f 90       	pop	r1
+ 59a:	18 95       	reti
+
+0000059c <start_pwm1>:
+#include "timer1.h"
+
+
+volatile uint16_t _max_value1 = 0;
+
+void start_pwm1(uint16_t resolution, float duty_cycle) {
+ 59c:	cf 92       	push	r12
+ 59e:	df 92       	push	r13
+ 5a0:	ef 92       	push	r14
+ 5a2:	ff 92       	push	r15
+ 5a4:	6a 01       	movw	r12, r20
+ 5a6:	7b 01       	movw	r14, r22
+  _max_value1 = resolution; //save resolution
+ 5a8:	90 93 0c 01 	sts	0x010C, r25
+ 5ac:	80 93 0b 01 	sts	0x010B, r24
+
+  OCR1A = resolution;  //frequency
+ 5b0:	90 93 89 00 	sts	0x0089, r25
+ 5b4:	80 93 88 00 	sts	0x0088, r24
+  OCR1B = (uint16_t)(((float)resolution) * duty_cycle); //duty cycle
+ 5b8:	bc 01       	movw	r22, r24
+ 5ba:	80 e0       	ldi	r24, 0x00	; 0
+ 5bc:	90 e0       	ldi	r25, 0x00	; 0
+ 5be:	0e 94 7e 03 	call	0x6fc	; 0x6fc <__floatunsisf>
+ 5c2:	a7 01       	movw	r20, r14
+ 5c4:	96 01       	movw	r18, r12
+ 5c6:	0e 94 0c 04 	call	0x818	; 0x818 <__mulsf3>
+ 5ca:	0e 94 52 03 	call	0x6a4	; 0x6a4 <__fixunssfsi>
+ 5ce:	70 93 8b 00 	sts	0x008B, r23
+ 5d2:	60 93 8a 00 	sts	0x008A, r22
+
+  //timer mode: 15 -> 1111
+  set(TCCR1B, WGM13); //1
+ 5d6:	e1 e8       	ldi	r30, 0x81	; 129
+ 5d8:	f0 e0       	ldi	r31, 0x00	; 0
+ 5da:	80 81       	ld	r24, Z
+ 5dc:	80 61       	ori	r24, 0x10	; 16
+ 5de:	80 83       	st	Z, r24
+  set(TCCR1B, WGM12); //1
+ 5e0:	80 81       	ld	r24, Z
+ 5e2:	88 60       	ori	r24, 0x08	; 8
+ 5e4:	80 83       	st	Z, r24
+  set(TCCR1A, WGM11); //1
+ 5e6:	a0 e8       	ldi	r26, 0x80	; 128
+ 5e8:	b0 e0       	ldi	r27, 0x00	; 0
+ 5ea:	8c 91       	ld	r24, X
+ 5ec:	82 60       	ori	r24, 0x02	; 2
+ 5ee:	8c 93       	st	X, r24
+  set(TCCR1A, WGM10); //1
+ 5f0:	8c 91       	ld	r24, X
+ 5f2:	81 60       	ori	r24, 0x01	; 1
+ 5f4:	8c 93       	st	X, r24
+
+  //output options B6: 11
+  set(TCCR1A, COM1B1);   //1
+ 5f6:	8c 91       	ld	r24, X
+ 5f8:	80 62       	ori	r24, 0x20	; 32
+ 5fa:	8c 93       	st	X, r24
+  clear(TCCR1A, COM1B0); //0
+ 5fc:	8c 91       	ld	r24, X
+ 5fe:	8f 7e       	andi	r24, 0xEF	; 239
+ 600:	8c 93       	st	X, r24
+
+  //clock prescaler: /8 -> 010
+  clear(TCCR1B, CS12);    //0
+ 602:	80 81       	ld	r24, Z
+ 604:	8b 7f       	andi	r24, 0xFB	; 251
+ 606:	80 83       	st	Z, r24
+  set(TCCR1B, CS11);  //1
+ 608:	80 81       	ld	r24, Z
+ 60a:	82 60       	ori	r24, 0x02	; 2
+ 60c:	80 83       	st	Z, r24
+  clear(TCCR1B, CS10);  //0
+ 60e:	80 81       	ld	r24, Z
+ 610:	8e 7f       	andi	r24, 0xFE	; 254
+ 612:	80 83       	st	Z, r24
+  set(DDRB, 6); //set port B6 output
+ 614:	26 9a       	sbi	0x04, 6	; 4
+}
+ 616:	ff 90       	pop	r15
+ 618:	ef 90       	pop	r14
+ 61a:	df 90       	pop	r13
+ 61c:	cf 90       	pop	r12
+ 61e:	08 95       	ret
+
+00000620 <start_pwm3>:
+#include "timer3.h"
+
+
+volatile uint16_t _max_value3 = 0;
+
+void start_pwm3(uint16_t resolution, float duty_cycle) {
+ 620:	cf 92       	push	r12
+ 622:	df 92       	push	r13
+ 624:	ef 92       	push	r14
+ 626:	ff 92       	push	r15
+ 628:	6a 01       	movw	r12, r20
+ 62a:	7b 01       	movw	r14, r22
+  _max_value3 = resolution; //save resolution
+ 62c:	90 93 0e 01 	sts	0x010E, r25
+ 630:	80 93 0d 01 	sts	0x010D, r24
+
+  ICR3 = resolution;  //frequency
+ 634:	90 93 97 00 	sts	0x0097, r25
+ 638:	80 93 96 00 	sts	0x0096, r24
+  OCR3A = (uint16_t)(((float)resolution) * duty_cycle); //duty cycle
+ 63c:	bc 01       	movw	r22, r24
+ 63e:	80 e0       	ldi	r24, 0x00	; 0
+ 640:	90 e0       	ldi	r25, 0x00	; 0
+ 642:	0e 94 7e 03 	call	0x6fc	; 0x6fc <__floatunsisf>
+ 646:	a7 01       	movw	r20, r14
+ 648:	96 01       	movw	r18, r12
+ 64a:	0e 94 0c 04 	call	0x818	; 0x818 <__mulsf3>
+ 64e:	0e 94 52 03 	call	0x6a4	; 0x6a4 <__fixunssfsi>
+ 652:	70 93 99 00 	sts	0x0099, r23
+ 656:	60 93 98 00 	sts	0x0098, r22
+
+  //timer mode: 14 -> 1110
+  set(TCCR3B, WGM33); //1
+ 65a:	e1 e9       	ldi	r30, 0x91	; 145
+ 65c:	f0 e0       	ldi	r31, 0x00	; 0
+ 65e:	80 81       	ld	r24, Z
+ 660:	80 61       	ori	r24, 0x10	; 16
+ 662:	80 83       	st	Z, r24
+  set(TCCR3B, WGM32); //1
+ 664:	80 81       	ld	r24, Z
+ 666:	88 60       	ori	r24, 0x08	; 8
+ 668:	80 83       	st	Z, r24
+  set(TCCR3A, WGM31); //1
+ 66a:	a0 e9       	ldi	r26, 0x90	; 144
+ 66c:	b0 e0       	ldi	r27, 0x00	; 0
+ 66e:	8c 91       	ld	r24, X
+ 670:	82 60       	ori	r24, 0x02	; 2
+ 672:	8c 93       	st	X, r24
+  clear(TCCR3A, WGM30); //0
+ 674:	8c 91       	ld	r24, X
+ 676:	8e 7f       	andi	r24, 0xFE	; 254
+ 678:	8c 93       	st	X, r24
+
+  //output options C6: 10
+  set(TCCR3A, COM3A1);   //1
+ 67a:	8c 91       	ld	r24, X
+ 67c:	80 68       	ori	r24, 0x80	; 128
+ 67e:	8c 93       	st	X, r24
+  clear(TCCR3A, COM3A0); //0
+ 680:	8c 91       	ld	r24, X
+ 682:	8f 7b       	andi	r24, 0xBF	; 191
+ 684:	8c 93       	st	X, r24
+
+  //clock prescaler: /8 -> 010
+  clear(TCCR3B, CS32);    //0
+ 686:	80 81       	ld	r24, Z
+ 688:	8b 7f       	andi	r24, 0xFB	; 251
+ 68a:	80 83       	st	Z, r24
+  set(TCCR3B, CS31);  //1
+ 68c:	80 81       	ld	r24, Z
+ 68e:	82 60       	ori	r24, 0x02	; 2
+ 690:	80 83       	st	Z, r24
+  clear(TCCR3B, CS30);  //0
+ 692:	80 81       	ld	r24, Z
+ 694:	8e 7f       	andi	r24, 0xFE	; 254
+ 696:	80 83       	st	Z, r24
+  set(DDRC, 6); //set port C6 output
+ 698:	3e 9a       	sbi	0x07, 6	; 7
+}
+ 69a:	ff 90       	pop	r15
+ 69c:	ef 90       	pop	r14
+ 69e:	df 90       	pop	r13
+ 6a0:	cf 90       	pop	r12
+ 6a2:	08 95       	ret
+
+000006a4 <__fixunssfsi>:
+ 6a4:	98 d0       	rcall	.+304    	; 0x7d6 <__fp_splitA>
+ 6a6:	88 f0       	brcs	.+34     	; 0x6ca <__fixunssfsi+0x26>
+ 6a8:	9f 57       	subi	r25, 0x7F	; 127
+ 6aa:	90 f0       	brcs	.+36     	; 0x6d0 <__fixunssfsi+0x2c>
+ 6ac:	b9 2f       	mov	r27, r25
+ 6ae:	99 27       	eor	r25, r25
+ 6b0:	b7 51       	subi	r27, 0x17	; 23
+ 6b2:	a0 f0       	brcs	.+40     	; 0x6dc <__fixunssfsi+0x38>
+ 6b4:	d1 f0       	breq	.+52     	; 0x6ea <__fixunssfsi+0x46>
+ 6b6:	66 0f       	add	r22, r22
+ 6b8:	77 1f       	adc	r23, r23
+ 6ba:	88 1f       	adc	r24, r24
+ 6bc:	99 1f       	adc	r25, r25
+ 6be:	1a f0       	brmi	.+6      	; 0x6c6 <__fixunssfsi+0x22>
+ 6c0:	ba 95       	dec	r27
+ 6c2:	c9 f7       	brne	.-14     	; 0x6b6 <__fixunssfsi+0x12>
+ 6c4:	12 c0       	rjmp	.+36     	; 0x6ea <__fixunssfsi+0x46>
+ 6c6:	b1 30       	cpi	r27, 0x01	; 1
+ 6c8:	81 f0       	breq	.+32     	; 0x6ea <__fixunssfsi+0x46>
+ 6ca:	9f d0       	rcall	.+318    	; 0x80a <__fp_zero>
+ 6cc:	b1 e0       	ldi	r27, 0x01	; 1
+ 6ce:	08 95       	ret
+ 6d0:	9c c0       	rjmp	.+312    	; 0x80a <__fp_zero>
+ 6d2:	67 2f       	mov	r22, r23
+ 6d4:	78 2f       	mov	r23, r24
+ 6d6:	88 27       	eor	r24, r24
+ 6d8:	b8 5f       	subi	r27, 0xF8	; 248
+ 6da:	39 f0       	breq	.+14     	; 0x6ea <__fixunssfsi+0x46>
+ 6dc:	b9 3f       	cpi	r27, 0xF9	; 249
+ 6de:	cc f3       	brlt	.-14     	; 0x6d2 <__fixunssfsi+0x2e>
+ 6e0:	86 95       	lsr	r24
+ 6e2:	77 95       	ror	r23
+ 6e4:	67 95       	ror	r22
+ 6e6:	b3 95       	inc	r27
+ 6e8:	d9 f7       	brne	.-10     	; 0x6e0 <__fixunssfsi+0x3c>
+ 6ea:	3e f4       	brtc	.+14     	; 0x6fa <__fixunssfsi+0x56>
+ 6ec:	90 95       	com	r25
+ 6ee:	80 95       	com	r24
+ 6f0:	70 95       	com	r23
+ 6f2:	61 95       	neg	r22
+ 6f4:	7f 4f       	sbci	r23, 0xFF	; 255
+ 6f6:	8f 4f       	sbci	r24, 0xFF	; 255
+ 6f8:	9f 4f       	sbci	r25, 0xFF	; 255
+ 6fa:	08 95       	ret
+
+000006fc <__floatunsisf>:
+ 6fc:	e8 94       	clt
+ 6fe:	09 c0       	rjmp	.+18     	; 0x712 <__floatsisf+0x12>
+
+00000700 <__floatsisf>:
+ 700:	97 fb       	bst	r25, 7
+ 702:	3e f4       	brtc	.+14     	; 0x712 <__floatsisf+0x12>
+ 704:	90 95       	com	r25
+ 706:	80 95       	com	r24
+ 708:	70 95       	com	r23
+ 70a:	61 95       	neg	r22
+ 70c:	7f 4f       	sbci	r23, 0xFF	; 255
+ 70e:	8f 4f       	sbci	r24, 0xFF	; 255
+ 710:	9f 4f       	sbci	r25, 0xFF	; 255
+ 712:	99 23       	and	r25, r25
+ 714:	a9 f0       	breq	.+42     	; 0x740 <__floatsisf+0x40>
+ 716:	f9 2f       	mov	r31, r25
+ 718:	96 e9       	ldi	r25, 0x96	; 150
+ 71a:	bb 27       	eor	r27, r27
+ 71c:	93 95       	inc	r25
+ 71e:	f6 95       	lsr	r31
+ 720:	87 95       	ror	r24
+ 722:	77 95       	ror	r23
+ 724:	67 95       	ror	r22
+ 726:	b7 95       	ror	r27
+ 728:	f1 11       	cpse	r31, r1
+ 72a:	f8 cf       	rjmp	.-16     	; 0x71c <__floatsisf+0x1c>
+ 72c:	fa f4       	brpl	.+62     	; 0x76c <__floatsisf+0x6c>
+ 72e:	bb 0f       	add	r27, r27
+ 730:	11 f4       	brne	.+4      	; 0x736 <__floatsisf+0x36>
+ 732:	60 ff       	sbrs	r22, 0
+ 734:	1b c0       	rjmp	.+54     	; 0x76c <__floatsisf+0x6c>
+ 736:	6f 5f       	subi	r22, 0xFF	; 255
+ 738:	7f 4f       	sbci	r23, 0xFF	; 255
+ 73a:	8f 4f       	sbci	r24, 0xFF	; 255
+ 73c:	9f 4f       	sbci	r25, 0xFF	; 255
+ 73e:	16 c0       	rjmp	.+44     	; 0x76c <__floatsisf+0x6c>
+ 740:	88 23       	and	r24, r24
+ 742:	11 f0       	breq	.+4      	; 0x748 <__floatsisf+0x48>
+ 744:	96 e9       	ldi	r25, 0x96	; 150
+ 746:	11 c0       	rjmp	.+34     	; 0x76a <__floatsisf+0x6a>
+ 748:	77 23       	and	r23, r23
+ 74a:	21 f0       	breq	.+8      	; 0x754 <__floatsisf+0x54>
+ 74c:	9e e8       	ldi	r25, 0x8E	; 142
+ 74e:	87 2f       	mov	r24, r23
+ 750:	76 2f       	mov	r23, r22
+ 752:	05 c0       	rjmp	.+10     	; 0x75e <__floatsisf+0x5e>
+ 754:	66 23       	and	r22, r22
+ 756:	71 f0       	breq	.+28     	; 0x774 <__floatsisf+0x74>
+ 758:	96 e8       	ldi	r25, 0x86	; 134
+ 75a:	86 2f       	mov	r24, r22
+ 75c:	70 e0       	ldi	r23, 0x00	; 0
+ 75e:	60 e0       	ldi	r22, 0x00	; 0
+ 760:	2a f0       	brmi	.+10     	; 0x76c <__floatsisf+0x6c>
+ 762:	9a 95       	dec	r25
+ 764:	66 0f       	add	r22, r22
+ 766:	77 1f       	adc	r23, r23
+ 768:	88 1f       	adc	r24, r24
+ 76a:	da f7       	brpl	.-10     	; 0x762 <__floatsisf+0x62>
+ 76c:	88 0f       	add	r24, r24
+ 76e:	96 95       	lsr	r25
+ 770:	87 95       	ror	r24
+ 772:	97 f9       	bld	r25, 7
+ 774:	08 95       	ret
+
+00000776 <__fp_inf>:
+ 776:	97 f9       	bld	r25, 7
+ 778:	9f 67       	ori	r25, 0x7F	; 127
+ 77a:	80 e8       	ldi	r24, 0x80	; 128
+ 77c:	70 e0       	ldi	r23, 0x00	; 0
+ 77e:	60 e0       	ldi	r22, 0x00	; 0
+ 780:	08 95       	ret
+
+00000782 <__fp_nan>:
+ 782:	9f ef       	ldi	r25, 0xFF	; 255
+ 784:	80 ec       	ldi	r24, 0xC0	; 192
+ 786:	08 95       	ret
+
+00000788 <__fp_pscA>:
+ 788:	00 24       	eor	r0, r0
+ 78a:	0a 94       	dec	r0
+ 78c:	16 16       	cp	r1, r22
+ 78e:	17 06       	cpc	r1, r23
+ 790:	18 06       	cpc	r1, r24
+ 792:	09 06       	cpc	r0, r25
+ 794:	08 95       	ret
+
+00000796 <__fp_pscB>:
+ 796:	00 24       	eor	r0, r0
+ 798:	0a 94       	dec	r0
+ 79a:	12 16       	cp	r1, r18
+ 79c:	13 06       	cpc	r1, r19
+ 79e:	14 06       	cpc	r1, r20
+ 7a0:	05 06       	cpc	r0, r21
+ 7a2:	08 95       	ret
+
+000007a4 <__fp_round>:
+ 7a4:	09 2e       	mov	r0, r25
+ 7a6:	03 94       	inc	r0
+ 7a8:	00 0c       	add	r0, r0
+ 7aa:	11 f4       	brne	.+4      	; 0x7b0 <__fp_round+0xc>
+ 7ac:	88 23       	and	r24, r24
+ 7ae:	52 f0       	brmi	.+20     	; 0x7c4 <__fp_round+0x20>
+ 7b0:	bb 0f       	add	r27, r27
+ 7b2:	40 f4       	brcc	.+16     	; 0x7c4 <__fp_round+0x20>
+ 7b4:	bf 2b       	or	r27, r31
+ 7b6:	11 f4       	brne	.+4      	; 0x7bc <__fp_round+0x18>
+ 7b8:	60 ff       	sbrs	r22, 0
+ 7ba:	04 c0       	rjmp	.+8      	; 0x7c4 <__fp_round+0x20>
+ 7bc:	6f 5f       	subi	r22, 0xFF	; 255
+ 7be:	7f 4f       	sbci	r23, 0xFF	; 255
+ 7c0:	8f 4f       	sbci	r24, 0xFF	; 255
+ 7c2:	9f 4f       	sbci	r25, 0xFF	; 255
+ 7c4:	08 95       	ret
+
+000007c6 <__fp_split3>:
+ 7c6:	57 fd       	sbrc	r21, 7
+ 7c8:	90 58       	subi	r25, 0x80	; 128
+ 7ca:	44 0f       	add	r20, r20
+ 7cc:	55 1f       	adc	r21, r21
+ 7ce:	59 f0       	breq	.+22     	; 0x7e6 <__fp_splitA+0x10>
+ 7d0:	5f 3f       	cpi	r21, 0xFF	; 255
+ 7d2:	71 f0       	breq	.+28     	; 0x7f0 <__fp_splitA+0x1a>
+ 7d4:	47 95       	ror	r20
+
+000007d6 <__fp_splitA>:
+ 7d6:	88 0f       	add	r24, r24
+ 7d8:	97 fb       	bst	r25, 7
+ 7da:	99 1f       	adc	r25, r25
+ 7dc:	61 f0       	breq	.+24     	; 0x7f6 <__fp_splitA+0x20>
+ 7de:	9f 3f       	cpi	r25, 0xFF	; 255
+ 7e0:	79 f0       	breq	.+30     	; 0x800 <__fp_splitA+0x2a>
+ 7e2:	87 95       	ror	r24
+ 7e4:	08 95       	ret
+ 7e6:	12 16       	cp	r1, r18
+ 7e8:	13 06       	cpc	r1, r19
+ 7ea:	14 06       	cpc	r1, r20
+ 7ec:	55 1f       	adc	r21, r21
+ 7ee:	f2 cf       	rjmp	.-28     	; 0x7d4 <__fp_split3+0xe>
+ 7f0:	46 95       	lsr	r20
+ 7f2:	f1 df       	rcall	.-30     	; 0x7d6 <__fp_splitA>
+ 7f4:	08 c0       	rjmp	.+16     	; 0x806 <__fp_splitA+0x30>
+ 7f6:	16 16       	cp	r1, r22
+ 7f8:	17 06       	cpc	r1, r23
+ 7fa:	18 06       	cpc	r1, r24
+ 7fc:	99 1f       	adc	r25, r25
+ 7fe:	f1 cf       	rjmp	.-30     	; 0x7e2 <__fp_splitA+0xc>
+ 800:	86 95       	lsr	r24
+ 802:	71 05       	cpc	r23, r1
+ 804:	61 05       	cpc	r22, r1
+ 806:	08 94       	sec
+ 808:	08 95       	ret
+
+0000080a <__fp_zero>:
+ 80a:	e8 94       	clt
+
+0000080c <__fp_szero>:
+ 80c:	bb 27       	eor	r27, r27
+ 80e:	66 27       	eor	r22, r22
+ 810:	77 27       	eor	r23, r23
+ 812:	cb 01       	movw	r24, r22
+ 814:	97 f9       	bld	r25, 7
+ 816:	08 95       	ret
+
+00000818 <__mulsf3>:
+ 818:	0b d0       	rcall	.+22     	; 0x830 <__mulsf3x>
+ 81a:	c4 cf       	rjmp	.-120    	; 0x7a4 <__fp_round>
+ 81c:	b5 df       	rcall	.-150    	; 0x788 <__fp_pscA>
+ 81e:	28 f0       	brcs	.+10     	; 0x82a <__mulsf3+0x12>
+ 820:	ba df       	rcall	.-140    	; 0x796 <__fp_pscB>
+ 822:	18 f0       	brcs	.+6      	; 0x82a <__mulsf3+0x12>
+ 824:	95 23       	and	r25, r21
+ 826:	09 f0       	breq	.+2      	; 0x82a <__mulsf3+0x12>
+ 828:	a6 cf       	rjmp	.-180    	; 0x776 <__fp_inf>
+ 82a:	ab cf       	rjmp	.-170    	; 0x782 <__fp_nan>
+ 82c:	11 24       	eor	r1, r1
+ 82e:	ee cf       	rjmp	.-36     	; 0x80c <__fp_szero>
+
+00000830 <__mulsf3x>:
+ 830:	ca df       	rcall	.-108    	; 0x7c6 <__fp_split3>
+ 832:	a0 f3       	brcs	.-24     	; 0x81c <__mulsf3+0x4>
+
+00000834 <__mulsf3_pse>:
+ 834:	95 9f       	mul	r25, r21
+ 836:	d1 f3       	breq	.-12     	; 0x82c <__mulsf3+0x14>
+ 838:	95 0f       	add	r25, r21
+ 83a:	50 e0       	ldi	r21, 0x00	; 0
+ 83c:	55 1f       	adc	r21, r21
+ 83e:	62 9f       	mul	r22, r18
+ 840:	f0 01       	movw	r30, r0
+ 842:	72 9f       	mul	r23, r18
+ 844:	bb 27       	eor	r27, r27
+ 846:	f0 0d       	add	r31, r0
+ 848:	b1 1d       	adc	r27, r1
+ 84a:	63 9f       	mul	r22, r19
+ 84c:	aa 27       	eor	r26, r26
+ 84e:	f0 0d       	add	r31, r0
+ 850:	b1 1d       	adc	r27, r1
+ 852:	aa 1f       	adc	r26, r26
+ 854:	64 9f       	mul	r22, r20
+ 856:	66 27       	eor	r22, r22
+ 858:	b0 0d       	add	r27, r0
+ 85a:	a1 1d       	adc	r26, r1
+ 85c:	66 1f       	adc	r22, r22
+ 85e:	82 9f       	mul	r24, r18
+ 860:	22 27       	eor	r18, r18
+ 862:	b0 0d       	add	r27, r0
+ 864:	a1 1d       	adc	r26, r1
+ 866:	62 1f       	adc	r22, r18
+ 868:	73 9f       	mul	r23, r19
+ 86a:	b0 0d       	add	r27, r0
+ 86c:	a1 1d       	adc	r26, r1
+ 86e:	62 1f       	adc	r22, r18
+ 870:	83 9f       	mul	r24, r19
+ 872:	a0 0d       	add	r26, r0
+ 874:	61 1d       	adc	r22, r1
+ 876:	22 1f       	adc	r18, r18
+ 878:	74 9f       	mul	r23, r20
+ 87a:	33 27       	eor	r19, r19
+ 87c:	a0 0d       	add	r26, r0
+ 87e:	61 1d       	adc	r22, r1
+ 880:	23 1f       	adc	r18, r19
+ 882:	84 9f       	mul	r24, r20
+ 884:	60 0d       	add	r22, r0
+ 886:	21 1d       	adc	r18, r1
+ 888:	82 2f       	mov	r24, r18
+ 88a:	76 2f       	mov	r23, r22
+ 88c:	6a 2f       	mov	r22, r26
+ 88e:	11 24       	eor	r1, r1
+ 890:	9f 57       	subi	r25, 0x7F	; 127
+ 892:	50 40       	sbci	r21, 0x00	; 0
+ 894:	8a f0       	brmi	.+34     	; 0x8b8 <__mulsf3_pse+0x84>
+ 896:	e1 f0       	breq	.+56     	; 0x8d0 <__mulsf3_pse+0x9c>
+ 898:	88 23       	and	r24, r24
+ 89a:	4a f0       	brmi	.+18     	; 0x8ae <__mulsf3_pse+0x7a>
+ 89c:	ee 0f       	add	r30, r30
+ 89e:	ff 1f       	adc	r31, r31
+ 8a0:	bb 1f       	adc	r27, r27
+ 8a2:	66 1f       	adc	r22, r22
+ 8a4:	77 1f       	adc	r23, r23
+ 8a6:	88 1f       	adc	r24, r24
+ 8a8:	91 50       	subi	r25, 0x01	; 1
+ 8aa:	50 40       	sbci	r21, 0x00	; 0
+ 8ac:	a9 f7       	brne	.-22     	; 0x898 <__mulsf3_pse+0x64>
+ 8ae:	9e 3f       	cpi	r25, 0xFE	; 254
+ 8b0:	51 05       	cpc	r21, r1
+ 8b2:	70 f0       	brcs	.+28     	; 0x8d0 <__mulsf3_pse+0x9c>
+ 8b4:	60 cf       	rjmp	.-320    	; 0x776 <__fp_inf>
+ 8b6:	aa cf       	rjmp	.-172    	; 0x80c <__fp_szero>
+ 8b8:	5f 3f       	cpi	r21, 0xFF	; 255
+ 8ba:	ec f3       	brlt	.-6      	; 0x8b6 <__mulsf3_pse+0x82>
+ 8bc:	98 3e       	cpi	r25, 0xE8	; 232
+ 8be:	dc f3       	brlt	.-10     	; 0x8b6 <__mulsf3_pse+0x82>
+ 8c0:	86 95       	lsr	r24
+ 8c2:	77 95       	ror	r23
+ 8c4:	67 95       	ror	r22
+ 8c6:	b7 95       	ror	r27
+ 8c8:	f7 95       	ror	r31
+ 8ca:	e7 95       	ror	r30
+ 8cc:	9f 5f       	subi	r25, 0xFF	; 255
+ 8ce:	c1 f7       	brne	.-16     	; 0x8c0 <__mulsf3_pse+0x8c>
+ 8d0:	fe 2b       	or	r31, r30
+ 8d2:	88 0f       	add	r24, r24
+ 8d4:	91 1d       	adc	r25, r1
+ 8d6:	96 95       	lsr	r25
+ 8d8:	87 95       	ror	r24
+ 8da:	97 f9       	bld	r25, 7
+ 8dc:	08 95       	ret
+
+000008de <_exit>:
+ 8de:	f8 94       	cli
+
+000008e0 <__stop_program>:
+ 8e0:	ff cf       	rjmp	.-2      	; 0x8e0 <__stop_program>

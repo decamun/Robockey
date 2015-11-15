@@ -10,7 +10,7 @@ static float LOCALIZE_CENTER_XY[2];
 static float LOCALIZE_ANGLE;
 
 
-void localize(int data[12]) 
+void localize(int* data) 
 {
   static int remove[4] = {0, 0, 0, 0};
   int i = 0;
@@ -95,7 +95,7 @@ void localize(int data[12])
 }
 
 
-int* localize_location() {
+float* localize_location() {
 	float location[3] = {LOCALIZE_CENTER_XY[0], LOCALIZE_CENTER_XY[1], LOCALIZE_ANGLE};
   return location;
 }

@@ -5,40 +5,44 @@
  *  Author: Lars
  
  Get and Set functions for global variables that need to be accessible from any function
+ Definitions for states
  
  */ 
 
 #ifndef GLOBAL_VARIABLES
 #define GLOBAL_VARIABLES
 
-volatile enum STATE
+enum MAINSTATE
 {
-	state0 = 0,
-	state1, 
-	state2
-} current_state;
-	
-float *current_position; 
+	WAITING = 0,
+	STOPPED,
+	MOVING,
+};
 
-
-void setState(int state)
+enum PUKSTATE
 {
-	current_state = state;
-}
+	PUK_NDEF = 0,
+	TEAMMATE_HAS_PUK,
+	OPPONENT_HAS_PUK,
+	PUK_VISIBLE
+};
 
-enum STATE getState()
+enum MOVINGSTATE
 {
-	return current_state;
-}
+	MOVING_NDEF = 0,
+	LOOKING_FOR_PUK,
+	MOVING_TO_GOAL,
+	MOVING_TO_PUK,
+	MOVING_TO_OPPONENT,
+};
 
-void setPosition(float *pos)
-{
-	current_position = pos;
-}
-
-float *getPosition()
-{
-	return current_position;
-}
+static void setMainState(int state);
+static enum MAINSTATE getMainState();
+static void setPukState(int state);
+static enum PUKSTATE getPukState();
+static void setMovingState(int state);
+static enum MOVINGSTATE getMovingState();
+static void setPosition(float *pos);
+static float *getPosition();
 
 #endif
