@@ -14,25 +14,24 @@
 #include <stdint.h>
 
 
-
-void main() 
+void main()
 {
 	m_clockdivide(0);
-	
+
 	//driver board enable line
 	set(DDRB, 2); //enable output
-	set(PORTB, 2); //pull high 
-	
+	set(PORTB, 2); //pull high
+
 	//enable direction lines
 	set(DDRB, 1);
 	set(DDRB, 2);
-	
+
 	leftON(0.3, FORWARDS);
-	
+
 	rightON(0.3, FORWARDS);
-	
+
 	while (1)
-	{		
+	{
 
 	}
 }
