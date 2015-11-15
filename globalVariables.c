@@ -3,7 +3,7 @@
  *
  * Created: 14.11.2015 20:28:07
  *  Author: Lars
- */ 
+ */
 
 #include "globalVariables.h"
 

@@ -3,11 +3,11 @@
  *
  * Created: 14.11.2015 14:44:44
  *  Author: Lars
- 
+
  Get and Set functions for global variables that need to be accessible from any function
  Definitions for states
- 
- */ 
+
+ */
 
 #ifndef GLOBAL_VARIABLES
 #define GLOBAL_VARIABLES
@@ -36,13 +36,13 @@ enum MOVINGSTATE
 	MOVING_TO_OPPONENT,
 };
 
-static void setMainState(int state);
-static enum MAINSTATE getMainState();
-static void setPukState(int state);
-static enum PUKSTATE getPukState();
-static void setMovingState(int state);
-static enum MOVINGSTATE getMovingState();
-static void setPosition(float *pos);
-static float *getPosition();
+  void setMainState(int state);
+  enum MAINSTATE getMainState();
+  void setPukState(int state);
+  enum PUKSTATE getPukState();
+  void setMovingState(int state);
+  enum MOVINGSTATE getMovingState();
+  void setPosition(float *pos);
+  float *getPosition();
 
 #endif

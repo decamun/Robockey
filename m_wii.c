@@ -1,3 +1,4 @@
+// -----------------------------------------------------------------------------
 // M2 Wiimote Pixart Sensor interface
 // version: 1.0
 // date: Oct 13, 2011
@@ -94,22 +95,22 @@ char m_wii_read(unsigned int* blob_data)
 	_delay_us(25);
 
 	if(!start_read(MWIITWIADDR)){return 0;}
-	for(i=0;i&lt;15;i++)
+	for(i=0;i<15;i++)
 	{
-		TWCR = (1&lt;&lt;TWINT) | (1&lt;&lt;TWEA) | (1&lt;&lt;TWEN);	// clear the flag, enable ACKs, and wait for another byte
-		while(!(TWCR &amp; (1&lt;&lt;TWINT))){}; // wait for an interrupt to signal that a new byte is available
+		TWCR = (1<<TWINT) | (1<<TWEA) | (1<<TWEN);	// clear the flag, enable ACKs, and wait for another byte
+		while(!(TWCR & (1<<TWINT))){}; // wait for an interrupt to signal that a new byte is available
 		temp[i] = TWDR;
 	}
-	TWCR = (1&lt;&lt;TWINT) | (1&lt;&lt;TWEN);	// clear the flag, no ACK, and wait for another byte
-	while(!(TWCR &amp; (1&lt;&lt;TWINT))){}; // wait for an interrupt to signal that a new byte is available
+	TWCR = (1<<TWINT) | (1<<TWEN);	// clear the flag, no ACK, and wait for another byte
+	while(!(TWCR & (1<<TWINT))){}; // wait for an interrupt to signal that a new byte is available
 	temp[15] = TWDR;
 	end();
 
-	for(i=0;i&lt;10;i+=3) // for each blob:
+	for(i=0;i<10;i+=3) // for each blob:
 	{	// i = 0, 3, 6, 9
-		blob_data[i] = (unsigned int)temp[i+1] + ((int)(temp[i+3] &amp; 0b00110000) &lt;&lt;4);	// X
-		blob_data[i+1] = (unsigned int)temp[i+2] + ((int)(temp[i+3] &amp; 0b11000000) &lt;&lt;2);	// Y
-		blob_data[i+2] = temp[i+3] &amp; 0b00001111;										// size
+		blob_data[i] = (unsigned int)temp[i+1] + ((int)(temp[i+3] & 0b00110000) <<4);	// X
+		blob_data[i+1] = (unsigned int)temp[i+2] + ((int)(temp[i+3] & 0b11000000) <<2);	// Y
+		blob_data[i+2] = temp[i+3] & 0b00001111;										// size
 	}
 	return 1;
 }
@@ -126,16 +127,16 @@ unsigned char start_write(unsigned char address)
 {
 	unsigned char status;
 	// START
-	TWCR = (1&lt;&lt;TWEN)|(1&lt;&lt;TWSTA)|(1&lt;&lt;TWINT);
+	TWCR = (1<<TWEN)|(1<<TWSTA)|(1<<TWINT);
 	if(!twi_wait())
 	{
 		return 0;
 	}
 
 	// ADDRESS
-	status = send_byte(address&lt;&lt;1);
+	status = send_byte(address<<1);
 	if(status== 0x20){ // ACK was not received - may not be connected/listening
-		TWCR = (1&lt;&lt;TWINT)|(1&lt;&lt;TWEN)| (1&lt;&lt;TWSTO); // let go of the line (STOP)
+		TWCR = (1<<TWINT)|(1<<TWEN)| (1<<TWSTO); // let go of the line (STOP)
 		return 0;	// failure
 	}
 	return 1;	// success
@@ -145,16 +146,16 @@ unsigned char start_read(unsigned char address)
 {
 	unsigned char status;
 	// START
-	TWCR = (1&lt;&lt;TWEN)|(1&lt;&lt;TWSTA)|(1&lt;&lt;TWINT);
+	TWCR = (1<<TWEN)|(1<<TWSTA)|(1<<TWINT);
 	if(!twi_wait())
 	{
 		return 0;
 	}
 
 	// ADDRESS
-	status = send_byte(((address&lt;&lt;1) + 1));
+	status = send_byte(((address<<1) + 1));
 	if(status== 0x48){ // ACK was not received - may not be connected/listening
-		TWCR = (1&lt;&lt;TWINT)|(1&lt;&lt;TWEN)| (1&lt;&lt;TWSTO); // let go of the line (STOP)
+		TWCR = (1<<TWINT)|(1<<TWEN)| (1<<TWSTO); // let go of the line (STOP)
 		return 0;	// failure
 	}
 	return 1;	// success
@@ -163,10 +164,10 @@ unsigned char start_read(unsigned char address)
 unsigned char send_byte(unsigned char byte)
 {
 	TWDR = byte;					// load the byte
-	TWCR = (1&lt;&lt;TWINT) | (1&lt;&lt;TWEN);	// send the byte
+	TWCR = (1<<TWINT) | (1<<TWEN);	// send the byte
 	if(twi_wait())					// timed out
 	{
-		return (TWSR &amp; 0xF8);		// return the status with prescaler bits masked out
+		return (TWSR & 0xF8);		// return the status with prescaler bits masked out
 	} else {
 		return 0;					// comm failure
 	}
@@ -175,7 +176,7 @@ unsigned char send_byte(unsigned char byte)
 unsigned char twi_wait(void)
 {
 	unsigned int wait=0;
-	while((!(TWCR &amp; (1&lt;&lt;TWINT))) &amp;&amp; (wait++&lt;TWI_MAX_WAIT)){};	// wait for acknowledgement that they byte was sent
+	while((!(TWCR & (1<<TWINT))) && (wait++<TWI_MAX_WAIT)){};	// wait for acknowledgement that they byte was sent
 	if(wait==TWI_MAX_WAIT)
 	{
 		return 0;					// fail
@@ -187,5 +188,5 @@ unsigned char twi_wait(void)
 void end(void)
 {
 	// STOP
-	TWCR = (1&lt;&lt;TWINT)|(1&lt;&lt;TWEN)| (1&lt;&lt;TWSTO);
+	TWCR = (1<<TWINT)|(1<<TWEN)| (1<<TWSTO);
 }
