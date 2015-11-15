@@ -4,27 +4,44 @@
 #include <stdint.h>
 #include <math.h>
 #include "localize.h"
+#include "m_wii.h"
 
 static uint16_t dropped_frames = 0;
 static float LOCALIZE_CENTER_XY[2];
 static float LOCALIZE_ANGLE;
+static char LOCALIZE_INIT = 0;
+static uint data[12];
 
+void localize_init() {
+  m_wii_open();
+  LOCALIZE_INIT = 1;
+}
 
-void localize(int* data) 
+void localize_update() {
+  if(!LOCALIZE_INIT) {
+    localize_init();
+  }
+
+  if(m_wii_read(data)) {
+    localize_calculate(data);
+  }
+}
+
+void localize_calculate(uint* data)
 {
   static int remove[4] = {0, 0, 0, 0};
   int i = 0;
   int removed = 0;
-  for(i = 0; i < 4; i++) 
+  for(i = 0; i < 4; i++)
   {
     //check for unfound stars
 
-    if(data[i*3] == 1023 && data[(i+1)*3] == 1023) 
+    if(data[i*3] == 1023 && data[(i+1)*3] == 1023)
 	{
       remove[i] = 1;
       removed++;
-    } 
-	else 
+    }
+	else
 	{
       remove[i] = 0;
     }
