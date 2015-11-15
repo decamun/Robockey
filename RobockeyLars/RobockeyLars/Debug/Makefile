@@ -39,6 +39,9 @@ SUBDIRS :=
 C_SRCS +=  \
 ../ADC.c \
 ../Drive.c \
+../globalVariables.c \
+../globalVariables.c \
+../globalVariables.c \
 ../localize.c \
 ../main.c \
 ../m_bus.c \
@@ -58,6 +61,9 @@ ASM_SRCS +=
 OBJS +=  \
 ADC.o \
 Drive.o \
+globalVariables.o \
+globalVariables.o \
+globalVariables.o \
 localize.o \
 main.o \
 m_bus.o \
@@ -70,6 +76,9 @@ timer3.o
 OBJS_AS_ARGS +=  \
 ADC.o \
 Drive.o \
+globalVariables.o \
+globalVariables.o \
+globalVariables.o \
 localize.o \
 main.o \
 m_bus.o \
@@ -82,6 +91,9 @@ timer3.o
 C_DEPS +=  \
 ADC.d \
 Drive.d \
+globalVariables.d \
+globalVariables.d \
+globalVariables.d \
 localize.d \
 main.d \
 m_bus.d \
@@ -94,6 +106,9 @@ timer3.d
 C_DEPS_AS_ARGS +=  \
 ADC.d \
 Drive.d \
+globalVariables.d \
+globalVariables.d \
+globalVariables.d \
 localize.d \
 main.d \
 m_bus.d \
@@ -117,6 +132,12 @@ LINKER_SCRIPT_DEP+=
 
 
 # AVR32/GNU C Compiler
+
+
+
+
+
+
 
 
 

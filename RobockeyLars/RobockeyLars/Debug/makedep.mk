@@ -6,6 +6,12 @@ ADC.c
 
 Drive.c
 
+globalVariables.c
+
+globalVariables.c
+
+globalVariables.c
+
 localize.c
 
 main.c

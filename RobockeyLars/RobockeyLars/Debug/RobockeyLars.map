@@ -86,9 +86,12 @@ c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.1061/avr8-gnu-t
 Allocating common symbols
 Common symbol       size              file
 
-current_state       0x1               main.o
-current_position    0x2               main.o
+current_mainstate   0x1               globalVariables.o
+current_movingstate
+                    0x1               globalVariables.o
+current_position    0x2               globalVariables.o
 _max_value2         0x2               Drive.o
+current_pukstate    0x1               globalVariables.o
 
 Discarded input sections
 
@@ -121,18 +124,55 @@ Discarded input sections
  .text.goTo     0x00000000        0x2 Drive.o
  .text.turn     0x00000000        0x2 Drive.o
  .text.goStraight
-                0x00000000       0x64 Drive.o
- .debug_info    0x00000000      0x379 Drive.o
- .debug_abbrev  0x00000000      0x19d Drive.o
+                0x00000000       0x7c Drive.o
+ .text.leftON   0x00000000        0xe Drive.o
+ .text.leftOFF  0x00000000        0x4 Drive.o
+ .text.reightON
+                0x00000000        0xe Drive.o
+ .text.rightOFF
+                0x00000000        0x4 Drive.o
+ .debug_info    0x00000000      0x482 Drive.o
+ .debug_abbrev  0x00000000      0x1da Drive.o
  .debug_loc     0x00000000       0xfb Drive.o
  .debug_aranges
-                0x00000000       0x30 Drive.o
- .debug_ranges  0x00000000       0x20 Drive.o
- .debug_line    0x00000000      0x116 Drive.o
- .debug_str     0x00000000      0x252 Drive.o
+                0x00000000       0x50 Drive.o
+ .debug_ranges  0x00000000       0x40 Drive.o
+ .debug_line    0x00000000      0x176 Drive.o
+ .debug_str     0x00000000      0x2af Drive.o
  .comment       0x00000000       0x31 Drive.o
- .debug_frame   0x00000000       0x58 Drive.o
+ .debug_frame   0x00000000       0x98 Drive.o
  COMMON         0x00000000        0x2 Drive.o
+ .text          0x00000000        0x0 globalVariables.o
+ .data          0x00000000        0x0 globalVariables.o
+ .bss           0x00000000        0x0 globalVariables.o
+ .debug_info    0x00000000       0xe2 globalVariables.o
+ .debug_abbrev  0x00000000       0x4d globalVariables.o
+ .debug_aranges
+                0x00000000       0x18 globalVariables.o
+ .debug_line    0x00000000       0x49 globalVariables.o
+ .debug_str     0x00000000      0x1fb globalVariables.o
+ .comment       0x00000000       0x31 globalVariables.o
+ COMMON         0x00000000        0x5 globalVariables.o
+ .text          0x00000000        0x0 globalVariables.o
+ .data          0x00000000        0x0 globalVariables.o
+ .bss           0x00000000        0x0 globalVariables.o
+ .debug_info    0x00000000       0xe2 globalVariables.o
+ .debug_abbrev  0x00000000       0x4d globalVariables.o
+ .debug_aranges
+                0x00000000       0x18 globalVariables.o
+ .debug_line    0x00000000       0x49 globalVariables.o
+ .debug_str     0x00000000      0x1fb globalVariables.o
+ .comment       0x00000000       0x31 globalVariables.o
+ .text          0x00000000        0x0 globalVariables.o
+ .data          0x00000000        0x0 globalVariables.o
+ .bss           0x00000000        0x0 globalVariables.o
+ .debug_info    0x00000000       0xe2 globalVariables.o
+ .debug_abbrev  0x00000000       0x4d globalVariables.o
+ .debug_aranges
+                0x00000000       0x18 globalVariables.o
+ .debug_line    0x00000000       0x49 globalVariables.o
+ .debug_str     0x00000000      0x1fb globalVariables.o
+ .comment       0x00000000       0x31 globalVariables.o
  .text          0x00000000        0x0 localize.o
  .data          0x00000000        0x0 localize.o
  .bss           0x00000000        0x0 localize.o
@@ -148,7 +188,7 @@ Discarded input sections
                 0x00000000        0x8 localize.o
  .bss.dropped_frames
                 0x00000000        0x2 localize.o
- .debug_info    0x00000000      0x375 localize.o
+ .debug_info    0x00000000      0x37b localize.o
  .debug_abbrev  0x00000000      0x162 localize.o
  .debug_loc     0x00000000      0x59e localize.o
  .debug_aranges
@@ -161,15 +201,6 @@ Discarded input sections
  .text          0x00000000        0x0 main.o
  .data          0x00000000        0x0 main.o
  .bss           0x00000000        0x0 main.o
- .text.setState
-                0x00000000        0x6 main.o
- .text.getState
-                0x00000000        0x6 main.o
- .text.setPosition
-                0x00000000        0xa main.o
- .text.getPosition
-                0x00000000        0xa main.o
- COMMON         0x00000000        0x3 main.o
  .text          0x00000000        0x0 m_bus.o
  .data          0x00000000        0x0 m_bus.o
  .bss           0x00000000        0x0 m_bus.o
@@ -598,6 +629,9 @@ Address of section .data set to 0x800100
 LOAD c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.1061/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.8.1/../../../../avr/lib/avr5/crtm32u4.o
 LOAD ADC.o
 LOAD Drive.o
+LOAD globalVariables.o
+LOAD globalVariables.o
+LOAD globalVariables.o
 LOAD localize.o
 LOAD main.o
 LOAD m_bus.o
@@ -951,41 +985,41 @@ END GROUP
 .debug_sfnames
  *(.debug_sfnames)
 
-.debug_aranges  0x00000000      0x120
+.debug_aranges  0x00000000      0x100
  *(.debug_aranges)
  .debug_aranges
-                0x00000000       0x40 main.o
+                0x00000000       0x20 main.o
  .debug_aranges
-                0x00000040       0xe0 m_usb.o
+                0x00000020       0xe0 m_usb.o
 
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x00000000     0x1140
+.debug_info     0x00000000     0x1066
  *(.debug_info .gnu.linkonce.wi.*)
- .debug_info    0x00000000      0x1b2 main.o
- .debug_info    0x000001b2      0xf8e m_usb.o
+ .debug_info    0x00000000       0xd8 main.o
+ .debug_info    0x000000d8      0xf8e m_usb.o
 
-.debug_abbrev   0x00000000      0x3b4
+.debug_abbrev   0x00000000      0x343
  *(.debug_abbrev)
- .debug_abbrev  0x00000000       0xf7 main.o
- .debug_abbrev  0x000000f7      0x2bd m_usb.o
+ .debug_abbrev  0x00000000       0x86 main.o
+ .debug_abbrev  0x00000086      0x2bd m_usb.o
 
-.debug_line     0x00000000      0x6d6
+.debug_line     0x00000000      0x67e
  *(.debug_line .debug_line.* .debug_line_end)
- .debug_line    0x00000000      0x11b main.o
- .debug_line    0x0000011b      0x5bb m_usb.o
+ .debug_line    0x00000000       0xc3 main.o
+ .debug_line    0x000000c3      0x5bb m_usb.o
 
-.debug_frame    0x00000000      0x398
+.debug_frame    0x00000000      0x358
  *(.debug_frame)
- .debug_frame   0x00000000       0x64 main.o
- .debug_frame   0x00000064      0x334 m_usb.o
+ .debug_frame   0x00000000       0x24 main.o
+ .debug_frame   0x00000024      0x334 m_usb.o
 
-.debug_str      0x00000000      0x5d0
+.debug_str      0x00000000      0x56c
  *(.debug_str)
- .debug_str     0x00000000      0x1da main.o
-                                0x214 (size before relaxing)
- .debug_str     0x000001da      0x3f6 m_usb.o
+ .debug_str     0x00000000      0x176 main.o
+                                0x1aa (size before relaxing)
+ .debug_str     0x00000176      0x3f6 m_usb.o
                                 0x593 (size before relaxing)
 
 .debug_loc      0x00000000     0x1981
@@ -1010,10 +1044,10 @@ END GROUP
 .debug_pubtypes
  *(.debug_pubtypes)
 
-.debug_ranges   0x00000000      0x138
+.debug_ranges   0x00000000      0x118
  *(.debug_ranges)
- .debug_ranges  0x00000000       0x30 main.o
- .debug_ranges  0x00000030      0x108 m_usb.o
+ .debug_ranges  0x00000000       0x10 main.o
+ .debug_ranges  0x00000010      0x108 m_usb.o
 
 .debug_macro
  *(.debug_macro)

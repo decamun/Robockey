@@ -30,10 +30,13 @@ void stop0() {
 }
 
 void interupt0(bool on) {
-  if(on) {
+  if(on) 
+  {
     set(TIMSK0, TOIE0); //enable timer interupt
     sei(); //turn on interupts
-  } else {
+  } 
+  else 
+  {
     clear(TIMSK0, TOIE0);
   }
 }

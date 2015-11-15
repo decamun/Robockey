@@ -108,6 +108,11 @@
     <Compile Include="Drive.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="globalVariables.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="globalVariables.c" />
+    <Compile Include="globalVariables.c" />
     <Compile Include="globalVariables.h">
       <SubType>compile</SubType>
     </Compile>
