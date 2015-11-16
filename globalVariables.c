@@ -45,7 +45,7 @@ enum MOVINGSTATE getMovingState()
 
 void setPosition(float *pos)
 {
-	current_position = pos;
+	current_position = pos; //[x, y, angle]
 }
 
 float *getPosition()
