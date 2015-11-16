@@ -41,7 +41,7 @@ void localize_update() {
       int i;
       for(i = 0; i < 12; i++) {
         m_usb_tx_int(data[i]);
-        m_usb_tx_string(" | ");
+        m_usb_tx_string(" , ");
       }
       m_usb_tx_string("\n\r");
     }
@@ -70,7 +70,7 @@ void localize_calculate(uint16_t* data)
   for(i = 0; i < 4; i++) {
     //check for unfound stars
 
-    if(data[i*3] == 1023 && data[(i)*3 + 1] == 1023) {
+    if((data[i*3] == 1023 && data[(i)*3 + 1] == 1023) || data[(i*3) + 2] < MIN_INTENSITY_M_WII) {
       remove[i] = 1;
       removed++;
       if(USB_DEBUG && m_usb_isconnected()) {
@@ -104,7 +104,10 @@ void localize_calculate(uint16_t* data)
     for(i = 0; i < 4; i++) {
       for(j = 0; j < 4; j++) { //iterate through all point combinations (could probably be faster)
         if(i != j && !remove[i] && !remove[j]) { //don't do the ones that are zero or missing
-          curr_distance = sqrtf(powf(data[i * 3] - data[j*3],2) + powf(data[(i)*3 + 1] - data[(j) * 3 + 1],2)); //pythagorean theorem to find the distance
+          float delta_x = abs((float)data[i*3] - (float)data[j*3]);
+          float delta_y = abs((float)data[i*3 + 1] - (float)data[j*3 + 1]);
+          curr_distance = sqrtf(powf(delta_x, 2) + powf(delta_y, 2));
+
           if (curr_distance > max_distance) {
             max_distance = curr_distance;
             main_points[0] = i;
@@ -149,7 +152,7 @@ void localize_calculate(uint16_t* data)
 
 
     if(USB_DEBUG && m_usb_isconnected()) {
-      m_usb_tx_string("Values in funcion \n\r");
+      m_usb_tx_string("\n\n\rValues in funcion \n\r");
       m_usb_tx_string("X: ");
       m_usb_tx_int((int)(100*centerxy[0]));
       m_usb_tx_string("\n\rY: ");
@@ -159,14 +162,18 @@ void localize_calculate(uint16_t* data)
 
 
       m_usb_tx_string("\n\rNorth Star: X:");
-      m_usb_tx_int((100*data[north_star * 3]));
+      m_usb_tx_int(data[north_star * 3]);
       m_usb_tx_string(" Y:");
-      m_usb_tx_int((100*data[(north_star) * 3 + 1]));
+      m_usb_tx_int(data[(north_star) * 3 + 1]);
+      m_usb_tx_string(" i:");
+      m_usb_tx_int(north_star);
 
       m_usb_tx_string("\n\rSouth Star: X:");
-      m_usb_tx_int((100*data[south_star * 3]));
+      m_usb_tx_int(data[south_star * 3]);
       m_usb_tx_string(" Y:");
-      m_usb_tx_int((100*data[(south_star) * 3 + 1]));
+      m_usb_tx_int(data[(south_star) * 3 + 1]);
+      m_usb_tx_string(" i:");
+      m_usb_tx_int(south_star);
       m_usb_tx_string("\n\r");
     }
 
