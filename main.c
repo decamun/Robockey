@@ -43,7 +43,7 @@ void initialize() {
 	m_rf_open(CHANNEL, ADDRESS, BUFFER_SIZE);
 
 	//initialize USB
-	if(USB_DEBUG) {
+	if(USB_DEBUG || MATLAB_GRAPH) {
 		m_usb_init();
 	}
 
@@ -77,14 +77,6 @@ void main()
 					m_usb_tx_string(" | ");
 				}
 				m_usb_tx_string("\n\r");
-			}
-
-			if(RF_DEBUG) {
-				float* pos = getPosition();
-				char* pos_int = {(char)pos[0], (char)pos[1], (char)pos[2]};
-				if(!m_rf_send(RF_DEBUG_ADDRESS, pos_int, 3)) {
-					report_error();
-				}
 			}
 			TICK_HAPPENED = 0;
 		}

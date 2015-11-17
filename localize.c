@@ -1,4 +1,3 @@
-#define LOCALIZE_LPF 0.93
 
 
 #include <stdint.h>
@@ -37,22 +36,45 @@ void localize_update() {
 
   if(m_wii_read(data)) {
 
+
+    //USB DEBUG CODE
     if((USB_DEBUG || MATLAB_GRAPH )&& m_usb_isconnected()) {
-      if(USB_DEBUG){m_usb_tx_string("M_Wii_Values:\n\r");}
-      while(!m_usb_rx_available());
-      rx_buffer = m_usb_rx_char();
-      if(!MATLAB_GRAPH || rx_buffer) {
+      if(USB_DEBUG){
+        m_usb_tx_string("M_Wii_Values:\n\r");
+      } else {
+        m_red(ON);
+        //while(!m_usb_rx_available());
+        rx_buffer = m_usb_rx_char();
+        m_red(OFF);
+      }
+      if(!MATLAB_GRAPH || rx_buffer || 1) {
+        //m_usb_rx_flush();
+        m_red(ON);
         int i;
         for(i = 0; i < 4; i++) {
-          m_usb_tx_int(data[i*3]);
-          m_usb_tx_string("\t");
-          m_usb_tx_int(data[i*3+1]);
-          m_usb_tx_string("\t");
+          //m_usb_tx_int(data[i*3]);
+          //m_usb_tx_string("\t");
+          //m_usb_tx_int(data[i*3 + 1]);
+          //m_usb_tx_string("\t");
         }
         m_usb_tx_string("\n\r");
       }
-
     }
+    //RF debug CODE
+    //************UNFINISHED**********
+    //if(RF_DEBUG) {
+    //  char DEBUFFER[16];
+    //  int i;
+    //  for(i = 0, i < 4, i++) {
+    //    *DEBUFFER[i * 2] = &data[i * 3];
+    //    *DEBUFFER[i * 2 + 1] = &data[i * 3 + 1];
+    //  }
+    //}
+    //***********\UNFINISHED**********
+
+
+
+
     //calculate position
     localize_calculate(data);
 
@@ -78,7 +100,7 @@ void localize_calculate(uint16_t* data)
   for(i = 0; i < 4; i++) {
     //check for unfound stars
 
-    if((data[i*3] == 1023 && data[(i)*3 + 1] == 1023) || data[(i*3) + 2] < MIN_INTENSITY_M_WII) {
+    if((data[i*3] == 1023 && data[(i)*3 + 1] == 1023) || data[(i*3) + 2] > MAX_INTENSITY_M_WII) {
       remove[i] = 1;
       removed++;
       if(USB_DEBUG && m_usb_isconnected()) {
@@ -129,7 +151,7 @@ void localize_calculate(uint16_t* data)
     //build array of other points
     j = 0;
     for(i = 0; i < 4; i++) {
-      if(main_points[1] != i && main_points[2] != i) {
+      if(main_points[0] != i && main_points[1] != i) {
         other_points[j] = i;
         j++;
       }
@@ -148,23 +170,38 @@ void localize_calculate(uint16_t* data)
     }
 
     //get angle and make transform
-    float angle = atan2f(data[(north_star) * 3 + 1] - data[(south_star) * 3 + 1], data[(north_star) * 3] - data[(south_star) * 3]);
-    float angle_adg  = angle - M_PI/2;
-    float R[2][2] = {cosf(angle_adg), -sinf(angle_adg), sinf(angle_adg), cosf(angle_adg)};
+    float angle = atan2f((float)data[(north_star) * 3 + 1] - (float)data[(south_star) * 3 + 1], (float)data[(north_star) * 3] - (float)data[(south_star) * 3]);
+    float angle_adg  = angle;// - M_PI/2;
+    float R[2][2] = {{cosf(angle_adg), -sinf(angle_adg)}, {sinf(angle_adg), cosf(angle_adg)}};
     float T[2] = {512, 384};
-    float centerxy[2] = {(data[(north_star) * 3] + data[(south_star) * 3])/2 - T[1], (data[(north_star) * 3 + 1] + data[(south_star ) * 3 + 1])/2 - T[2]};
-    float centerxy_tx[2] = {- R[0][1] * centerxy[0] - R[0][1] * centerxy[1] , - R[1][0] * centerxy[0] - R[1][1] * centerxy[1]};
+    float centerxy[2] = {(data[(north_star) * 3] + data[(south_star) * 3])/2 - T[0], (data[(north_star) * 3 + 1] + data[(south_star ) * 3 + 1])/2 - T[1]};
+    float centerxy_tx[2] = {- R[0][0] * centerxy[0] - R[0][1] * centerxy[1] , - R[1][0] * centerxy[0] - R[1][1] * centerxy[1]};
     LOCALIZE_CENTER_XY[0] = LOCALIZE_CENTER_XY[0] * (LOCALIZE_LPF) + centerxy_tx[0] * (1 - LOCALIZE_LPF);
 	  LOCALIZE_CENTER_XY[1] = LOCALIZE_CENTER_XY[1] * (LOCALIZE_LPF) + centerxy_tx[1] * (1 - LOCALIZE_LPF); //low pass transformed location
     LOCALIZE_ANGLE = -angle_adg; //save transformed angle of robot (negative because it is in field coordinates, not robot coordinates)
 
 
+
+    //USB DEBUG CODE
+    if(MATLAB_GRAPH && m_usb_isconnected()) {
+      while(!m_usb_rx_available());
+      m_usb_rx_flush();
+      m_red(ON);
+      m_usb_tx_int((int)(centerxy_tx[0]));
+      m_usb_tx_string("\t");
+      m_usb_tx_int((int)(centerxy_tx[1]));
+      m_usb_tx_string("\t");
+      m_usb_tx_int((int)(100*angle_adg));
+      m_usb_tx_string("\n\r");
+    }
+
+
     if(USB_DEBUG && m_usb_isconnected()) {
       m_usb_tx_string("\n\n\rValues in funcion \n\r");
       m_usb_tx_string("X: ");
-      m_usb_tx_int((int)(100*centerxy[0]));
+      m_usb_tx_int((int)(100*centerxy_tx[0]));
       m_usb_tx_string("\n\rY: ");
-      m_usb_tx_int((int)(100*centerxy[1]));
+      m_usb_tx_int((int)(100*centerxy_tx[1]));
       m_usb_tx_string("\n\rTheta: ");
       m_usb_tx_int((int)(100*angle_adg));
 
