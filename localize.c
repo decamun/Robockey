@@ -15,6 +15,7 @@ static float LOCALIZE_CENTER_XY[2] = {1111, 1111};
 static float LOCALIZE_ANGLE = 1.5;
 static char LOCALIZE_INIT = 0;
 static uint16_t data[12];
+char rx_buffer;
 
 void localize_init() {
   if(m_wii_open()) {
@@ -36,14 +37,21 @@ void localize_update() {
 
   if(m_wii_read(data)) {
 
-    if(USB_DEBUG && m_usb_isconnected()) {
-      m_usb_tx_string("M_Wii_Values:\n\r");
-      int i;
-      for(i = 0; i < 12; i++) {
-        m_usb_tx_int(data[i]);
-        m_usb_tx_string(" , ");
+    if((USB_DEBUG || MATLAB_GRAPH )&& m_usb_isconnected()) {
+      if(USB_DEBUG){m_usb_tx_string("M_Wii_Values:\n\r");}
+      while(!m_usb_rx_available());
+      rx_buffer = m_usb_rx_char();
+      if(!MATLAB_GRAPH || rx_buffer) {
+        int i;
+        for(i = 0; i < 4; i++) {
+          m_usb_tx_int(data[i*3]);
+          m_usb_tx_string("\t");
+          m_usb_tx_int(data[i*3+1]);
+          m_usb_tx_string("\t");
+        }
+        m_usb_tx_string("\n\r");
       }
-      m_usb_tx_string("\n\r");
+
     }
     //calculate position
     localize_calculate(data);
