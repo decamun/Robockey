@@ -71,9 +71,15 @@ void main()
 			localize_update();
 			if(USB_DEBUG && m_usb_isconnected()) {
 				float* pos = getPosition();
+				float* pos_alt = localize_location();
 				int i = 0;
 				for(i = 0; i < 3; i++) {
 					m_usb_tx_int((int)(pos[i]*1000));
+					m_usb_tx_string(" | ");
+				}
+				m_usb_tx_string("\n\r");
+				for(i = 0; i < 3; i++) {
+					m_usb_tx_int((int)(pos_alt[i]*1000));
 					m_usb_tx_string(" | ");
 				}
 				m_usb_tx_string("\n\r");

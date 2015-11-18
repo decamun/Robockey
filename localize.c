@@ -171,11 +171,11 @@ void localize_calculate(uint16_t* data)
 
     //get angle and make transform
     float angle = atan2f((float)data[(north_star) * 3 + 1] - (float)data[(south_star) * 3 + 1], (float)data[(north_star) * 3] - (float)data[(south_star) * 3]);
-    float angle_adg  = angle;// - M_PI/2;
+    float angle_adg  = -angle;// - M_PI/2;
     float R[2][2] = {{cosf(angle_adg), -sinf(angle_adg)}, {sinf(angle_adg), cosf(angle_adg)}};
     float T[2] = {512, 384};
     float centerxy[2] = {(data[(north_star) * 3] + data[(south_star) * 3])/2 - T[0], (data[(north_star) * 3 + 1] + data[(south_star ) * 3 + 1])/2 - T[1]};
-    float centerxy_tx[2] = {- R[0][0] * centerxy[0] - R[0][1] * centerxy[1] , - R[1][0] * centerxy[0] - R[1][1] * centerxy[1]};
+    float centerxy_tx[2] = {R[0][0] * centerxy[0] + R[0][1] * centerxy[1] , R[1][0] * centerxy[0] + R[1][1] * centerxy[1]};
     LOCALIZE_CENTER_XY[0] = LOCALIZE_CENTER_XY[0] * (LOCALIZE_LPF) + centerxy_tx[0] * (1 - LOCALIZE_LPF);
 	  LOCALIZE_CENTER_XY[1] = LOCALIZE_CENTER_XY[1] * (LOCALIZE_LPF) + centerxy_tx[1] * (1 - LOCALIZE_LPF); //low pass transformed location
     LOCALIZE_ANGLE = -angle_adg; //save transformed angle of robot (negative because it is in field coordinates, not robot coordinates)
