@@ -36,8 +36,8 @@ void initialize() {
 	set(PORTB, 2); //pull high
 
 	//enable direction lines
+	set(DDRB, 0);
 	set(DDRB, 1);
-	set(DDRB, 2);
 
 	//initialize RF
 	m_rf_open(CHANNEL, ADDRESS, BUFFER_SIZE);

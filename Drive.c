@@ -22,6 +22,8 @@ void drive_update()
 	position = getPosition();
 	if(getDriveState == GO_TO) {
 		goTo(goto_x, goto_y);
+		//leftON(124, 0);
+		//rightON(124, 0);
 	}
 }
 
@@ -38,11 +40,11 @@ void goTo(int x, int y) //goes to the specified position on the field (in cm)
 	goto_y = y;
 	setDriveState(GO_TO);
 	if(position[3] > 0.02) {
-		rightON(256, FORWARDS);
-		leftON(256, FORWARDS);
+		rightON(0.1, FORWARDS);
+		leftON(0.1, FORWARDS);
 	} else if(position[3] < -0.02) {
-		rightON(256, FORWARDS);
-		leftON(256, FORWARDS);
+		rightON(0.1, FORWARDS);
+		leftON(0.1, FORWARDS);
 	} else {
 		stop();
 	}
@@ -79,11 +81,11 @@ void leftON(float power, int direction)
 
 	if (direction == FORWARDS)
 	{
-		set(PORTB, 0);
+		set(PORTB, 1);
 	}
 	else
 	{
-		clear(PORTB, 0);
+		clear(PORTB, 1);
 	}
 }
 
@@ -100,11 +102,11 @@ void rightON(float power, int direction)
 
 	if (direction == FORWARDS)
 	{
-		set(PORTB, 0);
+		set(PORTB, 1);
 	}
 	else
 	{
-		clear(PORTB, 0);
+		clear(PORTB, 1);
 	}
 }
 
