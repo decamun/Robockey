@@ -56,35 +56,45 @@ void main()
 {
 	initialize();
 
-
-	leftON(1, FORWARDS);
-
-	rightON(1, FORWARDS);
-
-
-
-
+	goTo(0, 0);
+	float* pos_alt = NULL;
 	while (1) {
 		if(TICK_HAPPENED) {
 			//handle new clock tick
+			m_green(OFF);
+			localize_update(); //update localization info
+			drive_update(); //update drive state
+
 			m_green(ON);
-			localize_update();
+
+
+			//main loop things
+
+
+
+
+
+
+
+
+			TICK_HAPPENED = 0;
+
+			//usb_debug code
 			if(USB_DEBUG && m_usb_isconnected()) {
-				float* pos = getPosition();
-				float* pos_alt = localize_location();
+
+				pos_alt = localize_location();
 				int i = 0;
-				for(i = 0; i < 3; i++) {
-					m_usb_tx_int((int)(pos[i]*1000));
-					m_usb_tx_string(" | ");
-				}
+
+				m_usb_tx_string("\n\rPointer Address in main:");
+	      m_usb_tx_int(pos_alt);
+
 				m_usb_tx_string("\n\r");
 				for(i = 0; i < 3; i++) {
-					m_usb_tx_int((int)(pos_alt[i]*1000));
+					m_usb_tx_int((int)(pos_alt[i]*100));
 					m_usb_tx_string(" | ");
 				}
 				m_usb_tx_string("\n\r");
 			}
-			TICK_HAPPENED = 0;
 		}
 		if(RF_READ) {
 			//handle new RF info

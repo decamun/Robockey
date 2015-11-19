@@ -5,7 +5,7 @@
  * Author: Lars Jebe
  * University of Pennsylvania
  * Robockey
- */ 
+ */
 
 #include "timer1.h" //output B6
 #include "timer3.h" //output C6
@@ -23,3 +23,5 @@ void leftON(float power, int direction);
 void leftOFF();
 void rightON(float power, int direction);
 void rightOFF();
+void drive_update();
+void stop();

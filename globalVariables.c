@@ -10,8 +10,19 @@
 enum MAINSTATE current_mainstate;
 enum PUKSTATE current_pukstate;
 enum MOVINGSTATE current_movingstate;
+enum DRIVESTATE current_drivestate;
 
 float *current_position;
+
+void setDriveState(int state)
+{
+	current_drivestate = state;
+}
+
+enum DRIVESTATE getDriveState()
+{
+	return current_drivestate;
+}
 
 void setMainState(int state)
 {

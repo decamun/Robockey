@@ -1,6 +1,6 @@
 #ifndef OPTIONS
 #define OPTIONS
-#define USB_DEBUG 1
+#define USB_DEBUG 0
 #define MATLAB_GRAPH 0
 
 #define RF_DEBUG 0

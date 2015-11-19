@@ -13,10 +13,39 @@
 
 #define ACCURACY 30
 
+static int goto_x = 0;
+static int goto_y = 0;
+static float* position;
+
+void drive_update()
+{
+	position = getPosition();
+	if(getDriveState == GO_TO) {
+		goTo(goto_x, goto_y);
+	}
+}
+
+void stop()
+{
+	setDriveState(DRIVE_NDEF);
+	rightOFF();
+	leftOFF();
+}
 
 void goTo(int x, int y) //goes to the specified position on the field (in cm)
 {
-
+	goto_x = x;
+	goto_y = y;
+	setDriveState(GO_TO);
+	if(position[3] > 0.02) {
+		rightON(256, FORWARDS);
+		leftON(256, FORWARDS);
+	} else if(position[3] < -0.02) {
+		rightON(256, FORWARDS);
+		leftON(256, FORWARDS);
+	} else {
+		stop();
+	}
 }
 
 
@@ -25,11 +54,10 @@ void turn(int angle, float velocity) //turns a certain angle in RAD
 
 }
 
-
 void goStraight(int distance, int direction, float velocity) //goes straight a certain distance (in cm), direction is either FORWARDS, BACKWARDS
 {
 	start_pwm1(256,velocity);
-	start_pwm3(256, velocity);
+	start_pwm3(256,velocity);
 	float current_position[3] = {0};
 	float *current_position_p;
 	current_position_p = getPosition();

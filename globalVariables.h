@@ -36,12 +36,22 @@ enum MOVINGSTATE
 	MOVING_TO_OPPONENT,
 };
 
+enum DRIVESTATE
+{
+	DRIVE_NDEF = 0,
+	GO_TO,
+	TURNING,
+	CURVING
+};
+
   void setMainState(int state);
   enum MAINSTATE getMainState();
   void setPukState(int state);
   enum PUKSTATE getPukState();
   void setMovingState(int state);
   enum MOVINGSTATE getMovingState();
+	void setDriveState(int state);
+  enum DRIVESTATE getDriveState();
   void setPosition(float *pos);
   float *getPosition();
 

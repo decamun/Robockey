@@ -16,6 +16,9 @@ static char LOCALIZE_INIT = 0;
 static uint16_t data[12];
 char rx_buffer;
 
+static float location[3]; //for function localize_location
+static float T[2] = {512, 384};
+
 void localize_init() {
   if(m_wii_open()) {
     LOCALIZE_INIT = 1;
@@ -170,15 +173,20 @@ void localize_calculate(uint16_t* data)
     }
 
     //get angle and make transform
-    float angle = atan2f((float)data[(north_star) * 3 + 1] - (float)data[(south_star) * 3 + 1], (float)data[(north_star) * 3] - (float)data[(south_star) * 3]);
-    float angle_adg  = -angle;// - M_PI/2;
-    float R[2][2] = {{cosf(angle_adg), -sinf(angle_adg)}, {sinf(angle_adg), cosf(angle_adg)}};
-    float T[2] = {512, 384};
-    float centerxy[2] = {(data[(north_star) * 3] + data[(south_star) * 3])/2 - T[0], (data[(north_star) * 3 + 1] + data[(south_star ) * 3 + 1])/2 - T[1]};
-    float centerxy_tx[2] = {R[0][0] * centerxy[0] + R[0][1] * centerxy[1] , R[1][0] * centerxy[0] + R[1][1] * centerxy[1]};
-    LOCALIZE_CENTER_XY[0] = LOCALIZE_CENTER_XY[0] * (LOCALIZE_LPF) + centerxy_tx[0] * (1 - LOCALIZE_LPF);
-	  LOCALIZE_CENTER_XY[1] = LOCALIZE_CENTER_XY[1] * (LOCALIZE_LPF) + centerxy_tx[1] * (1 - LOCALIZE_LPF); //low pass transformed location
-    LOCALIZE_ANGLE = -angle_adg; //save transformed angle of robot (negative because it is in field coordinates, not robot coordinates)
+    float angle = atan2f(-(float)data[(north_star) * 3 + 1] + (float)data[(south_star) * 3 + 1], (float)data[(north_star) * 3] - (float)data[(south_star) * 3]);
+    float angle_adg  = angle;// - M_PI/2;
+
+    float centerxy[2];
+    centerxy[0] = (float)(data[(north_star) * 3] + data[(south_star) * 3])/2 -T[0];
+    centerxy[1] = (float)(data[(north_star) * 3 + 1] + data[(south_star ) * 3 + 1])/2 -T[1];
+
+    float centerxy_tx[2];
+    centerxy_tx[0] = cosf(angle_adg) * centerxy[0] - sinf(angle_adg) * centerxy[1];
+    centerxy_tx[1] = sinf(angle_adg) * centerxy[0] + cosf(angle_adg) * centerxy[1];
+
+    LOCALIZE_CENTER_XY[0] = centerxy_tx[0]; //LOCALIZE_CENTER_XY[0] * (LOCALIZE_LPF) + centerxy_tx[0] * (1 - LOCALIZE_LPF);
+	  LOCALIZE_CENTER_XY[1] = centerxy_tx[1];//LOCALIZE_CENTER_XY[1] * (LOCALIZE_LPF) + centerxy_tx[1] * (1 - LOCALIZE_LPF); //low pass transformed location
+    LOCALIZE_ANGLE = (-angle_adg + 3.14159); //save transformed angle of robot (negative because it is in field coordinates, not robot coordinates)
 
 
 
@@ -191,19 +199,26 @@ void localize_calculate(uint16_t* data)
       m_usb_tx_string("\t");
       m_usb_tx_int((int)(centerxy_tx[1]));
       m_usb_tx_string("\t");
-      m_usb_tx_int((int)(100*angle_adg));
-      m_usb_tx_string("\n\r");
+      m_usb_tx_int((int)(-100*(angle_adg+ 3.14159)));
+      m_usb_tx_string("\n");
     }
 
 
     if(USB_DEBUG && m_usb_isconnected()) {
       m_usb_tx_string("\n\n\rValues in funcion \n\r");
       m_usb_tx_string("X: ");
-      m_usb_tx_int((int)(100*centerxy_tx[0]));
+      m_usb_tx_int((int)(centerxy_tx[0]));
       m_usb_tx_string("\n\rY: ");
-      m_usb_tx_int((int)(100*centerxy_tx[1]));
+      m_usb_tx_int((int)(centerxy_tx[1]));
+      m_usb_tx_string("\n\r0_X: ");
+      m_usb_tx_int((int)(centerxy[0]));
+      m_usb_tx_string("\n\r0_Y: ");
+      m_usb_tx_int((int)(centerxy[1]));
       m_usb_tx_string("\n\rTheta: ");
       m_usb_tx_int((int)(100*angle_adg));
+
+      m_usb_tx_string("\n\rPointer Address in localize: ");
+      m_usb_tx_int(location);
 
 
       m_usb_tx_string("\n\rNorth Star: X:");
@@ -220,6 +235,8 @@ void localize_calculate(uint16_t* data)
       m_usb_tx_string(" i:");
       m_usb_tx_int(south_star);
       m_usb_tx_string("\n\r");
+
+
     }
 
   } else {
@@ -229,6 +246,8 @@ void localize_calculate(uint16_t* data)
 
 
 float* localize_location() {
-	float location[3] = {LOCALIZE_CENTER_XY[0], LOCALIZE_CENTER_XY[1], LOCALIZE_ANGLE};
+  location[0] = LOCALIZE_CENTER_XY[0];
+  location[1] = LOCALIZE_CENTER_XY[1];
+  location[2] = LOCALIZE_ANGLE;
   return location;
 }
