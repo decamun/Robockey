@@ -3,6 +3,7 @@
 #include "options.h"
 #include "m_general.h"
 #include "globalVariables.h"
+#include "Comm_Protocol.h"
 #include "m_usb.h"
 #include "m_bus.h"
 #include "m_rf.h"
@@ -100,6 +101,8 @@ void main()
 		if(RF_READ) {
 			//handle new RF info
 			RF_READ = 0;
+			rf_comm(buffer);
+
 		}
 	}
 }
@@ -108,6 +111,7 @@ void main()
 ISR(INT2_vect) {
 	//m_rf_recieved a thing
 	RF_READ = m_rf_read(buffer, BUFFER_SIZE);
+
 }
 
 
