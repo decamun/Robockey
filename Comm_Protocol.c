@@ -102,7 +102,7 @@ void rf_comm(int buffer) {
 }
 
 ///WIRELESS INTERRUPT 
-
+/*
 ISR(INT2_vect){
 	m_rf_read(buffer, PACKET_LENGTH);
 	m_green(TOGGLE);
@@ -113,3 +113,4 @@ ISR(INT2_vect){
 
 flag = 1;
 }
+
