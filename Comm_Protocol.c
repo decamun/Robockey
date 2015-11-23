@@ -15,8 +15,9 @@ char buffer[PACKET_LENGTH] = {0,0,0,0,0,0,0,0,0,0};
 
 int message = 0;
 int flag = 0;
+int i = 0;
 
-void rf_comm(int buffer) {
+void rf_comm(char* buffer) {
 
 	/*switch(robotnum){
 		case 1:
@@ -39,7 +40,7 @@ void rf_comm(int buffer) {
 	m_red(OFF);
 	*/
 
-	while(flag)
+	while(1)
 	{
 		message = buffer[0];
 
@@ -113,4 +114,4 @@ ISR(INT2_vect){
 
 flag = 1;
 }
-
+*/

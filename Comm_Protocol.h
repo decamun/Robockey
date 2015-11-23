@@ -1,4 +1,4 @@
 char buffer[PACKET_LENGTH];
 int message;
-void rf_comm(int robotnum);
+void rf_comm(char* buffer);
 ISR(INT2_vect);
