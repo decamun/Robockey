@@ -10,21 +10,23 @@
 #include "Drive.h"
 #include "globalVariables.h"
 #include "m_general.h"
+#include "m_bus.h"
+#include "m_usb.h"
+#include <math.h>
 
 #define ACCURACY 30
 
 static int goto_x = 0;
 static int goto_y = 0;
-static float* position;
+static float* position = 0;
 
 void drive_update()
 {
-	position = getPosition();
-	if(getDriveState == GO_TO) {
-		goTo(goto_x, goto_y);
+	//if(getDriveState == GO_TO) {
+	goTo(goto_x, goto_y);
 		//leftON(124, 0);
 		//rightON(124, 0);
-	}
+	//}
 }
 
 void stop()
@@ -39,12 +41,35 @@ void goTo(int x, int y) //goes to the specified position on the field (in cm)
 	goto_x = x;
 	goto_y = y;
 	setDriveState(GO_TO);
-	if(position[3] > 0.02) {
-		rightON(0.1, FORWARDS);
-		leftON(0.1, FORWARDS);
-	} else if(position[3] < -0.02) {
-		rightON(0.1, FORWARDS);
-		leftON(0.1, FORWARDS);
+	position = getPosition();
+	m_usb_tx_int((int)(position[2] * 100));
+	m_usb_tx_string("!!!!!!!!!!!!\n\r");
+
+
+	float target_angle = atan2f(y - position[1], x - position[0]);
+	float current_angle = position[2];
+	while (current_angle > 3.14159) {
+		current_angle = current_angle - 2 * 3.14159;
+	}
+	float delta_angle = target_angle - current_angle;
+	if(delta_angle > 3.14159) {
+		delta_angle = -2 * 3.14159 + delta_angle;
+	}
+	if(delta_angle < -3.14159) {
+		delta_angle = 2 * 3.14159 + delta_angle;
+	}
+
+	if(delta_angle > 0) {
+		m_red(OFF);
+		//cw
+		rightON(0.5, FORWARDS);
+		leftON(0.5, BACKWARDS);
+		m_green(ON);
+	} else if(delta_angle < 0) {
+		m_red(ON);
+		//ccw
+		rightON(0.5, BACKWARDS);
+		leftON(0.5, FORWARDS);
 	} else {
 		stop();
 	}
@@ -79,13 +104,13 @@ void leftON(float power, int direction)
 {
 	start_pwm1(1024,power);
 
-	if (direction == FORWARDS)
+	if (direction != FORWARDS)
 	{
-		set(PORTB, 1);
+		set(PORTB, 0);
 	}
 	else
 	{
-		clear(PORTB, 1);
+		clear(PORTB, 0);
 	}
 }
 

@@ -3,6 +3,7 @@
 
 
 volatile uint16_t _max_value1 = 0;
+static int already_on_1 = 0;
 
 void start_pwm1(uint16_t resolution, float duty_cycle) {
   _max_value1 = resolution; //save resolution
@@ -10,21 +11,24 @@ void start_pwm1(uint16_t resolution, float duty_cycle) {
   OCR1A = resolution;  //frequency
   OCR1B = (uint16_t)(((float)resolution) * duty_cycle); //duty cycle
 
-  //timer mode: 15 -> 1111
-  set(TCCR1B, WGM13); //1
-  set(TCCR1B, WGM12); //1
-  set(TCCR1A, WGM11); //1
-  set(TCCR1A, WGM10); //1
+  if(!already_on_1) {
+    //timer mode: 15 -> 1111
+    set(TCCR1B, WGM13); //1
+    set(TCCR1B, WGM12); //1
+    set(TCCR1A, WGM11); //1
+    set(TCCR1A, WGM10); //1
 
-  //output options B6: 11
-  set(TCCR1A, COM1B1);   //1
-  clear(TCCR1A, COM1B0); //0
+    //output options B6: 11
+    set(TCCR1A, COM1B1);   //1
+    clear(TCCR1A, COM1B0); //0
 
-  //clock prescaler: /8 -> 010
-  clear(TCCR1B, CS12);    //0
-  set(TCCR1B, CS11);  //1
-  clear(TCCR1B, CS10);  //0
-  set(DDRB, 6); //set port B6 output
+    //clock prescaler: /8 -> 010
+    clear(TCCR1B, CS12);    //0
+    set(TCCR1B, CS11);  //1
+    clear(TCCR1B, CS10);  //0
+    set(DDRB, 6); //set port B6 output
+    already_on_1 = 1;
+  }
 }
 
 void set_duty1(float duty_cycle) {
@@ -38,4 +42,5 @@ void stop1() {
   clear(TCCR1B, CS11);   //0
   clear(TCCR1B, CS10);   //0
   clear(DDRB, 6);
+  already_on_1 = 0;
 }

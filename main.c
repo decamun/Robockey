@@ -43,7 +43,7 @@ void initialize() {
 	m_rf_open(CHANNEL, ADDRESS, BUFFER_SIZE);
 
 	//initialize USB
-	if(USB_DEBUG || MATLAB_GRAPH) {
+	if(USB_DEBUG || MATLAB_GRAPH || FORCE_USB) {
 		m_usb_init();
 	}
 
@@ -66,6 +66,7 @@ void main()
 			drive_update(); //update drive state
 
 			m_green(ON);
+
 
 
 			//main loop things
