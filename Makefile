@@ -13,12 +13,12 @@
 # tag to the parents line (e.g. "PARENTS = "m_bus.o")
 # --------------------------------------------------------
 MAIN       = main.o
-CHILDREN   = globalVariables.o m_wii.o timer1.o timer0.o timer3.o Drive.o ADC.o m_usb.o m_bus.o m_rf.o localize.o 
+CHILDREN   = globalVariables.o m_wii.o timer1.o timer0.o timer3.o Drive.o ADC_Pele.o m_usb.o m_bus.o m_rf.o localize.o 
 PARENTS    =
 
 # --------------------------------------------------------
 # if you want to use one of our pre-compiled libraries,
-# add it to the line below (e.g. "LIBRARIES = libsaast.a")
+# add it to the line below (e.g. "LIBRARIES = libsaast.a"
 # --------------------------------------------------------
 
 # --------------------------------------------------------
