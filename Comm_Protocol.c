@@ -1,6 +1,8 @@
 #include <avr/io.h>
 #include "m_general.h"
-#include "m_rf.h"
+//#include "m_rf.h"
+#include "globalVariables.h"
+
 
 #define CHANNEL 1
 //#define RXADDRESS 0xC //For robot 1
@@ -12,10 +14,11 @@
 char buffer[PACKET_LENGTH] = {0,0,0,0,0,0,0,0,0,0};
 
 int message = 0;
+int flag = 0;
 
-void rf_comm(int robotnum) {
+void rf_comm(int buffer) {
 
-	switch(robotnum){
+	/*switch(robotnum){
 		case 1:
 		RXADDRESS = 0xC; // 12 For robot 1
 		break;
@@ -29,13 +32,16 @@ void rf_comm(int robotnum) {
 		break;
 
 	}
+	*/
 	
-	m_red(ON);
-	while(!m_rf_open(CHANNEL, RXADDRESS, PACKET_LENGTH)){}	// Initializes mIMU
+	/*m_red(ON);
+	while(!m_rf_open(CHANNEL, ADDRESS, PACKET_LENGTH)){}	// Initializes mIMU
 	m_red(OFF);
+	*/
 
-	while(TRUE)
+	while(flag)
 	{
+		message = buffer[0];
 
 		if(flag == 1)
 		{
@@ -50,32 +56,48 @@ void rf_comm(int robotnum) {
 				}
 				break;
 
+			setMessage(1);
+
 			case 0xA1:	//PLAY (TURN ON ROBOT)
+				//PLAY = 1;
+
+			setMessage(2);
 
 			break;
 
 			case 0xA2: // GOAL R (STOP)
 
+			setMessage(3);
+
 			break;
 
 			case 0xA3: //GOAL B (STOP)
+
+			setMessage(4);
 
 			break;
 
 			case 0xA4: //PAUSE (TURN OFF ROBOT IN 3 SECONDS)
 
+			setMessage(5);
+
 			break;
 
 			case 0xA6: //HALFTIME(STOP_)
+
+			setMessage(6);
 
 			break;
 
 			case 0xA7: //GAME OVER (STOP)
 
+			setMessage(7);
+
 			break;
 
 			case 0xA8: // Enemy positions
 
+			setMessage(8);
 			break;
 
 
