@@ -11,6 +11,7 @@ enum MAINSTATE current_mainstate;
 enum PUKSTATE current_pukstate;
 enum MOVINGSTATE current_movingstate;
 enum DRIVESTATE current_drivestate;
+enum MESSAGE current_message;
 
 float *current_position;
 
@@ -52,6 +53,16 @@ void setMovingState(int state)
 enum MOVINGSTATE getMovingState()
 {
 	return current_movingstate;
+}
+
+void setMessage(int state)
+{
+	current_message = state;
+}
+
+enum MESSAGE getMessage()
+{
+	return current_message;
 }
 
 void setPosition(float *pos)

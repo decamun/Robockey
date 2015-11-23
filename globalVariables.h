@@ -44,6 +44,18 @@ enum DRIVESTATE
 	CURVING
 };
 
+enum MESSAGE
+{
+	NONE = 0,
+	COMM_TEST,
+	PLAY,
+	GOAL_R,
+	GOAL_B,
+	PAUSE,
+	HALFTIME,
+	GAME_OVER
+};
+
   void setMainState(int state);
   enum MAINSTATE getMainState();
   void setPukState(int state);
@@ -52,7 +64,10 @@ enum DRIVESTATE
   enum MOVINGSTATE getMovingState();
 	void setDriveState(int state);
   enum DRIVESTATE getDriveState();
-  void setPosition(float *pos);
+	void setMessage(int state);
+	enum MESSAGE getMessage();
+
+	void setPosition(float *pos);
   float *getPosition();
 
 #endif
