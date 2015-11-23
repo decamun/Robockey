@@ -43,8 +43,6 @@ void rf_comm(int buffer) {
 	{
 		message = buffer[0];
 
-		if(flag == 1)
-		{
 		switch(message){
 
 			case 0xA0: 	// Comm Test
@@ -99,11 +97,6 @@ void rf_comm(int buffer) {
 
 			setMessage(8);
 			break;
-
-
-		}
-
-		flag = 0;
 		}	
 	}
 }
