@@ -17,18 +17,17 @@
 
 #define ACCURACY 30
 #define DRIVE_PI 3.14159
+#define MAX_TURN 0.5
 
 static int goto_x = 0;
 static int goto_y = 0;
+
 static float* position = 0;
 
 void drive_update()
 {
-	//if(getDriveState == GO_TO) {
+	//enum DRIVESTATE = getDriveState();
 	goTo(goto_x, goto_y);
-		//leftON(124, 0);
-		//rightON(124, 0);
-	//}
 }
 
 void stop()
@@ -45,8 +44,6 @@ void goTo(int x, int y) //goes to the specified position on the field (in cm)
 	goto_y = y;
 	setDriveState(GO_TO);
 	position = getPosition();
-	m_usb_tx_int((int)(position[2] * 100));
-	m_usb_tx_string("!!!!!!!!!!!!\n\r");
 
 	//get target angle
 	float target_angle = atan2f(y - position[1], x - position[0]);
@@ -72,18 +69,22 @@ void goTo(int x, int y) //goes to the specified position on the field (in cm)
 	}
 
 
-	if(delta_angle > 0) {
-		m_red(OFF);
-		//cw
-		rightON(0.5, FORWARDS);
-		leftON(0.3, FORWARDS);
-		m_green(ON);
-	} else if(delta_angle < 0) {
-		m_red(ON);
-		//ccw
-		rightON(0.3, FORWARDS);
-		leftON(0.5, FORWARDS);
+	//test drive to point
+	float delta_power = fabs(delta_angle) / (DRIVE_PI);
+	if(delta_power > MAX_TURN) {
+		if(delta_angle < 0) {
+			leftON(delta_power/2, FORWARDS);
+			rightON(delta_power/2, BACKWARDS);
+		} else {
+			leftON(delta_power/2, BACKWARDS);
+			rightON(delta_power/2, FORWARDS);
+		}
 	} else {
+		rightON(MAX_TURN + delta_power * delta_angle / fabs(delta_angle), FORWARDS);
+		leftON(MAX_TURN - delta_power * delta_angle / fabs(delta_angle), FORWARDS);
+	}
+
+	if(fabs(position[0] - goto_x) < 25 && fabs(position[1] - goto_y) < 25) {
 		stop();
 	}
 }
@@ -115,15 +116,17 @@ void goStraight(int distance, int direction, float velocity) //goes straight a c
 
 void leftON(float power, int direction)
 {
+	if(power > 1) power = 1;
+
 	start_pwm1(1024,power);
 
 	if (direction != FORWARDS)
 	{
-		set(PORTB, 0);
+		clear(PORTB, 0);
 	}
 	else
 	{
-		clear(PORTB, 0);
+		set(PORTB, 0);
 	}
 }
 
@@ -134,17 +137,18 @@ void leftOFF()
 
 void rightON(float power, int direction)
 {
+	if(power > 1) power = 1;
 
 
 	start_pwm3(1024,power);
 
 	if (direction == FORWARDS)
 	{
-		set(PORTB, 1);
+		clear(PORTB, 1);
 	}
 	else
 	{
-		clear(PORTB, 1);
+		set(PORTB, 1);
 	}
 }
 

@@ -181,14 +181,23 @@ void localize_calculate(uint16_t* data)
     centerxy[1] = (float)(data[(north_star) * 3 + 1] + data[(south_star ) * 3 + 1])/2 -T[1];
 
     float centerxy_tx[2];
-    centerxy_tx[0] = cosf(angle_adg) * centerxy[0] - sinf(angle_adg) * centerxy[1];
-    centerxy_tx[1] = sinf(angle_adg) * centerxy[0] + cosf(angle_adg) * centerxy[1];
+    centerxy_tx[1] = -cosf(angle_adg) * centerxy[0] + sinf(angle_adg) * centerxy[1];
+    centerxy_tx[0] = -sinf(angle_adg) * centerxy[0] - cosf(angle_adg) * centerxy[1];
 
     LOCALIZE_CENTER_XY[0] = centerxy_tx[0]; //LOCALIZE_CENTER_XY[0] * (LOCALIZE_LPF) + centerxy_tx[0] * (1 - LOCALIZE_LPF);
 	  LOCALIZE_CENTER_XY[1] = centerxy_tx[1];//LOCALIZE_CENTER_XY[1] * (LOCALIZE_LPF) + centerxy_tx[1] * (1 - LOCALIZE_LPF); //low pass transformed location
-    LOCALIZE_ANGLE = (-angle_adg + 3.14159); //save transformed angle of robot (negative because it is in field coordinates, not robot coordinates)
 
-
+    /////////////////
+    //removed as test
+    //LOCALIZE_ANGLE = (-angle_adg + 3.14159); //save transformed angle of robot (negative because it is in field coordinates, not robot coordinates)
+    ////////////////////////////////
+    //test switch to 0 -> 2pi coords
+    if(angle_adg > 0) {
+      angle_adg = angle_adg - 2 * 3.14159;
+    }
+    LOCALIZE_ANGLE = (-angle_adg);
+    //end test
+    ///////////////////
 
     //USB DEBUG CODE
     if(MATLAB_GRAPH && m_usb_isconnected()) {

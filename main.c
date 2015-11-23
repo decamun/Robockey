@@ -17,6 +17,8 @@
 
 char buffer[BUFFER_SIZE];
 
+float* position = NULL;
+
 
 //flags
 int RF_READ = 0;
@@ -29,8 +31,24 @@ void initialize();
 void main()
 {
 	initialize();
+	m_wait(5000);
+	int i;
+	for (i = 0; i < 50; i++) {
+		localize_update();
+		position = getPosition();
+	}
 
-	goTo(0, 0);
+
+
+	if (position[0] > 0)
+	{
+		goTo(-300, 0);
+	}
+	else {
+		goTo(300, 0);
+	}
+
+
 	float* pos_alt = NULL;
 	while (1) {
 		if(TICK_HAPPENED) {
@@ -38,7 +56,6 @@ void main()
 			localize_update(); //update localization info
 			drive_update(); //update drive state
 			//main loop things
-
 
 
 
