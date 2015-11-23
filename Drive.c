@@ -14,7 +14,9 @@
 #include "m_usb.h"
 #include <math.h>
 
+
 #define ACCURACY 30
+#define DRIVE_PI 3.14159
 
 static int goto_x = 0;
 static int goto_y = 0;
@@ -38,6 +40,7 @@ void stop()
 
 void goTo(int x, int y) //goes to the specified position on the field (in cm)
 {
+	//save and update state
 	goto_x = x;
 	goto_y = y;
 	setDriveState(GO_TO);
@@ -45,30 +48,40 @@ void goTo(int x, int y) //goes to the specified position on the field (in cm)
 	m_usb_tx_int((int)(position[2] * 100));
 	m_usb_tx_string("!!!!!!!!!!!!\n\r");
 
-
+	//get target angle
 	float target_angle = atan2f(y - position[1], x - position[0]);
-	float current_angle = position[2];
-	while (current_angle > 3.14159) {
-		current_angle = current_angle - 2 * 3.14159;
+
+	//change target angle to 0 -> 2pi coords
+	if(target_angle < 0) {
+		target_angle = target_angle + 2 * DRIVE_PI;
 	}
+
+	//get current angle
+	float current_angle = position[2]; //already 0 -> 2pi
+
+	//get delta for PID
 	float delta_angle = target_angle - current_angle;
-	if(delta_angle > 3.14159) {
-		delta_angle = -2 * 3.14159 + delta_angle;
+
+	//handle edge case with zero rollover
+	if(fabs(delta_angle) > DRIVE_PI) {
+		if(delta_angle > 0) {
+			delta_angle = delta_angle - 2 * DRIVE_PI;
+		} else {
+			delta_angle = delta_angle + 2 * DRIVE_PI;
+		}
 	}
-	if(delta_angle < -3.14159) {
-		delta_angle = 2 * 3.14159 + delta_angle;
-	}
+
 
 	if(delta_angle > 0) {
 		m_red(OFF);
 		//cw
 		rightON(0.5, FORWARDS);
-		leftON(0.5, BACKWARDS);
+		leftON(0.3, FORWARDS);
 		m_green(ON);
 	} else if(delta_angle < 0) {
 		m_red(ON);
 		//ccw
-		rightON(0.5, BACKWARDS);
+		rightON(0.3, FORWARDS);
 		leftON(0.5, FORWARDS);
 	} else {
 		stop();
