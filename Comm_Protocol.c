@@ -34,7 +34,7 @@ void rf_comm(char* buffer) {
 
 	}
 	*/
-	
+
 	/*m_red(ON);
 	while(!m_rf_open(CHANNEL, ADDRESS, PACKET_LENGTH)){}	// Initializes mIMU
 	m_red(OFF);
@@ -98,18 +98,18 @@ void rf_comm(char* buffer) {
 
 			setMessage(8);
 			break;
-		}	
+		}
 	}
 }
 
-///WIRELESS INTERRUPT 
+///WIRELESS INTERRUPT
 /*
 ISR(INT2_vect){
 	m_rf_read(buffer, PACKET_LENGTH);
 	m_green(TOGGLE);
 
 	message = buffer[0];
-	
+
 
 
 flag = 1;
