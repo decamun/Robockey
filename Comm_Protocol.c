@@ -8,10 +8,8 @@
 //#define RXADDRESS 0xC //For robot 1
 //#define RXADDRESS 0xD //For robot 2
 //#define RXADDRESS 0xE //For robot 3
-#define PACKET_LENGTH 10
-#define F_CPU 16000000
 
-char buffer[PACKET_LENGTH] = {0,0,0,0,0,0,0,0,0,0};
+char buffer[10] = {0,0,0,0,0,0,0,0,0,0};
 
 int message = 0;
 int flag = 0;
@@ -49,9 +47,7 @@ void rf_comm(char* buffer) {
 			case 0xA0: 	// Comm Test
 				for(i=0; i<10; i++){
 						set(PORTD,4); 	//Flash positioning LED 10 times
-						m_wait(50);
-						clear(PORTD,4)
-						m_wait(50);
+						clear(PORTD,4);
 				}
 				break;
 
