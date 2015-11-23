@@ -22,10 +22,39 @@ char buffer[BUFFER_SIZE];
 int RF_READ = 0;
 int TICK_HAPPENED = 0;
 
-void report_error() {
-	m_red(ON);
-	if(USB_DEBUG && m_usb_isconnected()) {
-		m_usb_tx_string("error!\n\r");
+void report_error();
+
+void initialize();
+
+void main()
+{
+	initialize();
+
+	goTo(0, 0);
+	float* pos_alt = NULL;
+	while (1) {
+		if(TICK_HAPPENED) {
+			//handle new clock tick
+			localize_update(); //update localization info
+			drive_update(); //update drive state
+			//main loop things
+
+
+
+
+
+
+
+
+			TICK_HAPPENED = 0;
+		}
+
+
+		if(RF_READ) {
+			//handle new RF info
+			RF_READ = 0;
+			rf_comm(buffer);
+		}
 	}
 }
 
@@ -53,57 +82,11 @@ void initialize() {
 	interupt0(1);
 }
 
-void main()
-{
-	initialize();
 
-	goTo(0, 0);
-	float* pos_alt = NULL;
-	while (1) {
-		if(TICK_HAPPENED) {
-			//handle new clock tick
-			m_green(OFF);
-			localize_update(); //update localization info
-			drive_update(); //update drive state
-
-			m_green(ON);
-
-
-
-			//main loop things
-
-
-
-
-
-
-
-
-			TICK_HAPPENED = 0;
-
-			//usb_debug code
-			if(USB_DEBUG && m_usb_isconnected()) {
-
-				pos_alt = localize_location();
-				int i = 0;
-
-				m_usb_tx_string("\n\rPointer Address in main:");
-	      m_usb_tx_int(pos_alt);
-
-				m_usb_tx_string("\n\r");
-				for(i = 0; i < 3; i++) {
-					m_usb_tx_int((int)(pos_alt[i]*100));
-					m_usb_tx_string(" | ");
-				}
-				m_usb_tx_string("\n\r");
-			}
-		}
-		if(RF_READ) {
-			//handle new RF info
-			RF_READ = 0;
-			rf_comm(buffer);
-
-		}
+void report_error() {
+	m_red(ON);
+	if(USB_DEBUG && m_usb_isconnected()) {
+		m_usb_tx_string("error!\n\r");
 	}
 }
 
@@ -111,7 +94,6 @@ void main()
 ISR(INT2_vect) {
 	//m_rf_recieved a thing
 	RF_READ = m_rf_read(buffer, BUFFER_SIZE);
-
 }
 
 
