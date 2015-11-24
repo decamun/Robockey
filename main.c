@@ -51,8 +51,11 @@ void main()
 		if(TICK_HAPPENED) {
 			//handle new clock tick
 			localize_update(); //update localization info
+			m_green(OFF);
 			if(GO) {
 				drive_update(); //update drive state
+			} else {
+				stop();
 			}
 			if(BLINK) {
 				BLINK =0;
@@ -158,8 +161,14 @@ ISR(INT2_vect) {
 
 //tick flag setter
 ISR(TIMER0_OVF_vect) {
-	TICK_HAPPENED = 1;
-	if(USB_DEBUG && m_usb_isconnected) {
-		m_usb_tx_string("TICK!\n\r");
+	if(TICK_HAPPENED) {
+		m_red(ON);
+	} else {
+		m_red(OFF);
+		TICK_HAPPENED = 1;
+		if(USB_DEBUG && m_usb_isconnected) {
+			m_usb_tx_string("TICK!\n\r");
+		}
 	}
+
 }

@@ -17,14 +17,16 @@
 
 #define ACCURACY 30
 #define DRIVE_PI 3.14159
-#define DRIVE_KP 5
+#define DRIVE_KP 1
+#define DRIVE_KD 10
 #define MAX_DELTA_ANGLE 3.14159/6
 
-static int DRIVE_POWER = 0;
+static float DRIVE_POWER = 0;
 
 static int goto_x = 0;
 static int goto_y = 0;
 static int GOTO = 0;
+static float delta_angle_prev = 0;
 
 static float* position = 0;
 
@@ -32,7 +34,6 @@ void drive_update()
 {
 	if(GOTO) {
 	goTo(goto_x, goto_y);
-	//leftON(1,FORWARDS);
 	}
 }
 
@@ -80,9 +81,14 @@ void goTo(int x, int y) //goes to the specified position on the field (in cm)
 	}
 
 
-	//test drive to point
-	float delta_power = fabs(delta_angle) * DRIVE_POWER * DRIVE_KP / DRIVE_PI;
 
+	//test drive to point
+	float DRIVE_PID = (DRIVE_KP - fabs(delta_angle - delta_angle_prev) * DRIVE_KD);
+	if(DRIVE_PID < 0) {
+		DRIVE_PID = 0;
+	}
+	float delta_power = fabs(delta_angle)* DRIVE_POWER * DRIVE_PID/ DRIVE_PI;
+	delta_angle_prev = delta_angle;
 	if(delta_power > 1) {
 		delta_power = 1;
 	}
@@ -108,6 +114,8 @@ void goTo(int x, int y) //goes to the specified position on the field (in cm)
 		rightON(right_power, FORWARDS);
 		leftON(left_power, FORWARDS);
 	}
+
+	m_green(ON);
 
 	if(fabs(position[0] - goto_x) < 25 && fabs(position[1] - goto_y) < 25) {
 		stop();
