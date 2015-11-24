@@ -17,17 +17,27 @@
 
 #define ACCURACY 30
 #define DRIVE_PI 3.14159
-#define MAX_TURN 0.5
+#define DRIVE_KP 5
+#define MAX_DELTA_ANGLE 3.14159/6
+
+static int DRIVE_POWER = 0;
 
 static int goto_x = 0;
 static int goto_y = 0;
+static int GOTO = 0;
 
 static float* position = 0;
 
 void drive_update()
 {
-	//enum DRIVESTATE = getDriveState();
+	if(GOTO) {
 	goTo(goto_x, goto_y);
+	//leftON(1,FORWARDS);
+	}
+}
+
+void set_power(float power) {
+	DRIVE_POWER = power;
 }
 
 void stop()
@@ -43,6 +53,7 @@ void goTo(int x, int y) //goes to the specified position on the field (in cm)
 	goto_x = x;
 	goto_y = y;
 	setDriveState(GO_TO);
+	GOTO = 1;
 	position = getPosition();
 
 	//get target angle
@@ -70,18 +81,32 @@ void goTo(int x, int y) //goes to the specified position on the field (in cm)
 
 
 	//test drive to point
-	float delta_power = fabs(delta_angle) / (DRIVE_PI);
-	if(delta_power > MAX_TURN) {
+	float delta_power = fabs(delta_angle) * DRIVE_POWER * DRIVE_KP / DRIVE_PI;
+
+	if(delta_power > 1) {
+		delta_power = 1;
+	}
+
+
+	if(fabs(delta_angle) > MAX_DELTA_ANGLE) {
 		if(delta_angle < 0) {
-			leftON(delta_power/2, FORWARDS);
-			rightON(delta_power/2, BACKWARDS);
+			leftON(delta_power, FORWARDS);
+			rightON(delta_power, BACKWARDS);
 		} else {
-			leftON(delta_power/2, BACKWARDS);
-			rightON(delta_power/2, FORWARDS);
+			leftON(delta_power, BACKWARDS);
+			rightON(delta_power, FORWARDS);
 		}
 	} else {
-		rightON(MAX_TURN + delta_power * delta_angle / fabs(delta_angle), FORWARDS);
-		leftON(MAX_TURN - delta_power * delta_angle / fabs(delta_angle), FORWARDS);
+		float right_power = DRIVE_POWER + delta_power * delta_angle / fabs(delta_angle);
+		if(right_power > 1) {
+			right_power = 1;
+		}
+		float left_power = DRIVE_POWER - delta_power * delta_angle / fabs(delta_angle);
+		if(left_power > 1) {
+			left_power = 1;
+		}
+		rightON(right_power, FORWARDS);
+		leftON(left_power, FORWARDS);
 	}
 
 	if(fabs(position[0] - goto_x) < 25 && fabs(position[1] - goto_y) < 25) {

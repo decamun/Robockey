@@ -23,6 +23,8 @@ float* position = NULL;
 //flags
 int RF_READ = 0;
 int TICK_HAPPENED = 0;
+int GO = 0;
+int BLINK = 0;
 
 void report_error();
 
@@ -31,7 +33,7 @@ void initialize();
 void main()
 {
 	initialize();
-	m_wait(5000);
+	//m_wait(5000);
 	int i;
 	for (i = 0; i < 50; i++) {
 		localize_update();
@@ -40,13 +42,8 @@ void main()
 
 
 
-	if (position[0] > 0)
-	{
-		goTo(-300, 0);
-	}
-	else {
-		goTo(300, 0);
-	}
+
+
 
 
 	float* pos_alt = NULL;
@@ -54,7 +51,17 @@ void main()
 		if(TICK_HAPPENED) {
 			//handle new clock tick
 			localize_update(); //update localization info
-			drive_update(); //update drive state
+			if(GO) {
+				drive_update(); //update drive state
+			}
+			if(BLINK) {
+				BLINK =0;
+				int i;
+				for(i = 0; i <20; i++) {
+					m_green(TOGGLE);
+					m_wait(100);
+				}
+			}
 			//main loop things
 
 
@@ -86,6 +93,8 @@ void initialize() {
 	set(DDRB, 0);
 	set(DDRB, 1);
 
+	set_power(INITIAL_POWER);
+
 	//initialize RF
 	m_rf_open(CHANNEL, ADDRESS, BUFFER_SIZE);
 
@@ -110,7 +119,40 @@ void report_error() {
 //m_rf flag setter
 ISR(INT2_vect) {
 	//m_rf_recieved a thing
-	RF_READ = m_rf_read(buffer, BUFFER_SIZE);
+	RF_READ = 1;
+	m_rf_read(buffer, BUFFER_SIZE);
+	//m_red(TOGGLE);
+	if((uint8_t)buffer[0] == 0xA0) { //Comm Test
+		BLINK = 1;
+	} else if((uint8_t)buffer[0] == 0xA1) { // Play
+		//m_green(TOGGLE);
+		if (position[0] > 0)
+		{
+			goTo(-300, 0);
+		}
+		else {
+			goTo(300, 0);
+		}
+		GO = 1;
+	} else if((uint8_t)buffer[0] == 0xA2) { // Goal R
+		GO = 0;
+		stop();
+	} else if((uint8_t)buffer[0] == 0xA3) { // Goal B
+		GO = 0;
+		stop();
+	} else if((uint8_t)buffer[0] == 0xA4) { // Pause
+		GO = 0;
+		stop();
+	}	else if((uint8_t)buffer[0] == 0xA5) { // detangle
+		GO = 0;
+		stop();
+	} else if((uint8_t)buffer[0] == 0xA6) { // Halftime
+		GO = 0;
+		stop();
+	} else if((uint8_t)buffer[0] == 0xA7) { // Game Over
+		GO = 0;
+		stop();
+	}
 }
 
 

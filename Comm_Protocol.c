@@ -26,6 +26,7 @@ void rf_comm(char* buffer) {
 
 			case 0xA1:	//PLAY (TURN ON ROBOT)
 			setMessage(2);
+			
 			break;
 
 			case 0xA2: // GOAL R (STOP)
