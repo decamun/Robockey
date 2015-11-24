@@ -25,10 +25,13 @@ int RF_READ = 0;
 int TICK_HAPPENED = 0;
 int GO = 0;
 int BLINK = 0;
+int KICK_TICKS = 0;
 
 void report_error();
 
 void initialize();
+
+void kick();
 
 void main()
 {
@@ -52,11 +55,15 @@ void main()
 			//handle new clock tick
 			localize_update(); //update localization info
 			m_green(OFF);
+
+			//handle driving
 			if(GO) {
 				drive_update(); //update drive state
 			} else {
 				stop();
 			}
+
+			//handle comm test
 			if(BLINK) {
 				BLINK =0;
 				int i;
@@ -64,6 +71,17 @@ void main()
 					m_green(TOGGLE);
 					m_wait(100);
 				}
+			}
+
+
+			//handle kicking
+			if(KICK_TICKS > 0) {
+				KICK_TICKS = KICK_TICKS - 1;
+				//kick
+				set(PORTB, 7);
+			} else {
+				//don't kick
+				clear(PORTB, 7);
 			}
 			//main loop things
 
@@ -96,6 +114,9 @@ void initialize() {
 	set(DDRB, 0);
 	set(DDRB, 1);
 
+	//enable kicker ports
+	set(DDRB, 7);
+
 	set_power(INITIAL_POWER);
 
 	//initialize RF
@@ -117,6 +138,10 @@ void report_error() {
 	if(USB_DEBUG && m_usb_isconnected()) {
 		m_usb_tx_string("error!\n\r");
 	}
+}
+
+void kick()	{
+	KICK_TICKS = (int)(TICKS_PER_SECOND * 0.5);
 }
 
 //m_rf flag setter

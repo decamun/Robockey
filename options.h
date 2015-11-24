@@ -13,7 +13,8 @@
 #define CHANNEL 1
 
 #define TICK_FREQUENCY 200
-
+#define TICK_LENGTH 0.0128
+#define TICKS_PER_SECOND 78.125
 
 #define BUFFER_SIZE 10
 
