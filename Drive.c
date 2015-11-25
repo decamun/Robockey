@@ -25,15 +25,30 @@ static float DRIVE_POWER = 0;
 
 static int goto_x = 0;
 static int goto_y = 0;
+static float turn_target = 0;
 static int GOTO = 0;
+static int TURN = 0;
+static int SEARCH = 0;
 static float delta_angle_prev = 0;
+static float delta_angle = 0;
 
 static float* position = 0;
+
+void reset_drive() {
+	GOTO = 0;
+	TURN = 0;
+	SEARCH = 0;
+	set_power(1);
+}
 
 void drive_update()
 {
 	if(GOTO) {
-	goTo(goto_x, goto_y);
+		goTo(goto_x, goto_y);
+	} else if(TURN) {
+		turn(turn_target);
+	} else if(SEARCH) {
+		drive_search();
 	}
 }
 
@@ -43,33 +58,21 @@ void set_power(float power) {
 
 void stop()
 {
+	GOTO = 0;
 	setDriveState(DRIVE_NDEF);
 	rightOFF();
 	leftOFF();
 }
 
-void goTo(int x, int y) //goes to the specified position on the field (in cm)
-{
-	//save and update state
-	goto_x = x;
-	goto_y = y;
-	setDriveState(GO_TO);
-	GOTO = 1;
-	position = getPosition();
-
-	//get target angle
-	float target_angle = atan2f(y - position[1], x - position[0]);
-
-	//change target angle to 0 -> 2pi coords
-	if(target_angle < 0) {
-		target_angle = target_angle + 2 * DRIVE_PI;
+float getPID(float target_angle) {
+	if(!position[0]) {
+		position = getPosition();
 	}
-
 	//get current angle
 	float current_angle = position[2]; //already 0 -> 2pi
 
 	//get delta for PID
-	float delta_angle = target_angle - current_angle;
+	delta_angle = target_angle - current_angle;
 
 	//handle edge case with zero rollover
 	if(fabs(delta_angle) > DRIVE_PI) {
@@ -80,13 +83,35 @@ void goTo(int x, int y) //goes to the specified position on the field (in cm)
 		}
 	}
 
-
-
-	//test drive to point
+	//drive PID
 	float DRIVE_PID = (DRIVE_KP - fabs(delta_angle - delta_angle_prev) * DRIVE_KD);
 	if(DRIVE_PID < 0) {
 		DRIVE_PID = 0;
 	}
+	return DRIVE_PID;
+}
+
+void goTo(int x, int y) //goes to the specified position on the field (in cm)
+{
+	//save and update state
+	goto_x = x;
+	goto_y = y;
+	setDriveState(GO_TO);
+
+	reset_drive();
+	GOTO = 1;
+
+	position = getPosition();
+
+	//get target angle
+	float target_angle = atan2f(y - position[1], x - position[0]);
+
+	//change target angle to 0 -> 2pi coords
+	if(target_angle < 0) {
+		target_angle = target_angle + 2 * DRIVE_PI;
+	}
+
+	float DRIVE_PID = getPID(target_angle); //update delta angle and get PID value
 	float delta_power = fabs(delta_angle)* DRIVE_POWER * DRIVE_PID/ DRIVE_PI;
 	delta_angle_prev = delta_angle;
 	if(delta_power > 1) {
@@ -123,9 +148,20 @@ void goTo(int x, int y) //goes to the specified position on the field (in cm)
 }
 
 
-void turn(int angle, float velocity) //turns a certain angle in RAD
+void turn(float target_angle) //turns a certain angle in RAD
 {
-
+	turn_target = target_angle;
+	reset_drive();
+	TURN = 1;
+	float DRIVE_PID = getPID(target_angle);
+	float delta_power = fabs(delta_angle)* DRIVE_POWER * DRIVE_PID/ DRIVE_PI;
+	if(delta_angle < 0) {
+		leftON(delta_power, FORWARDS);
+		rightON(delta_power, BACKWARDS);
+	} else {
+		leftON(delta_power, BACKWARDS);
+		rightON(delta_power, FORWARDS);
+	}
 }
 
 void goStraight(int distance, int direction, float velocity) //goes straight a certain distance (in cm), direction is either FORWARDS, BACKWARDS
@@ -188,4 +224,19 @@ void rightON(float power, int direction)
 void rightOFF()
 {
 	stop3();
+}
+
+void drive_search(){
+	reset_drive();
+	SEARCH = 1;
+	set_power(0.5);
+
+	//try to turn in a circle
+	if(position[2] > 0 && position[2] < 2.9) {
+		turn(3.14);
+	} else if(position[2] > 2.9) {
+		turn(-1.7);
+	} else if(position[2] < -1.9 && position[2] > 0) {
+		turn(0.5);
+	}
 }

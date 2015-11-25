@@ -23,8 +23,11 @@ float* position = NULL;
 //flags
 int RF_READ = 0;
 int TICK_HAPPENED = 0;
+
 int GO = 0;
 int BLINK = 0;
+int SEARCH_MODE = 0;
+
 int KICK_TICKS = 0;
 
 void report_error();
@@ -42,18 +45,21 @@ void main()
 		localize_update();
 		position = getPosition();
 	}
-
-
-
-
-
-
-
-	float* pos_alt = NULL;
+	m_wait(3000);
+	if (position[0] > 0)
+	{
+		goTo(-300, 0);
+	}
+	else {
+		goTo(300, 0);
+	}
+	GO = 1;
+	kick();
 	while (1) {
 		if(TICK_HAPPENED) {
 			//handle new clock tick
 			localize_update(); //update localization info
+			position = getPosition();
 			m_green(OFF);
 
 			//handle driving
@@ -82,6 +88,18 @@ void main()
 			} else {
 				//don't kick
 				clear(PORTB, 7);
+			}
+
+			//handle searching
+			if(SEARCH_MODE) {
+				//update_puck_angle();
+				if(1){ //if(see_puck()) {
+					//sees the puck
+					turn(0); //turn(puck_angle() + position[2]);
+				} else {
+					//doesn't see the puck: go search for it
+					drive_search();
+				}
 			}
 			//main loop things
 
@@ -141,7 +159,7 @@ void report_error() {
 }
 
 void kick()	{
-	KICK_TICKS = (int)(TICKS_PER_SECOND * 0.5);
+	KICK_TICKS = (int)(TICKS_PER_SECOND * 0.125);
 }
 
 //m_rf flag setter
@@ -162,6 +180,7 @@ ISR(INT2_vect) {
 			goTo(300, 0);
 		}
 		GO = 1;
+		SEARCH_MODE = 0;
 	} else if((uint8_t)buffer[0] == 0xA2) { // Goal R
 		GO = 0;
 		stop();
