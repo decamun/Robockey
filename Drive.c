@@ -229,7 +229,7 @@ void rightOFF()
 void drive_search(){
 	reset_drive();
 	SEARCH = 1;
-	set_power(0.5);
+	set_power(0.35);
 
 	//try to turn in a circle
 	if(position[2] > 0 && position[2] < 2.9) {

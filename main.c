@@ -14,6 +14,7 @@
 #include "Drive.h"
 #include <math.h>
 #include <stdint.h>
+#include "Puck_Find.h"
 
 char buffer[BUFFER_SIZE];
 
@@ -92,10 +93,10 @@ void main()
 
 			//handle searching
 			if(SEARCH_MODE) {
-				//update_puck_angle();
-				if(1){ //if(see_puck()) {
+				update_puck_angle();
+				if(get_see_puck()) {
 					//sees the puck
-					turn(0); //turn(puck_angle() + position[2]);
+					turn(get_puck_angle() + position[2]);
 				} else {
 					//doesn't see the puck: go search for it
 					drive_search();

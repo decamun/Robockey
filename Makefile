@@ -13,7 +13,7 @@
 # tag to the parents line (e.g. "PARENTS = "m_bus.o")
 # --------------------------------------------------------
 MAIN       = main.o
-CHILDREN   = globalVariables.o m_wii.o timer1.o timer0.o timer3.o Drive.o ADC_Pele.o Comm_Protocol.o m_usb.o m_bus.o m_rf.o localize.o 
+CHILDREN   = globalVariables.o m_wii.o timer1.o timer0.o timer3.o Drive.o ADC_Pele.o Comm_Protocol.o m_usb.o m_bus.o m_rf.o localize.o Puck_Find.o
 PARENTS    =
 
 # --------------------------------------------------------
