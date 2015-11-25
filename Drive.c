@@ -17,8 +17,8 @@
 
 #define ACCURACY 30
 #define DRIVE_PI 3.14159
-#define DRIVE_KP 1
-#define DRIVE_KD 10
+#define DRIVE_KP 3
+#define DRIVE_KD 100
 #define MAX_DELTA_ANGLE 3.14159/6
 
 static float DRIVE_POWER = 0;
@@ -38,7 +38,6 @@ void reset_drive() {
 	GOTO = 0;
 	TURN = 0;
 	SEARCH = 0;
-	set_power(1);
 }
 
 void drive_update()
@@ -65,9 +64,7 @@ void stop()
 }
 
 float getPID(float target_angle) {
-	if(!position[0]) {
-		position = getPosition();
-	}
+	position = getPosition();
 	//get current angle
 	float current_angle = position[2]; //already 0 -> 2pi
 
@@ -88,6 +85,7 @@ float getPID(float target_angle) {
 	if(DRIVE_PID < 0) {
 		DRIVE_PID = 0;
 	}
+	delta_angle_prev = delta_angle;
 	return DRIVE_PID;
 }
 
@@ -113,7 +111,6 @@ void goTo(int x, int y) //goes to the specified position on the field (in cm)
 
 	float DRIVE_PID = getPID(target_angle); //update delta angle and get PID value
 	float delta_power = fabs(delta_angle)* DRIVE_POWER * DRIVE_PID/ DRIVE_PI;
-	delta_angle_prev = delta_angle;
 	if(delta_power > 1) {
 		delta_power = 1;
 	}
@@ -153,8 +150,12 @@ void turn(float target_angle) //turns a certain angle in RAD
 	turn_target = target_angle;
 	reset_drive();
 	TURN = 1;
+
 	float DRIVE_PID = getPID(target_angle);
 	float delta_power = fabs(delta_angle)* DRIVE_POWER * DRIVE_PID/ DRIVE_PI;
+	if(delta_power > 1) {
+		delta_power = 1;
+	}
 	if(delta_angle < 0) {
 		leftON(delta_power, FORWARDS);
 		rightON(delta_power, BACKWARDS);
@@ -229,14 +230,6 @@ void rightOFF()
 void drive_search(){
 	reset_drive();
 	SEARCH = 1;
-	set_power(0.35);
-
-	//try to turn in a circle
-	if(position[2] > 0 && position[2] < 2.9) {
-		turn(3.14);
-	} else if(position[2] > 2.9) {
-		turn(-1.7);
-	} else if(position[2] < -1.9 && position[2] > 0) {
-		turn(0.5);
-	}
+	rightON(0.25, FORWARDS);
+	leftON(0.25, BACKWARDS);
 }

@@ -47,14 +47,7 @@ void main()
 		position = getPosition();
 	}
 	m_wait(3000);
-	if (position[0] > 0)
-	{
-		goTo(-300, 0);
-	}
-	else {
-		goTo(300, 0);
-	}
-	GO = 1;
+	SEARCH_MODE = 1;
 	kick();
 	while (1) {
 		if(TICK_HAPPENED) {
@@ -96,10 +89,14 @@ void main()
 				update_puck_angle();
 				if(get_see_puck()) {
 					//sees the puck
-					turn(get_puck_angle() + position[2]);
+					//turn(get_puck_angle() + position[2]);
+					leftON(0.3, FORWARDS);
+					rightON(0.3, FORWARDS);
 				} else {
 					//doesn't see the puck: go search for it
-					drive_search();
+					//drive_search();
+					leftON(0.35, BACKWARDS);
+					rightON(0.35, FORWARDS);
 				}
 			}
 			//main loop things
@@ -181,7 +178,6 @@ ISR(INT2_vect) {
 			goTo(300, 0);
 		}
 		GO = 1;
-		SEARCH_MODE = 0;
 	} else if((uint8_t)buffer[0] == 0xA2) { // Goal R
 		GO = 0;
 		stop();
