@@ -1,9 +1,10 @@
 #include "m_general.h"
 #include "ADC_Pele.h"
-#include "m_bus.h"
-#include "m_usb.h"
 
 #define PT_THRESHOLD 93
+
+static float puck_angle = 0;
+static int see_puck = 0;
 
 void update_puck_angle ()
 {
@@ -21,7 +22,7 @@ float PT_angles[7] = {-0.96, -0.48, 0, 3.14, 0, 0.48, 0.96};
 
 float PT_values[7] = {0,0,0,0,0,0,0};
 float PT_weighted[7] = {0,0,0,0,0,0,0};
-float puck_angle = 0;
+
 int total = 0;
 int i = 0;
 
@@ -52,15 +53,28 @@ int i = 0;
     puck_estimate = 0;
     total = 0;
 
+
         for(i = 0; i<7; i++){
             puck_angle += PT_values[i]*PT_angles[i];
             total += PT_values[i];
         }           
             puck_angle = angle_angle/total;
+
+            if(total != 0){
+            	see_puck = 1;
+            } else {
+            	see_puck = 0;
+            }
     }
 
 }
 
-int see_puck();
+int see_puck() {
+	return see_puck;
+}
+
+float puck_angle() {
+	return puck_angle;
+}
 
 
