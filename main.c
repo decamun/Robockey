@@ -30,7 +30,7 @@ int BLINK = 0;
 int SEARCH_MODE = 0;
 
 int KICK_TICKS = 0;
-
+int LED_pin = 5;
 void report_error();
 
 void initialize();
@@ -66,11 +66,16 @@ void main()
 			//handle comm test
 			if(BLINK) {
 				BLINK =0;
+					set(PORTD,LED_pin);
+					m_wait(100);
+					clear(PORTD,LED_pin);
+
 				int i;
-				for(i = 0; i <20; i++) {
+				for(i = 0; i <10; i++) {
 					m_green(TOGGLE);
 					m_wait(100);
 				}
+
 			}
 
 
@@ -122,6 +127,18 @@ void main()
 void initialize() {
 	m_clockdivide(0);
 
+	//Changing Output pin for different team
+	if(RED)
+	{
+		LED_pin = 6;
+
+	}
+
+
+	//Enabling Positioning LED Pins for output
+	set(DDRD, 5);
+	set(DDRD, 5); 
+
 	//driver board enable line
 	set(DDRB, 2); //enable output
 	set(PORTB, 2); //pull high
@@ -170,6 +187,8 @@ ISR(INT2_vect) {
 		BLINK = 1;
 	} else if((uint8_t)buffer[0] == 0xA1) { // Play
 		//m_green(TOGGLE);
+		set(PORTD,LED_pin); // Turn and Keep on Positioning LED
+
 		if (position[0] > 0)
 		{
 			goTo(-300, 0);
@@ -181,21 +200,27 @@ ISR(INT2_vect) {
 	} else if((uint8_t)buffer[0] == 0xA2) { // Goal R
 		GO = 0;
 		stop();
+		clear(PORTD, LED_pin); // TURN OFF positioning LED
 	} else if((uint8_t)buffer[0] == 0xA3) { // Goal B
 		GO = 0;
 		stop();
+		clear(PORTD, LED_pin); // TURN OFF positioning LED
 	} else if((uint8_t)buffer[0] == 0xA4) { // Pause
 		GO = 0;
 		stop();
+		clear(PORTD, LED_pin); // TURN OFF positioning LED
 	}	else if((uint8_t)buffer[0] == 0xA5) { // detangle
 		GO = 0;
 		stop();
+		clear(PORTD, LED_pin); // TURN OFF positioning LED
 	} else if((uint8_t)buffer[0] == 0xA6) { // Halftime
 		GO = 0;
 		stop();
+		clear(PORTD, LED_pin); // TURN OFF positioning LED
 	} else if((uint8_t)buffer[0] == 0xA7) { // Game Over
 		GO = 0;
 		stop();
+		clear(PORTD, LED_pin); // TURN OFF positioning LED
 	}
 }
 

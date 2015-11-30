@@ -6,6 +6,7 @@
 
 #define INITIAL_POWER 1
 
+#define RED 1 // if team blue RED = 0
 
 #define RF_DEBUG 0
 #define RF_DEBUG_ADDRESS 0x16
