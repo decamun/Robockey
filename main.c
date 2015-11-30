@@ -21,6 +21,18 @@ char buffer[BUFFER_SIZE];
 float* position = NULL;
 
 
+//REMOVE THIS!!!!
+///
+///
+///
+int shot = 0;
+int countdown = 500;
+//
+//
+//GARBOABEADFSDF
+
+
+
 //flags
 int RF_READ = 0;
 int TICK_HAPPENED = 0;
@@ -40,16 +52,23 @@ void kick();
 void main()
 {
 	initialize();
-	//m_wait(5000);
-	int i;
-	for (i = 0; i < 50; i++) {
-		localize_update();
-		position = getPosition();
-	}
-	m_wait(3000);
+	m_wait(1000);
 	SEARCH_MODE = 1;
-	kick();
 	while (1) {
+		//remove this!!!!
+		if(countdown > -1) {
+			countdown = countdown -1;
+		}
+		if(puck_left() || puck_right()) {
+			m_red(ON);
+		} else {
+			m_red(OFF);
+		}
+
+
+
+
+
 		if(TICK_HAPPENED) {
 			//handle new clock tick
 			localize_update(); //update localization info
@@ -94,14 +113,29 @@ void main()
 				update_puck_angle();
 				if(get_see_puck()) {
 					//sees the puck
-					//turn(get_puck_angle() + position[2]);
-					leftON(0.3, FORWARDS);
-					rightON(0.3, FORWARDS);
+					//set_power(1);
+					//turn(position[2] + get_puck_angle());
+
+					float delta_angle = get_puck_angle();
+					if(fabs(delta_angle) < 3.14159/6) {
+						leftON(0.5, FORWARDS);
+						rightON(0.5, FORWARDS);
+						if(countdown < 0 && !shot && (position[0] > 750 || position[0] < -750)) {
+							//kick();
+							shot = 1;
+						}
+					} else {
+						set_power(1);
+						turn(position[2] + get_puck_angle());
+					}
+					//leftON(0.3, FORWARDS);
+					//rightON(0.3, FORWARDS);
 				} else {
 					//doesn't see the puck: go search for it
 					//drive_search();
-					leftON(0.35, BACKWARDS);
-					rightON(0.35, FORWARDS);
+					leftON(0.4, FORWARDS);
+					rightON(0.4, BACKWARDS);
+
 				}
 			}
 			//main loop things
@@ -150,6 +184,12 @@ void initialize() {
 	//enable kicker ports
 	set(DDRB, 7);
 
+	//enable inputs for switches
+	clear(DDRB, 4);
+	set(PORTB, 4);
+	clear(DDRB, 5);
+	set(PORTB, 5);
+
 	set_power(INITIAL_POWER);
 
 	//initialize RF
@@ -163,6 +203,7 @@ void initialize() {
 	//start timer0
 	start0(TICK_FREQUENCY);
 	interupt0(1);
+	ADC_init();
 }
 
 

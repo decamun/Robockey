@@ -18,7 +18,7 @@
 #define ACCURACY 30
 #define DRIVE_PI 3.14159
 #define DRIVE_KP 3
-#define DRIVE_KD 100
+#define DRIVE_KD 500
 #define MAX_DELTA_ANGLE 3.14159/6
 
 static float DRIVE_POWER = 0;
@@ -84,6 +84,8 @@ float getPID(float target_angle) {
 	float DRIVE_PID = (DRIVE_KP - fabs(delta_angle - delta_angle_prev) * DRIVE_KD);
 	if(DRIVE_PID < 0) {
 		DRIVE_PID = 0;
+	} else if(DRIVE_PID > 1) {
+		DRIVE_PID = 1;
 	}
 	delta_angle_prev = delta_angle;
 	return DRIVE_PID;
@@ -230,6 +232,8 @@ void rightOFF()
 void drive_search(){
 	reset_drive();
 	SEARCH = 1;
-	rightON(0.25, FORWARDS);
-	leftON(0.25, BACKWARDS);
+	position = getPosition();
+	float power  = getPID(position[2] + 0.5);
+	rightON(power, FORWARDS);
+	leftON(power, BACKWARDS);
 }
