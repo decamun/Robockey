@@ -44,9 +44,7 @@ int SEARCH_MODE = 0;
 int KICK_TICKS = 0;
 int LED_pin = 5;
 void report_error();
-
 void initialize();
-
 void kick();
 
 void main()
@@ -59,10 +57,10 @@ void main()
 		if(countdown > -1) {
 			countdown = countdown -1;
 		}
-		if(puck_left() || puck_right()) {
-			m_red(ON);
+		if(puck_left() || puck_right() || puck_middle()) {
+			m_green(OFF);
 		} else {
-			m_red(OFF);
+			m_green(ON);
 		}
 
 
@@ -73,13 +71,13 @@ void main()
 			//handle new clock tick
 			localize_update(); //update localization info
 			position = getPosition();
-			m_green(OFF);
+			//m_green(OFF);
 
 			//handle driving
 			if(GO) {
-				drive_update(); //update drive state
+			//	drive_update(); //update drive state
 			} else {
-				stop();
+			//	stop();
 			}
 
 			//handle comm test
@@ -109,7 +107,7 @@ void main()
 			}
 
 			//handle searching
-			if(SEARCH_MODE) {
+			/*if(SEARCH_MODE) {
 				update_puck_angle();
 				if(get_see_puck()) {
 					//sees the puck
@@ -118,8 +116,8 @@ void main()
 
 					float delta_angle = get_puck_angle();
 					if(fabs(delta_angle) < 3.14159/6) {
-						leftON(0.5, FORWARDS);
-						rightON(0.5, FORWARDS);
+						leftON(1, FORWARDS);
+						rightON(1, FORWARDS);
 						if(countdown < 0 && !shot && (position[0] > 750 || position[0] < -750)) {
 							//kick();
 							shot = 1;
@@ -133,13 +131,15 @@ void main()
 				} else {
 					//doesn't see the puck: go search for it
 					//drive_search();
-					leftON(0.4, FORWARDS);
-					rightON(0.4, BACKWARDS);
+					leftON(1, FORWARDS);
+					rightON(1, BACKWARDS);
 
 				}
-			}
-			//main loop things
+			}*/
 
+			rightON(1, BACKWARDS);
+
+			//main loop things
 
 
 
@@ -168,10 +168,11 @@ void initialize() {
 
 	}
 
+	clear(DDRD, 3);
 
 	//Enabling Positioning LED Pins for output
-	set(DDRD, 5);
-	set(DDRD, 5); 
+	//set(DDRD, 5);
+	//set(DDRD, 6);
 
 	//driver board enable line
 	set(DDRB, 2); //enable output
