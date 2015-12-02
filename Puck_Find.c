@@ -19,27 +19,40 @@ void update_puck_angle ()
   int i = 0;
 
   ADC0();
+  m_usb_tx_string("ADC0: ");
+  m_usb_tx_int(ADC);
+  m_usb_tx_string("\n\r");
   PT_values[6] = ADC;
   ADC1();
+  m_usb_tx_string("ADC1: ");
+  m_usb_tx_int(ADC);
+  m_usb_tx_string("\n\r");
   PT_values[3] = ADC;
   ADC4();
+  m_usb_tx_string("ADC4: ");
+  m_usb_tx_int(ADC);
+  m_usb_tx_string("\n\r");
   PT_values[2] = ADC;
   ADC5();
+  m_usb_tx_string("ADC5: ");
+  m_usb_tx_int(ADC);
+  m_usb_tx_string("\n\r");
   PT_values[1] = ADC;
   ADC6();
+  m_usb_tx_string("ADC6: ");
+  m_usb_tx_int(ADC);
+  m_usb_tx_string("\n\r");
   PT_values[5] = ADC;
   ADC7();
+  m_usb_tx_string("ADC7: ");
+  m_usb_tx_int(ADC);
+  m_usb_tx_string("\n\r");
   PT_values[4] = ADC;
   ADC8();
+  m_usb_tx_string("ADC8: ");
+  m_usb_tx_int(ADC);
+  m_usb_tx_string("\n\r");
   PT_values[0] = ADC;
-
-
-  //m_usb_tx_string("\n");
-  for(i = 2; i<6; i++){
-    if(PT_values[i]<PT_THRESHOLD){
-      PT_values[i] = 0;
-    }
-  }
 
   puck_angle = 0;
   total = 0;
