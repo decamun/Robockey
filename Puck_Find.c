@@ -56,8 +56,10 @@ void update_puck_angle ()
   //m_usb_tx_int(total);
   //m_usb_tx_string("\t");
   //m_usb_tx_int((int)(puck_angle * 100));
-
-  if(total > 5){
+  m_usb_tx_string("Total: ");
+  m_usb_tx_int(total);
+  m_usb_tx_string("\n\r");
+  if(total > 50){
   	see_puck = 1;
   } else {
   	see_puck = 0;
