@@ -35,32 +35,46 @@ void kick();
 
 typedef enum {SEARCHING = 0, ACQUIRE, GOTO_GOAL} robot_state;
 
+void testMotors() {
+    setRight(0.5);
+    setLeft(0.5);
+    m_wait(3000);
+    stop();
+    m_wait(3000);
+    setRight(-0.5);
+    setLeft(-0.5);
+    m_wait(3000);
+}
+
 void main()
 {
     initialize();
     m_wait(1000);
+
     robot_state current_state = SEARCHING;
 
     while (1) {
         if(TICK_HAPPENED) {
             // Get the current position and orientation
             localize_update();
+            update_puck_angle();
 
             switch(current_state) {
                 case SEARCHING: 
-                    update_puck_angle();
+                    setRight(0.2);
+                    setLeft(-0.2);
+
                     if(get_see_puck()) {
                         current_state = ACQUIRE;
                     }
-
                     break;
 
                 case ACQUIRE:
-                    update_puck_angle();
                     goToHeading(getPosition(), get_puck_angle(), 10);
 
                     if (puck_middle()) {
                         current_state = GOTO_GOAL;
+                        resetGoTo();
                     }
 
                     if (!get_see_puck()) {
@@ -72,6 +86,12 @@ void main()
 
                 case GOTO_GOAL:
                     goTo(GOAL_X, GOAL_Y);
+                    if (!get_see_puck()) {
+                        current_state = SEARCHING;
+                    } else if (!puck_middle()) {
+                        current_state = ACQUIRE;
+                    }
+
                     break;
             }
             // We're done until the next clock update 
