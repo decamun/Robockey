@@ -11,6 +11,7 @@ void ADC_init(void)
     set(ADCSRA, ADPS2);     // Prescaler of 128 to give 125 kHz clock
     set(ADCSRA, ADPS1);     // ^
     set(ADCSRA, ADPS0);     // ^
+    m_disableJTAG();        // Disabling F pins for ADC
 }
 
 void ADC0(void)
