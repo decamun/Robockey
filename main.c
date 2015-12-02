@@ -52,6 +52,7 @@ void main()
     m_wait(1000);
 
     robot_state current_state = SEARCHING;
+    while(1) { testMotors(); }
 
     while (1) {
         if(TICK_HAPPENED) {
