@@ -14,7 +14,6 @@ void update_puck_angle ()
   //{Wide Left, left spike, left front, back, right front, right spike, wide right}
 
   float PT_values[7] = {0,0,0,0,0,0,0};
-  float PT_weighted[7] = {0,0,0,0,0,0,0};
 
   int total = 0;
   int i = 0;
