@@ -44,7 +44,38 @@ void testMotors() {
     setRight(-0.5);
     setLeft(-0.5);
     m_wait(3000);
-   }
+}
+
+void fullTestMotor() {
+    float i = 0;
+    for(i = 0; i < 1; i += 0.01) {
+        setRight(i);
+        setLeft(i);
+        m_wait(200);
+    }
+
+    m_wait(1000);
+    stop();
+    m_wait(3000);
+
+    setLeft(1);
+    m_wait(2000);
+    stop();
+    m_wait(1000);
+    setRight(1);
+    m_wait(2000);
+    stop();
+    m_wait(1000);
+
+    setLeft(-1);
+    m_wait(2000);
+    stop();
+    m_wait(1000);
+    setRight(-1);
+    m_wait(2000);
+    stop();
+    m_wait(1000);
+}
 
 void testPuckRead() {
      update_puck_angle();
@@ -60,14 +91,21 @@ void main()
     robot_state current_state = SEARCHING;
     while (1) {
         if(TICK_HAPPENED) {
-            // Get the current position and orientation
+           // Get the current position and orientation
             localize_update();
             update_puck_angle();
 
+            m_usb_tx_string("State ");
+            m_usb_tx_int(current_state);
+            m_usb_tx_string("\r\n");
+            m_usb_tx_string("Puck ")
+            m_usb_tx_int((int) (100 * get_puck_angle()));
+            m_usb_tx_string("\r\n") 
+            
             switch(current_state) {
                 case SEARCHING:
-                    setRight(0.35);
-                    setLeft(-0.35);
+                    setRight(0.5);
+                    setLeft(-0.5);
 
                     if(get_see_puck()) {
                         current_state = ACQUIRE;

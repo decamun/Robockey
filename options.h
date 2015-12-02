@@ -1,5 +1,6 @@
 #ifndef OPTIONS
 #define OPTIONS
+
 #define FORCE_USB 1
 #define USB_DEBUG 1
 #define MATLAB_GRAPH 0
