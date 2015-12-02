@@ -44,68 +44,74 @@ void testMotors() {
     setRight(-0.5);
     setLeft(-0.5);
     m_wait(3000);
+   }
+
+void testPuckRead() {
+     update_puck_angle();
+    m_usb_tx_long(get_puck_angle());
+    m_usb_tx_string("\r\n");
 }
 
 void main()
 {
     initialize();
     m_wait(1000);
+    while(1) { testPuckRead(); }
 
-    robot_state current_state = SEARCHING;
-    while(1) { testMotors(); }
+    // robot_state current_state = SEARCHING;
 
-    while (1) {
-        if(TICK_HAPPENED) {
-            // Get the current position and orientation
-            localize_update();
-            update_puck_angle();
+    // while (1) {
+    //     if(TICK_HAPPENED) {
+    //         // Get the current position and orientation
+    //         localize_update();
+    //         update_puck_angle();
 
-            switch(current_state) {
-                case SEARCHING: 
-                    setRight(0.2);
-                    setLeft(-0.2);
+    //         switch(current_state) {
+    //             case SEARCHING: 
+    //                 setRight(0.2);
+    //                 setLeft(-0.2);
 
-                    if(get_see_puck()) {
-                        current_state = ACQUIRE;
-                    }
-                    break;
+    //                 if(get_see_puck()) {
+    //                     current_state = ACQUIRE;
+    //                 }
+    //                 break;
 
-                case ACQUIRE:
-                    goToHeading(getPosition(), get_puck_angle(), 10);
+    //             case ACQUIRE:
+    //                 goToHeading(getPosition(), get_puck_angle(), 10);
 
-                    if (puck_middle()) {
-                        current_state = GOTO_GOAL;
-                        resetGoTo();
-                    }
+    //                 if (puck_middle()) {
+    //                     current_state = GOTO_GOAL;
+    //                     resetGoTo();
+    //                 }
 
-                    if (!get_see_puck()) {
-                        current_state = SEARCHING; 
-                        resetGoTo();
-                    }
+    //                 if (!get_see_puck()) {
+    //                     current_state = SEARCHING; 
+    //                     resetGoTo();
+    //                 }
 
-                    break;
+    //                 break;
 
-                case GOTO_GOAL:
-                    goTo(GOAL_X, GOAL_Y);
-                    if (!get_see_puck()) {
-                        current_state = SEARCHING;
-                    } else if (!puck_middle()) {
-                        current_state = ACQUIRE;
-                    }
+    //             case GOTO_GOAL:
+    //                 goTo(GOAL_X, GOAL_Y);
+    //                 if (!get_see_puck()) {
+    //                     current_state = SEARCHING;
+    //                 } else if (!puck_middle()) {
+    //                     current_state = ACQUIRE;
+    //                 }
 
-                    break;
-            }
-            // We're done until the next clock update 
-            TICK_HAPPENED = 0;
-        }
+    //                 break;
+    //         }
+    //         // We're done until the next clock update 
+    //         TICK_HAPPENED = 0;
+    //     }
 
-        if(RF_READ) {
-            //handle new RF info
-            RF_READ = 0;
-            rf_comm(buffer);
-        }
+    //     if(RF_READ) {
+    //         //handle new RF info
+    //         RF_READ = 0;
+    //         rf_comm(buffer);
+    //     }
 
-    }
+    // }
 
     //	SEARCH_MODE = 1;
     //	while (1) {

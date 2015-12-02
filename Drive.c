@@ -101,7 +101,7 @@ float getAnglePID2(float current_angle, float target_angle) {
 
 void goToPosition(float* position, float base_power, float target_x, float target_y) {
     float target_angle = atan2f(target_y - position[1], target_x - position[0]);
-    float res = getAnglePID2(position[2], target_angle);
+    float res = getAnglePID2(0, target_angle);
     
     float left_power;
     float right_power;
@@ -119,7 +119,7 @@ void goToPosition(float* position, float base_power, float target_x, float targe
 }
 
 void goToHeading(float* position, float target_angle, float target_dist) {
-    float current_angle = position[2];
+    float current_angle = 0; 
     float res = getAnglePID2(current_angle, target_angle);    
 
     // Scale distance to be between 0 and 1, if distance is above 1 then clamp
@@ -261,11 +261,7 @@ void goStraight(int distance, int direction, float velocity) //goes straight a c
 void leftON(float power, int direction)
 {
 	if(power > 1) power = 1;
-    if(power < 0) {
-        power = -power;
-        direction = 1- direction; 
-    }
-
+    
 	start_pwm1(1024,power);
 
 	if (direction != FORWARDS)
@@ -297,11 +293,6 @@ void leftOFF()
 void rightON(float power, int direction)
 {
     if(power > 1) power = 1;
-        if(power < 0) {
-            power = -power;
-            direction = -direction;
-        }
-
 
 	start_pwm3(1024,power);
 
@@ -323,7 +314,6 @@ void setRight(float power) {
     }
 
     rightON(power, direction);
-
 }
 
 
