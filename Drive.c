@@ -27,7 +27,7 @@
 #define GOTO_KD 0.1
 #define MAX_DIST 100
 #define GOTO_POWER_KP 1
-#define GOTO_POWER KD 0.1
+#define GOTO_POWER_KD 0.1
 
 static float DRIVE_POWER = 0;
 
@@ -46,26 +46,11 @@ static float* position = 0;
 static drive_state curr_drive_state = STOP;
 static drive_action curr_action = D_NONE;
 
-void drive_update()
-{
-    switch(curr_action) {
-        case GOTO:
-            goTo(goto_x, goto_y);
-            break;
-        case SEARCH:
-            drive_search();
-            break;
-        case TURN:
-            turn(turn_target);
-            break;
-    }
-}
-
-void get_drive_action() {
+drive_action get_drive_action() {
     return curr_action;
 }
 
-void get_drive_state() {
+drive_state get_drive_state() {
     return curr_drive_state;
 }
 
@@ -91,24 +76,10 @@ void resetGoTo() {
     goto_prev_distance = 0;
 }
 
-void goTo(float* position, float base_power, float target_x, float target_y) {
-    float target_angle = atan2f(y - position[1], x - position[0]);
-    float res = getAnglePID2(position[2], target_angle);
-
-    if(res > 0) {
-        left_power = res + base_power;
-        right_power = base_power;
-    } else {
-        left_power = base_power;
-        right_power = res + base_power;
-    }
-
-    rightON(left_power);
-    leftON(right_power);
-
-}
-
-void getAnglePID2(float current_angle, float target_angle) {
+/**
+ * PD loop on two angle measurements
+ */
+float getAnglePID2(float current_angle, float target_angle) {
     float delta_angle = target_angle - current_angle;
     
     //handle edge case with zero rollover
@@ -121,23 +92,20 @@ void getAnglePID2(float current_angle, float target_angle) {
 	}
 
     // Scale error to be between 0 and 1
-    error = delta_angle / DRIVE_PI;
+    float error = delta_angle / DRIVE_PI;
     float res = GOTO_KP * error + GOTO_KD * (error - goto_prev_error) / FIXED_DT;
     goto_prev_error = error;
     return res; 
 }
 
-void goTo(float* position, float target_angle, float target_dist) {
-    float current_angle = position[2];
-    float res = getAnglePID2(current_angle, target_angle);    
-    // Scale distance to be between 0 and 1, if distance is above 1 then clamp
-    float dist_error = (target_dist > MAX_DIST) ? 1 :  target_dist / MAX_DIST; 
-    float base_power = GOTO_POWER_KP * dist_error + GOTO_POWER_KD * (dist_error - goto_prev_distance) / FIXED_DT  
-    goto_prev_distance = target_dist
+
+void goToPosition(float* position, float base_power, float target_x, float target_y) {
+    float target_angle = atan2f(target_y - position[1], target_x - position[0]);
+    float res = getAnglePID2(position[2], target_angle);
     
-    // Always move forward by a factor of base_power
-    // Bias a turning direction based on the PD for angle
-    
+    float left_power;
+    float right_power;
+
     if(res > 0) {
         left_power = res + base_power;
         right_power = base_power;
@@ -146,8 +114,37 @@ void goTo(float* position, float target_angle, float target_dist) {
         right_power = res + base_power;
     }
 
-    rightON(left_power);
-    leftON(right_power);
+    setRight(left_power);
+    setLeft(right_power);
+}
+
+void goToHeading(float* position, float target_angle, float target_dist) {
+    float current_angle = position[2];
+    float res = getAnglePID2(current_angle, target_angle);    
+
+    // Scale distance to be between 0 and 1, if distance is above 1 then clamp
+    float dist_error = (target_dist > MAX_DIST) ? 1 :  target_dist / MAX_DIST; 
+    float base_power = GOTO_POWER_KP * dist_error + GOTO_POWER_KD * (dist_error - goto_prev_distance) / FIXED_DT; 
+    goto_prev_distance = target_dist;
+    
+    // Always move forward by a factor of base_power
+    // Bias a turning direction based on the PD for angle
+    
+    //TODO: Verify that this direction is correct
+
+    float left_power;
+    float right_power;
+
+    if(res > 0) {
+        left_power = res + base_power;
+        right_power = base_power;
+    } else {
+        left_power = base_power;
+        right_power = -res + base_power;
+    }
+
+    setRight(left_power);
+    setLeft(right_power);
 }
 
 float getAnglePID(float current_angle, float target_angle) {
@@ -281,11 +278,11 @@ void leftON(float power, int direction)
 	}
 }
 
-void leftON(float power) {
-    int direction = FORWARD;
+void setLeft(float power) {
+    int direction = FORWARDS;
     if(power < 0) {
         power = -power;
-        direction = BACKWARD; 
+        direction = BACKWARDS; 
     }
 
     leftON(power, direction);
@@ -318,11 +315,11 @@ void rightON(float power, int direction)
 	}
 }
 
-void rightON(float power) {
-    int direction = FORWARD;
+void setRight(float power) {
+    int direction = FORWARDS;
     if(power < 0) {
         power = -power;
-        direction = BACKWARD; 
+        direction = BACKWARDS; 
     }
 
     rightON(power, direction);

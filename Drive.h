@@ -25,7 +25,14 @@ typedef enum {D_NONE, GOTO, SEARCH, TURN} drive_action;
  * Note: This function will never run a motor in reverse. It will continue to
  * try to move forward while turning.
  */
-void goTo(float* position, float target_angle, float target_dist);
+void goToHeading(float* position, float target_angle, float target_dist);
+
+
+/**
+ * Use the same turn/move forward behavior as goToHeading, except that the
+ * target is an x,y position.
+ */
+void goToPosition(float *position, float base_power, float target_x, float target_y);
 
 /**
  * Resets PD controller set in the GoTo function
@@ -44,16 +51,16 @@ float getAnglePID(float current_angle, float target_angle);
 void set_power(float power);
 
 void leftON(float power, int direction);
-void leftON(float power);
+void setLeft(float power);
 void leftOFF();
 
 void rightON(float power, int direction);
-void rightON(float power);
+void setRight(float power);
 void rightOFF();
 
 void stop();
 
-void get_drive_action();
-void get_drive_state();
+drive_action get_drive_action();
+drive_state get_drive_state();
 
 
