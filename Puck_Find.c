@@ -20,19 +20,19 @@ void update_puck_angle ()
   int i = 0;
 
   ADC0();
-  PT_values[0] = ADC;
+  PT_values[6] = ADC;
   ADC1();
-  PT_values[1] = ADC;
+  PT_values[3] = ADC;
   ADC4();
   PT_values[2] = ADC;
   ADC5();
-  PT_values[3] = ADC;
+  PT_values[1] = ADC;
   ADC6();
-  PT_values[4] = ADC;
-  ADC7();
   PT_values[5] = ADC;
+  ADC7();
+  PT_values[4] = ADC;
   ADC8();
-  PT_values[6] = ADC;
+  PT_values[0] = ADC;
 
 
   //m_usb_tx_string("\n");
