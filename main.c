@@ -90,6 +90,7 @@ void main()
     m_wait(1000);
 
     current_state = PAUSE;
+
     while (1) {
         if(TICK_HAPPENED) {
            // Get the current position and orientation
@@ -255,39 +256,41 @@ void kick()	{
 
 //m_rf flag setter
 ISR(INT2_vect) {
-    float* position = getPosition();
-    //m_rf_recieved a thing
     RF_READ = 1;
     m_rf_read(buffer, BUFFER_SIZE);
-    //m_red(TOGGLE);
+
     m_usb_tx_string("RF: ");
     m_usb_tx_hex(buffer[0]);
     m_usb_tx_hex("\r\n");
 
-    if((uint8_t)buffer[0] == 0xA0) { //Comm Test
+    handleRfGameState((uint8_t) buffer[0]);
+}
+
+void handleRfGamestate(uint8_t value) {
+    if(value == 0xA0) { //Comm Test
         BLINK = 1;
         m_green(TOGGLE);
-        m_wait(1000);
+        m_wait(500);
 
-    } else if ((uint8_t)buffer[0] == 0xA1) { // Play
+    } else if (value == 0xA1) { // Play
         current_state = PLAY;
 
-    } else if((uint8_t)buffer[0] == 0xA2) { // Goal R
+    } else if(value == 0xA2) { // Goal R
         current_state = PAUSE;
 
-    } else if((uint8_t)buffer[0] == 0xA3) { // Goal B
+    } else if(value == 0xA3) { // Goal B
         current_state = PAUSE;
 
-    } else if((uint8_t)buffer[0] == 0xA4) { // Pause
+    } else if(value == 0xA4) { // Pause
         current_state = PAUSE;
 
-    }	else if((uint8_t)buffer[0] == 0xA5) { // detangle
+    } else if(value == 0xA5) { // detangle
         current_state = PAUSE;
 
-    } else if((uint8_t)buffer[0] == 0xA6) { // Halftime
+    } else if(value == 0xA6) { // Halftime
         current_state = PAUSE;
 
-    } else if((uint8_t)buffer[0] == 0xA7) { // Game Over
+    } else if(value == 0xA7) { // Game Over
         current_state = PAUSE;
     }
 }
@@ -301,8 +304,7 @@ ISR(TIMER0_OVF_vect) {
         m_red(OFF);
         TICK_HAPPENED = 1;
         if(USB_DEBUG && m_usb_isconnected) {
-            m_usb_tx_string("TICK!\n\r");
+            //m_usb_tx_string("TICK!\n\r");
         }
     }
-
 }
