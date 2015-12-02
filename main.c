@@ -56,164 +56,162 @@ void main()
 {
     initialize();
     m_wait(1000);
-    while(1) { testPuckRead(); }
 
-    // robot_state current_state = SEARCHING;
+    robot_state current_state = SEARCHING;
+    while (1) {
+        if(TICK_HAPPENED) {
+            // Get the current position and orientation
+            localize_update();
+            update_puck_angle();
 
-    // while (1) {
-    //     if(TICK_HAPPENED) {
-    //         // Get the current position and orientation
-    //         localize_update();
-    //         update_puck_angle();
+            switch(current_state) {
+                case SEARCHING:
+                    setRight(0.35);
+                    setLeft(-0.35);
 
-    //         switch(current_state) {
-    //             case SEARCHING: 
-    //                 setRight(0.2);
-    //                 setLeft(-0.2);
+                    if(get_see_puck()) {
+                        current_state = ACQUIRE;
+                    }
+                    break;
 
-    //                 if(get_see_puck()) {
-    //                     current_state = ACQUIRE;
-    //                 }
-    //                 break;
+                case ACQUIRE:
+                    goToHeading(getPosition(), get_puck_angle(), 10);
 
-    //             case ACQUIRE:
-    //                 goToHeading(getPosition(), get_puck_angle(), 10);
+                    if (puck_middle()) {
+                        current_state = GOTO_GOAL;
+                        resetGoTo();
+                    }
 
-    //                 if (puck_middle()) {
-    //                     current_state = GOTO_GOAL;
-    //                     resetGoTo();
-    //                 }
+                    if (!get_see_puck()) {
+                        current_state = SEARCHING;
+                        resetGoTo();
+                    }
 
-    //                 if (!get_see_puck()) {
-    //                     current_state = SEARCHING; 
-    //                     resetGoTo();
-    //                 }
+                    break;
 
-    //                 break;
+                case GOTO_GOAL:
+                    goTo(GOAL_X, GOAL_Y);
+                    if (!get_see_puck()) {
+                        current_state = SEARCHING;
+                    } else if (!puck_middle()) {
+                        current_state = ACQUIRE;
+                    }
 
-    //             case GOTO_GOAL:
-    //                 goTo(GOAL_X, GOAL_Y);
-    //                 if (!get_see_puck()) {
-    //                     current_state = SEARCHING;
-    //                 } else if (!puck_middle()) {
-    //                     current_state = ACQUIRE;
-    //                 }
+                    break;
+            }
+            // We're done until the next clock update
+            TICK_HAPPENED = 0;
+        }
 
-    //                 break;
-    //         }
-    //         // We're done until the next clock update 
-    //         TICK_HAPPENED = 0;
-    //     }
+        if(RF_READ) {
+            //handle new RF info
+            RF_READ = 0;
+            rf_comm(buffer);
+        }
 
-    //     if(RF_READ) {
-    //         //handle new RF info
-    //         RF_READ = 0;
-    //         rf_comm(buffer);
-    //     }
+    }
 
-    // }
-
-    //	SEARCH_MODE = 1;
-    //	while (1) {
-    //		//remove this!!!!
-    //		if(countdown > -1) {
-    //			countdown = countdown -1;
-    //		}
-    //		if(puck_left() || puck_right() || puck_middle()) {
-    //			m_green(OFF);
-    //		} else {
-    //			m_green(ON);
-    //		}
-    //
-    //		if(TICK_HAPPENED) {
-    //			//handle new clock tick
-    //			localize_update(); //update localization info
-    //			position = getPosition();
-    //			//m_green(OFF);
-    //
-    //			//handle driving
-    //			if(GO) {
-    //			//	drive_update(); //update drive state
-    //			} else {
-    //			//	stop();
-    //			}
-    //
-    //			//handle comm test
-    //			if(BLINK) {
-    //				BLINK =0;
-    //					set(PORTD,LED_pin);
-    //					m_wait(100);
-    //					clear(PORTD,LED_pin);
-    //
-    //				int i;
-    //				for(i = 0; i <10; i++) {
-    //					m_green(TOGGLE);
-    //					m_wait(100);
-    //				}
-    //
-    //			}
-    //
-    //
-    //			//handle kicking
-    //			if(KICK_TICKS > 0) {
-    //				KICK_TICKS = KICK_TICKS - 1;
-    //				//kick
-    //				set(PORTB, 7);
-    //			} else {
-    //				//don't kick
-    //				clear(PORTB, 7);
-    //			}
-    //
-    //			//handle searching
-    //			/*if(SEARCH_MODE) {
-    //				update_puck_angle();
-    //				if(get_see_puck()) {
-    //					//sees the puck
-    //					//set_power(1);
-    //					//turn(position[2] + get_puck_angle());
-    //
-    //					float delta_angle = get_puck_angle();
-    //					if(fabs(delta_angle) < 3.14159/6) {
-    //						leftON(1, FORWARDS);
-    //						rightON(1, FORWARDS);
-    //						if(countdown < 0 && !shot && (position[0] > 750 || position[0] < -750)) {
-    //							//kick();
-    //							shot = 1;
-    //						}
-    //					} else {
-    //						set_power(1);
-    //						turn(position[2] + get_puck_angle());
-    //					}
-    //					//leftON(0.3, FORWARDS);
-    //					//rightON(0.3, FORWARDS);
-    //				} else {
-    //					//doesn't see the puck: go search for it
-    //					//drive_search();
-    //					leftON(1, FORWARDS);
-    //					rightON(1, BACKWARDS);
-    //
-    //				}
-    //			}*/
-    //
-    //			rightON(1, BACKWARDS);
-    //
-    //			//main loop things
-    //
-    //
-    //
-    //
-    //
-    //
-    //			TICK_HAPPENED = 0;
-    //		}
-    //
-    //
-    //		if(RF_READ) {
-    //			//handle new RF info
-    //			RF_READ = 0;
-    //			rf_comm(buffer);
-    //		}
-    //	}
+    	// SEARCH_MODE = 1;
+    	// while (1) {
+    	// 	//remove this!!!!
+    	// 	if(countdown > -1) {
+    	// 		countdown = countdown -1;
+    	// 	}
+    	// 	if(puck_left() || puck_right() || puck_middle()) {
+    	// 		m_green(OFF);
+    	// 	} else {
+    	// 		m_green(ON);
+    	// 	}
+			//
+    	// 	if(TICK_HAPPENED) {
+    	// 		//handle new clock tick
+    	// 		localize_update(); //update localization info
+    	// 		position = getPosition();
+    	// 		//m_green(OFF);
+			//
+    	// 		//handle driving
+    	// 		if(GO) {
+    	// 		//	drive_update(); //update drive state
+    	// 		} else {
+    	// 		//	stop();
+    	// 		}
+			//
+    	// 		//handle comm test
+    	// 		if(BLINK) {
+    	// 			BLINK =0;
+    	// 				set(PORTD,LED_pin);
+    	// 				m_wait(100);
+    	// 				clear(PORTD,LED_pin);
+			//
+    	// 			int i;
+    	// 			for(i = 0; i <10; i++) {
+    	// 				m_green(TOGGLE);
+    	// 				m_wait(100);
+    	// 			}
+			//
+    	// 		}
+			//
+			//
+    	// 		//handle kicking
+    	// 		if(KICK_TICKS > 0) {
+    	// 			KICK_TICKS = KICK_TICKS - 1;
+    	// 			//kick
+    	// 			set(PORTB, 7);
+    	// 		} else {
+    	// 			//don't kick
+    	// 			clear(PORTB, 7);
+    	// 		}
+			//
+    	// 		//handle searching
+    	// 		/*if(SEARCH_MODE) {
+    	// 			update_puck_angle();
+    	// 			if(get_see_puck()) {
+    	// 				//sees the puck
+    	// 				//set_power(1);
+    	// 				//turn(position[2] + get_puck_angle());
+			//
+    	// 				float delta_angle = get_puck_angle();
+    	// 				if(fabs(delta_angle) < 3.14159/6) {
+    	// 					leftON(1, FORWARDS);
+    	// 					rightON(1, FORWARDS);
+    	// 					if(countdown < 0 && !shot && (position[0] > 750 || position[0] < -750)) {
+    	// 						//kick();
+    	// 						shot = 1;
+    	// 					}
+    	// 				} else {
+    	// 					set_power(1);
+    	// 					turn(position[2] + get_puck_angle());
+    	// 				}
+    	// 				//leftON(0.3, FORWARDS);
+    	// 				//rightON(0.3, FORWARDS);
+    	// 			} else {
+    	// 				//doesn't see the puck: go search for it
+    	// 				//drive_search();
+    	// 				leftON(1, FORWARDS);
+    	// 				rightON(1, BACKWARDS);
+			//
+    	// 			}
+    	// 		}*/
+			//
+    	// 		rightON(1, BACKWARDS);
+			//
+    	// 		//main loop things
+			//
+			//
+			//
+			//
+			//
+			//
+    	// 		TICK_HAPPENED = 0;
+    	// 	}
+			//
+			//
+    	// 	if(RF_READ) {
+    	// 		//handle new RF info
+    	// 		RF_READ = 0;
+    	// 		rf_comm(buffer);
+    	// 	}
+    	// }
 }
 
 void initialize() {

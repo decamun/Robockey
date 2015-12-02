@@ -1,7 +1,7 @@
 #ifndef OPTIONS
 #define OPTIONS
 #define FORCE_USB 1
-#define USB_DEBUG 0
+#define USB_DEBUG 1
 #define MATLAB_GRAPH 0
 
 #define INITIAL_POWER 1
@@ -22,6 +22,6 @@
 #define MAX_INTENSITY_M_WII 2
 #define LOCALIZE_LPF 0.93
 
-#define GOAL_X 0
+#define GOAL_X 300
 #define GOAL_Y 0
 #endif
