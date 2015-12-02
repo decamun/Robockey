@@ -23,7 +23,7 @@ void localize_init() {
   if(m_wii_open()) {
     LOCALIZE_INIT = 1;
   } else {
-    // report_error();
+    report_error("Could not open the Wii camera");
   }
 
 }
@@ -91,7 +91,7 @@ void localize_update() {
       m_usb_tx_string("\n\r");
     }
   } else {
-     report_error();
+     report_error("Could not connect to USB in localize");
   }
 }
 

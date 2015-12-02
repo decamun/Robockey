@@ -29,11 +29,12 @@ int SEARCH_MODE = 0;
 
 int KICK_TICKS = 0;
 int LED_pin = 5;
-void report_error();
+void report_error(const char *err);
 void initialize();
 void kick();
 
-typedef enum {SEARCHING = 0, ACQUIRE, GOTO_GOAL} robot_state;
+typedef enum {SEARCHING = 0, ACQUIRE, GOTO_GOAL, PUCK_TURN, PAUSE, PLAY} robot_state;
+static robot_state current_state = PAUSE;
 
 void testMotors() {
     setRight(0.5);
@@ -88,7 +89,7 @@ void main()
     initialize();
     m_wait(1000);
 
-    robot_state current_state = SEARCHING;
+    current_state = PAUSE;
     while (1) {
         if(TICK_HAPPENED) {
            // Get the current position and orientation
@@ -104,6 +105,17 @@ void main()
             m_usb_tx_string("\r\n"); 
             
             switch(current_state) {
+                case PAUSE:
+                    clear(PORTD, LED_pin); // TURN OFF positioning LED
+                    setRight(0);
+                    setLeft(0);
+                    break;
+
+                case PLAY:
+                    set(PORTD, LED_pin);
+                    current_state = SEARCHING;
+                    break;
+
                 case SEARCHING:
                     setRight(0.5);
                     setLeft(-0.5);
@@ -153,7 +165,19 @@ void main()
                     }
 
                     break;
+
+                case PUCK_TURN:
+                    if (puck_left()) {
+                        setRight(0.8);
+                    } else if (puck_left()) {
+                        setLeft(0.8);
+                    } else if (puck_middle()) {
+                        current_state = GOTO_GOAL; 
+                    } else {
+                        current_state = ACQUIRE;
+                    }
             }
+           
             // We're done until the next clock update
             TICK_HAPPENED = 0;
         }
@@ -166,107 +190,6 @@ void main()
 
     }
 
-    	// SEARCH_MODE = 1;
-    	// while (1) {
-    	// 	//remove this!!!!
-    	// 	if(countdown > -1) {
-    	// 		countdown = countdown -1;
-    	// 	}
-    	// 	if(puck_left() || puck_right() || puck_middle()) {
-    	// 		m_green(OFF);
-    	// 	} else {
-    	// 		m_green(ON);
-    	// 	}
-			//
-    	// 	if(TICK_HAPPENED) {
-    	// 		//handle new clock tick
-    	// 		localize_update(); //update localization info
-    	// 		position = getPosition();
-    	// 		//m_green(OFF);
-			//
-    	// 		//handle driving
-    	// 		if(GO) {
-    	// 		//	drive_update(); //update drive state
-    	// 		} else {
-    	// 		//	stop();
-    	// 		}
-			//
-    	// 		//handle comm test
-    	// 		if(BLINK) {
-    	// 			BLINK =0;
-    	// 				set(PORTD,LED_pin);
-    	// 				m_wait(100);
-    	// 				clear(PORTD,LED_pin);
-			//
-    	// 			int i;
-    	// 			for(i = 0; i <10; i++) {
-    	// 				m_green(TOGGLE);
-    	// 				m_wait(100);
-    	// 			}
-			//
-    	// 		}
-			//
-			//
-    	// 		//handle kicking
-    	// 		if(KICK_TICKS > 0) {
-    	// 			KICK_TICKS = KICK_TICKS - 1;
-    	// 			//kick
-    	// 			set(PORTB, 7);
-    	// 		} else {
-    	// 			//don't kick
-    	// 			clear(PORTB, 7);
-    	// 		}
-			//
-    	// 		//handle searching
-    	// 		/*if(SEARCH_MODE) {
-    	// 			update_puck_angle();
-    	// 			if(get_see_puck()) {
-    	// 				//sees the puck
-    	// 				//set_power(1);
-    	// 				//turn(position[2] + get_puck_angle());
-			//
-    	// 				float delta_angle = get_puck_angle();
-    	// 				if(fabs(delta_angle) < 3.14159/6) {
-    	// 					leftON(1, FORWARDS);
-    	// 					rightON(1, FORWARDS);
-    	// 					if(countdown < 0 && !shot && (position[0] > 750 || position[0] < -750)) {
-    	// 						//kick();
-    	// 						shot = 1;
-    	// 					}
-    	// 				} else {
-    	// 					set_power(1);
-    	// 					turn(position[2] + get_puck_angle());
-    	// 				}
-    	// 				//leftON(0.3, FORWARDS);
-    	// 				//rightON(0.3, FORWARDS);
-    	// 			} else {
-    	// 				//doesn't see the puck: go search for it
-    	// 				//drive_search();
-    	// 				leftON(1, FORWARDS);
-    	// 				rightON(1, BACKWARDS);
-			//
-    	// 			}
-    	// 		}*/
-			//
-    	// 		rightON(1, BACKWARDS);
-			//
-    	// 		//main loop things
-			//
-			//
-			//
-			//
-			//
-			//
-    	// 		TICK_HAPPENED = 0;
-    	// 	}
-			//
-			//
-    	// 	if(RF_READ) {
-    	// 		//handle new RF info
-    	// 		RF_READ = 0;
-    	// 		rf_comm(buffer);
-    	// 	}
-    	// }
 }
 
 void initialize() {
@@ -319,10 +242,12 @@ void initialize() {
 }
 
 
-void report_error() {
+void report_error(const char *err) {
     m_red(ON);
     if(USB_DEBUG && m_usb_isconnected()) {
-        m_usb_tx_string("error!\n\r");
+        m_usb_tx_string("ERROR: ");
+        print_P(err); // same as m_usb_tx_string, getting around compile error
+        m_usb_tx_string("\r\n");
     }
 }
 
@@ -337,44 +262,35 @@ ISR(INT2_vect) {
     RF_READ = 1;
     m_rf_read(buffer, BUFFER_SIZE);
     //m_red(TOGGLE);
+    m_usb_tx_string("RF: ");
+    m_usb_tx_hex(buffer[0]);
+    m_usb_tx_hex("\r\n");
+
     if((uint8_t)buffer[0] == 0xA0) { //Comm Test
         BLINK = 1;
-    } else if((uint8_t)buffer[0] == 0xA1) { // Play
-        //m_green(TOGGLE);
-        set(PORTD,LED_pin); // Turn and Keep on Positioning LED
+        m_green(TOGGLE);
+        m_wait(1000);
 
-        if (position[0] > 0)
-        {
-            goTo(-300, 0);
-        }
-        else {
-            goTo(300, 0);
-        }
-        GO = 1;
+    } else if ((uint8_t)buffer[0] == 0xA1) { // Play
+        current_state = PLAY;
+
     } else if((uint8_t)buffer[0] == 0xA2) { // Goal R
-        GO = 0;
-        stop();
-        clear(PORTD, LED_pin); // TURN OFF positioning LED
+        current_state = PAUSE;
+
     } else if((uint8_t)buffer[0] == 0xA3) { // Goal B
-        GO = 0;
-        stop();
-        clear(PORTD, LED_pin); // TURN OFF positioning LED
+        current_state = PAUSE;
+
     } else if((uint8_t)buffer[0] == 0xA4) { // Pause
-        GO = 0;
-        stop();
-        clear(PORTD, LED_pin); // TURN OFF positioning LED
+        current_state = PAUSE;
+
     }	else if((uint8_t)buffer[0] == 0xA5) { // detangle
-        GO = 0;
-        stop();
-        clear(PORTD, LED_pin); // TURN OFF positioning LED
+        current_state = PAUSE;
+
     } else if((uint8_t)buffer[0] == 0xA6) { // Halftime
-        GO = 0;
-        stop();
-        clear(PORTD, LED_pin); // TURN OFF positioning LED
+        current_state = PAUSE;
+
     } else if((uint8_t)buffer[0] == 0xA7) { // Game Over
-        GO = 0;
-        stop();
-        clear(PORTD, LED_pin); // TURN OFF positioning LED
+        current_state = PAUSE;
     }
 }
 

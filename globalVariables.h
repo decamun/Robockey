@@ -46,13 +46,13 @@ enum DRIVESTATE
 
 enum MESSAGE
 {
-	NONE = 0,
-	COMM_TEST,
-	PLAY,
-	GOAL_R,
-	GOAL_B,
-	PAUSE,
-	HALFTIME,
+//	NONE = 0,
+//	COMM_TEST,
+//	PLAY,
+//	GOAL_R,
+//	GOAL_B,
+//	PAUSE,
+//	HALFTIME,
 	GAME_OVER
 };
 
