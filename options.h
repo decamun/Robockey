@@ -2,7 +2,7 @@
 #define OPTIONS
 
 #define FORCE_USB 1
-#define USB_DEBUG 1
+#define USB_DEBUG 0
 #define MATLAB_GRAPH 0
 
 #define INITIAL_POWER 1

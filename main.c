@@ -94,13 +94,14 @@ void main()
            // Get the current position and orientation
             localize_update();
             update_puck_angle();
+            float angle = get_puck_angle();
 
             m_usb_tx_string("State ");
             m_usb_tx_int(current_state);
             m_usb_tx_string("\r\n");
-            m_usb_tx_string("Puck ")
+            m_usb_tx_string("Puck ");
             m_usb_tx_int((int) (100 * get_puck_angle()));
-            m_usb_tx_string("\r\n") 
+            m_usb_tx_string("\r\n"); 
             
             switch(current_state) {
                 case SEARCHING:
@@ -113,7 +114,23 @@ void main()
                     break;
 
                 case ACQUIRE:
-                    goToHeading(getPosition(), get_puck_angle(), 10);
+                    //ogoToHeading(getPosition(), get_puck_angle(), 10);
+
+
+                    if (fabs(angle) <= DRIVE_PI / 6) {
+                        setLeft(0.5);
+                        setRight(0.5);
+                    }
+
+                    if (angle > DRIVE_PI / 6) {
+                        setLeft(0.5);
+                        setRight(0);
+                    }
+
+                    if (angle < -DRIVE_PI / 6) {
+                        setRight(0.5);
+                        setLeft(0);
+                    }
 
                     if (puck_middle()) {
                         current_state = GOTO_GOAL;

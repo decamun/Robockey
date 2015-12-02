@@ -16,7 +16,6 @@
 
 
 #define ACCURACY 30
-#define DRIVE_PI 3.14159
 #define DRIVE_KP 3
 #define DRIVE_KD 500
 #define MAX_DELTA_ANGLE 3.14159/6
