@@ -35,7 +35,7 @@ void update_puck_angle ()
   PT_values[6] = ADC;
 
 
-  m_usb_tx_string("\n");
+  //m_usb_tx_string("\n");
   for(i = 2; i<6; i++){
     if(PT_values[i]<PT_THRESHOLD){
       PT_values[i] = 0;
@@ -49,14 +49,14 @@ void update_puck_angle ()
   for(i = 0; i<7; i++){
     puck_angle += PT_values[i]*PT_angles[i];
     total += PT_values[i];
-    m_usb_tx_int(PT_values[i]);
-    m_usb_tx_string("\t");
+    //m_usb_tx_int(PT_values[i]);
+   // m_usb_tx_string("\t");
   }
   puck_angle = puck_angle/total;
 
-  m_usb_tx_int(total);
-  m_usb_tx_string("\t");
-  m_usb_tx_int((int)(puck_angle * 100));
+  //m_usb_tx_int(total);
+  //m_usb_tx_string("\t");
+  //m_usb_tx_int((int)(puck_angle * 100));
 
   if(total > 5){
   	see_puck = 1;

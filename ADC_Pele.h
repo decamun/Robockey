@@ -1,6 +1,7 @@
 //Analog To Digital Conversion
 
-
+#ifndef ADC_PELE
+#define ADC_PELE
 #include "m_general.h"
 
 //------------Initialising ADC functions-----------------//
@@ -15,3 +16,4 @@ void ADC4(void); // F4
 void ADC5(void); // F5
 void ADC6(void); // F6
 void ADC7(void); // F7
+#endif

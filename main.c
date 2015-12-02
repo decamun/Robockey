@@ -18,20 +18,6 @@
 
 char buffer[BUFFER_SIZE];
 
-float* position = NULL;
-
-
-//REMOVE THIS!!!!
-///
-///
-///
-int shot = 0;
-int countdown = 500;
-//
-//
-//GARBOABEADFSDF
-
-
 
 //flags
 int RF_READ = 0;
@@ -47,115 +33,147 @@ void report_error();
 void initialize();
 void kick();
 
+typedef enum {SEARCHING = 0, ACQUIRE, GOTO_GOAL} robot_state;
+
 void main()
 {
 	initialize();
 	m_wait(1000);
-	SEARCH_MODE = 1;
-	while (1) {
-		//remove this!!!!
-		if(countdown > -1) {
-			countdown = countdown -1;
-		}
-		if(puck_left() || puck_right() || puck_middle()) {
-			m_green(OFF);
-		} else {
-			m_green(ON);
-		}
+    robot_state current_state = SEARCHING;
+            
+        while (1) {
+            if(TICK_HAPPENED) {
+                // Get the current position and orientation
+                localize_update();
 
+                switch(current_state) {
+                    case SEARCHING: 
+                        update_puck_angle();
 
+                        if(get_see_puck()) {
+                            current_state = ACQUIRE;
+                            continue;
+                        }
 
+                        break;
 
+                    case ACQUIRE:
+                        if (puck_middle()) {
+                            current_state = GOTO_GOAL;
+                        }
+                        break;
 
-		if(TICK_HAPPENED) {
-			//handle new clock tick
-			localize_update(); //update localization info
-			position = getPosition();
-			//m_green(OFF);
+                    case GOTO_GOAL:
+                        goTo(GOAL_X, GOAL_Y);
+                        break;
+                }
+            }
 
-			//handle driving
-			if(GO) {
-			//	drive_update(); //update drive state
-			} else {
-			//	stop();
-			}
+            // We're done until the next clock update 
+            TICK_HAPPENED = 0;
+        }
 
-			//handle comm test
-			if(BLINK) {
-				BLINK =0;
-					set(PORTD,LED_pin);
-					m_wait(100);
-					clear(PORTD,LED_pin);
-
-				int i;
-				for(i = 0; i <10; i++) {
-					m_green(TOGGLE);
-					m_wait(100);
-				}
-
-			}
-
-
-			//handle kicking
-			if(KICK_TICKS > 0) {
-				KICK_TICKS = KICK_TICKS - 1;
-				//kick
-				set(PORTB, 7);
-			} else {
-				//don't kick
-				clear(PORTB, 7);
-			}
-
-			//handle searching
-			/*if(SEARCH_MODE) {
-				update_puck_angle();
-				if(get_see_puck()) {
-					//sees the puck
-					//set_power(1);
-					//turn(position[2] + get_puck_angle());
-
-					float delta_angle = get_puck_angle();
-					if(fabs(delta_angle) < 3.14159/6) {
-						leftON(1, FORWARDS);
-						rightON(1, FORWARDS);
-						if(countdown < 0 && !shot && (position[0] > 750 || position[0] < -750)) {
-							//kick();
-							shot = 1;
-						}
-					} else {
-						set_power(1);
-						turn(position[2] + get_puck_angle());
-					}
-					//leftON(0.3, FORWARDS);
-					//rightON(0.3, FORWARDS);
-				} else {
-					//doesn't see the puck: go search for it
-					//drive_search();
-					leftON(1, FORWARDS);
-					rightON(1, BACKWARDS);
-
-				}
-			}*/
-
-			rightON(1, BACKWARDS);
-
-			//main loop things
-
-
-
-
-
-
-			TICK_HAPPENED = 0;
-		}
-
-
-		if(RF_READ) {
-			//handle new RF info
-			RF_READ = 0;
-			rf_comm(buffer);
-		}
-	}
+//	SEARCH_MODE = 1;
+//	while (1) {
+//		//remove this!!!!
+//		if(countdown > -1) {
+//			countdown = countdown -1;
+//		}
+//		if(puck_left() || puck_right() || puck_middle()) {
+//			m_green(OFF);
+//		} else {
+//			m_green(ON);
+//		}
+//
+//		if(TICK_HAPPENED) {
+//			//handle new clock tick
+//			localize_update(); //update localization info
+//			position = getPosition();
+//			//m_green(OFF);
+//
+//			//handle driving
+//			if(GO) {
+//			//	drive_update(); //update drive state
+//			} else {
+//			//	stop();
+//			}
+//
+//			//handle comm test
+//			if(BLINK) {
+//				BLINK =0;
+//					set(PORTD,LED_pin);
+//					m_wait(100);
+//					clear(PORTD,LED_pin);
+//
+//				int i;
+//				for(i = 0; i <10; i++) {
+//					m_green(TOGGLE);
+//					m_wait(100);
+//				}
+//
+//			}
+//
+//
+//			//handle kicking
+//			if(KICK_TICKS > 0) {
+//				KICK_TICKS = KICK_TICKS - 1;
+//				//kick
+//				set(PORTB, 7);
+//			} else {
+//				//don't kick
+//				clear(PORTB, 7);
+//			}
+//
+//			//handle searching
+//			/*if(SEARCH_MODE) {
+//				update_puck_angle();
+//				if(get_see_puck()) {
+//					//sees the puck
+//					//set_power(1);
+//					//turn(position[2] + get_puck_angle());
+//
+//					float delta_angle = get_puck_angle();
+//					if(fabs(delta_angle) < 3.14159/6) {
+//						leftON(1, FORWARDS);
+//						rightON(1, FORWARDS);
+//						if(countdown < 0 && !shot && (position[0] > 750 || position[0] < -750)) {
+//							//kick();
+//							shot = 1;
+//						}
+//					} else {
+//						set_power(1);
+//						turn(position[2] + get_puck_angle());
+//					}
+//					//leftON(0.3, FORWARDS);
+//					//rightON(0.3, FORWARDS);
+//				} else {
+//					//doesn't see the puck: go search for it
+//					//drive_search();
+//					leftON(1, FORWARDS);
+//					rightON(1, BACKWARDS);
+//
+//				}
+//			}*/
+//
+//			rightON(1, BACKWARDS);
+//
+//			//main loop things
+//
+//
+//
+//
+//
+//
+//			TICK_HAPPENED = 0;
+//		}
+//
+//
+//		if(RF_READ) {
+//			//handle new RF info
+//			RF_READ = 0;
+//			rf_comm(buffer);
+//		}
+//	}
 }
 
 void initialize() {
@@ -221,6 +239,7 @@ void kick()	{
 
 //m_rf flag setter
 ISR(INT2_vect) {
+    float* position = getPosition();
 	//m_rf_recieved a thing
 	RF_READ = 1;
 	m_rf_read(buffer, BUFFER_SIZE);
