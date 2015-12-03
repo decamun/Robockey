@@ -70,7 +70,7 @@ static float goto_prev_distance = 0.0f;
 
 void resetGoTo() {
     goto_prev_error = 0.0f;
-    goto_prev_time = 0.0f;        
+    goto_prev_time = 0.0f;
     goto_prev_distance = 0.0f;
 }
 
@@ -79,7 +79,7 @@ void resetGoTo() {
  */
 float getAnglePID2(float current_angle, float target_angle) {
     float delta_angle = target_angle - current_angle;
-    
+
     //handle edge case with zero rollover
 	if(fabs(delta_angle) > DRIVE_PI) {
 		if(delta_angle > 0.0f) {
@@ -106,14 +106,14 @@ float getAnglePID2(float current_angle, float target_angle) {
     m_usb_tx_int((int)(100 * res));
     m_usb_tx_string("\r\n");
 
-    return res; 
+    return res;
 }
 
 
 void goToPosition(float* position, float base_power, float target_x, float target_y) {
     float target_angle = atan2f(target_y - position[1], target_x - position[0]);
     float res = getAnglePID2(0, target_angle);
-    
+
     float left_power;
     float right_power;
 
@@ -130,17 +130,17 @@ void goToPosition(float* position, float base_power, float target_x, float targe
 }
 
 void goToHeading(float* position, float target_angle, float target_dist) {
-    float current_angle = 0; 
-    float res = getAnglePID2(current_angle, target_angle);    
+    float current_angle = 0;
+    float res = getAnglePID2(current_angle, target_angle);
 
     // Scale distance to be between 0 and 1, if distance is above 1 then clamp
-    float dist_error = (target_dist > MAX_DIST) ? 1 :  target_dist / MAX_DIST; 
-    float base_power = GOTO_POWER_KP * dist_error + GOTO_POWER_KD * (dist_error - goto_prev_distance) / FIXED_DT; 
+    float dist_error = (target_dist > MAX_DIST) ? 1 :  target_dist / MAX_DIST;
+    float base_power = GOTO_POWER_KP * dist_error + GOTO_POWER_KD * (dist_error - goto_prev_distance) / FIXED_DT;
     goto_prev_distance = target_dist;
-    
+
     // Always move forward by a factor of base_power
     // Bias a turning direction based on the PD for angle
-    
+
     //TODO: Verify that this direction is correct
 
     float left_power;
@@ -272,7 +272,7 @@ void goStraight(int distance, int direction, float velocity) //goes straight a c
 void leftON(float power, int direction)
 {
 	if(power > 1) power = 1;
-    
+
 	start_pwm1(1024,power);
 
 	if (direction != FORWARDS)
@@ -287,9 +287,12 @@ void leftON(float power, int direction)
 
 void setLeft(float power) {
     int direction = FORWARDS;
-    if(power < 0) {
+    if(power < 0.0f) {
         power = -power;
-        direction = BACKWARDS; 
+        direction = BACKWARDS;
+    }
+    if(power > 1.0f) {
+      power = 1.0f;
     }
 
     leftON(power, direction);
@@ -319,9 +322,12 @@ void rightON(float power, int direction)
 
 void setRight(float power) {
     int direction = FORWARDS;
-    if(power < 0) {
+    if(power < 0.0f) {
         power = -power;
-        direction = BACKWARDS; 
+        direction = BACKWARDS;
+    }
+    if(power > 1.0f) {
+      power = 1.0f;
     }
 
     rightON(power, direction);
