@@ -98,8 +98,6 @@ void update_puck_angle ()
 void update_puck_distance(int total_adc) {
   float x = ((float)total_adc)/1000;
   puck_distance_cm = 50/powf(x,0.6) -23;
-;
-
 }
 
 float get_puck_distance() {
