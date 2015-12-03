@@ -50,30 +50,7 @@ void localize_update() {
         rx_buffer = m_usb_rx_char();
         m_red(OFF);
       }
-      if(!MATLAB_GRAPH || rx_buffer || 1) {
-        //m_usb_rx_flush();
-        m_red(ON);
-        int i;
-        for(i = 0; i < 4; i++) {
-          //m_usb_tx_int(data[i*3]);
-          //m_usb_tx_string("\t");
-          //m_usb_tx_int(data[i*3 + 1]);
-          //m_usb_tx_string("\t");
-        }
-        m_usb_tx_string("\n\r");
-      }
     }
-    //RF debug CODE
-    //************UNFINISHED**********
-    //if(RF_DEBUG) {
-    //  char DEBUFFER[16];
-    //  int i;
-    //  for(i = 0, i < 4, i++) {
-    //    *DEBUFFER[i * 2] = &data[i * 3];
-    //    *DEBUFFER[i * 2 + 1] = &data[i * 3 + 1];
-    //  }
-    //}
-    //***********\UNFINISHED**********
 
 
 
@@ -184,12 +161,23 @@ void localize_calculate(uint16_t* data)
     centerxy_tx[1] = -cosf(angle_adg) * centerxy[0] + sinf(angle_adg) * centerxy[1];
     centerxy_tx[0] = -sinf(angle_adg) * centerxy[0] - cosf(angle_adg) * centerxy[1];
 
+
+
+
     LOCALIZE_CENTER_XY[0] = LOCALIZE_CENTER_XY[0] * (LOCALIZE_LPF) + centerxy_tx[0] * (1 - LOCALIZE_LPF);
 	  LOCALIZE_CENTER_XY[1] = LOCALIZE_CENTER_XY[1] * (LOCALIZE_LPF) + centerxy_tx[1] * (1 - LOCALIZE_LPF); //low pass transformed location
 
     if(angle_adg > 0) {
-      angle_adg = angle_adg - 2 * 3.14159;
+      angle_adg = angle_adg - 2 * 3.14159f;
     }
+
+    m_usb_tx_string("Localize Loaction: (");
+    m_usb_tx_int((int)(centerxy_tx[1]));
+    m_usb_tx_string(", ");
+    m_usb_tx_int((int)(centerxy_tx[2]));
+    m_usb_tx_string(", ");
+    m_usb_tx_int((int)(100*angle_adg));
+    m_usb_tx_string(")\n\r");
     LOCALIZE_ANGLE = LOCALIZE_ANGLE * (LOCALIZE_LPF) + (-angle_adg) * (1 - LOCALIZE_LPF);
 
 
@@ -202,7 +190,7 @@ void localize_calculate(uint16_t* data)
       m_usb_tx_string("\t");
       m_usb_tx_int((int)(centerxy_tx[1]));
       m_usb_tx_string("\t");
-      m_usb_tx_int((int)(-100*(angle_adg+ 3.14159)));
+      m_usb_tx_int((int)(-100*(angle_adg+ 3.14159f)));
       m_usb_tx_string("\n");
     }
 
