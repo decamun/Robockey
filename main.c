@@ -127,7 +127,6 @@ void main()
                     break;
 
                 case ACQUIRE:
-<<<<<<< HEAD
 
                     m_usb_tx_string("");
 
