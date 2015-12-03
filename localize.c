@@ -29,6 +29,8 @@ void localize_init() {
 }
 
 void localize_update() {
+  m_usb_tx_string("Starting Localize\n");
+
   if(USB_DEBUG && m_usb_isconnected()) {
     m_usb_tx_string("Started to Localize\n\r");
   }
@@ -38,7 +40,7 @@ void localize_update() {
   }
 
   if(m_wii_read(data)) {
-
+    m_usb_tx_string("Read some Data\n");
 
     //USB DEBUG CODE
     if((USB_DEBUG || MATLAB_GRAPH )&& m_usb_isconnected()) {
@@ -92,6 +94,7 @@ void localize_update() {
     }
   } else {
      report_error("Could not connect to USB in localize");
+     m_usb_tx_string("Fuck this is bad\n\r");
   }
 }
 
@@ -192,11 +195,11 @@ void localize_calculate(uint16_t* data)
     }
 
     m_usb_tx_string("Localize Information: x:");
-    m_usb_tx_int(center_tx[0]);
+    m_usb_tx_int((int)(centerxy_tx[0]));
     m_usb_tx_string("\ty: ");
-    m_usb_tx_int(center)tx[1]);
+    m_usb_tx_int((int)(centerxy_tx[1]));
     m_usb_tx_string("\tangle: ");
-    m_usb_tx_int(angle_adg);
+    m_usb_tx_int((int)(100.0f * angle_adg));
     m_usb_tx_string("\n\r");
 
     LOCALIZE_ANGLE = LOCALIZE_ANGLE * (LOCALIZE_LPF) + (-angle_adg) * (1.0f - LOCALIZE_LPF);
@@ -252,6 +255,7 @@ void localize_calculate(uint16_t* data)
     }
 
   } else {
+    m_usb_tx_string("DIDN'T LOCALIZE\n");
     dropped_frames++;
   }
 }
