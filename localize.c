@@ -190,6 +190,15 @@ void localize_calculate(uint16_t* data)
     if(angle_adg > 0) {
       angle_adg = angle_adg - 2.0f * DRIVE_PI;
     }
+
+    m_usb_tx_string("Localize Information: x:");
+    m_usb_tx_int(center_tx[0]);
+    m_usb_tx_string("\ty: ");
+    m_usb_tx_int(center)tx[1]);
+    m_usb_tx_string("\tangle: ");
+    m_usb_tx_int(angle_adg);
+    m_usb_tx_string("\n\r");
+
     LOCALIZE_ANGLE = LOCALIZE_ANGLE * (LOCALIZE_LPF) + (-angle_adg) * (1.0f - LOCALIZE_LPF);
 
 

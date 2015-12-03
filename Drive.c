@@ -12,6 +12,7 @@
 #include "m_general.h"
 #include "m_bus.h"
 #include "m_usb.h"
+#include "options.h"
 #include <math.h>
 
 
