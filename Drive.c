@@ -88,7 +88,7 @@ float getAnglePID2(float current_angle, float target_angle) {
 			delta_angle = delta_angle + 2.0f * DRIVE_PI;
 		}
 	}
-    
+
     // Scale error to be between 0 and 1
     float error = delta_angle / DRIVE_PI;
 
@@ -291,9 +291,6 @@ void setLeft(float power) {
         power = -power;
         direction = BACKWARDS;
     }
-    if(power > 1.0f) {
-      power = 1.0f;
-    }
 
     leftON(power, direction);
 
@@ -325,9 +322,6 @@ void setRight(float power) {
     if(power < 0.0f) {
         power = -power;
         direction = BACKWARDS;
-    }
-    if(power > 1.0f) {
-      power = 1.0f;
     }
 
     rightON(power, direction);
