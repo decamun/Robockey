@@ -155,7 +155,7 @@ void main()
 
                     m_usb_tx_string("Motor Powers: Left: ");
                     m_usb_tx_int((int)(left_power * 100.0f));
-                    m_usb_tx_string(" percent\tRight:");
+                    m_usb_tx_string(" percent\tRight: ");
                     m_usb_tx_int((int)(right_power * 100.0f));
                     m_usb_tx_string(" percent\n\r");
 

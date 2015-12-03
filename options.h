@@ -23,6 +23,8 @@
 #define MAX_INTENSITY_M_WII 2
 #define LOCALIZE_LPF 0.93
 
-#define GOAL_X 300
-#define GOAL_Y 0
+#define BOUNDS_X ??? //
+#define BOUNDS_Y ??? //
+#define GOAL_WIDTH ??? //
+
 #endif
