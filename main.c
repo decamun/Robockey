@@ -120,8 +120,8 @@ void main()
 
                 case SEARCHING:
                     //TODO: CHANGE BACK TO 0.5
-                    setRight(0);
-                    setLeft(-0);
+                    setRight(0.5);
+                    setLeft(-0.5);
 
                     if(get_see_puck()) {
                         current_state = ACQUIRE;
