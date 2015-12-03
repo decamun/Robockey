@@ -97,7 +97,6 @@ void main()
         if(TICK_HAPPENED) {
            // Get the current position and orientation
             localize_update();
-            int* main_location = localize_location;
             update_puck_angle();
 
             m_usb_tx_string("State ");
@@ -108,11 +107,11 @@ void main()
             m_usb_tx_string("\r\n");
 
             m_usb_tx_string("Pos (x, y, t): (");
-            m_usb_tx_int((int) (main_location[0]));
+            m_usb_tx_int((int) (100.0f * getPosition()[0]));
             m_usb_tx_string(", ");
-            m_usb_tx_int((int) (main_location[1]));
+            m_usb_tx_int((int) (100.0f * getPosition()[1]));
             m_usb_tx_string(", ");
-            m_usb_tx_int((int) (100.0f * main_location[2]));
+            m_usb_tx_int((int) (100.0f * getPosition()[2]));
             m_usb_tx_string(")\r\n");
 
             switch(current_state) {
@@ -141,7 +140,7 @@ void main()
                     m_usb_tx_string("");
 
                     float power = getAnglePID2(get_puck_angle(), 0.0f);
-
+                    
                     float base_power = 0.87f;
 
                     float right_power = 0.0f;
@@ -150,7 +149,7 @@ void main()
 
                     if (power < 0.0f) {
                         right_power = -power;
-                        left_power = power * 0.8f;
+                        left_power = power * 0.8f; 
                     } else {
                         left_power = power;
                         right_power = -power * 0.8f;
