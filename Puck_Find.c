@@ -20,6 +20,8 @@ void update_puck_angle ()
   int total = 0;
   int i = 0;
 
+  float PT_index[7] = {6, 1, 2, 5, 4, 0, 3};
+
   ADC0();
   //m_usb_tx_string("ADC0: ");
   //m_usb_tx_int(ADC);
@@ -59,6 +61,14 @@ void update_puck_angle ()
   puck_angle = 0.0f;
   total = 0;
 
+  m_usb_tx_string("ADC: ("); 
+  for (i = 0; i < 7; i++) {
+      int ind = PT_index[i];
+      m_usb_tx_int(PT_values[ind]); 
+      m_usb_tx_string(", ");
+  }
+
+  m_usb_tx_string(")\r\n");
 
   for(i = 0; i<7; i++){
       puck_angle += PT_values[i]*PT_angles[i];
