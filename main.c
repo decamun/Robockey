@@ -254,18 +254,6 @@ void kick()	{
     KICK_TICKS = (int)(TICKS_PER_SECOND * 0.125);
 }
 
-//m_rf flag setter
-ISR(INT2_vect) {
-    RF_READ = 1;
-    m_rf_read(buffer, BUFFER_SIZE);
-
-    m_usb_tx_string("RF: ");
-    m_usb_tx_hex(buffer[0]);
-    m_usb_tx_hex("\r\n");
-
-    handleRfGameState((uint8_t) buffer[0]);
-}
-
 void handleRfGamestate(uint8_t value) {
     if(value == 0xA0) { //Comm Test
         BLINK = 1;
@@ -293,6 +281,18 @@ void handleRfGamestate(uint8_t value) {
     } else if(value == 0xA7) { // Game Over
         current_state = PAUSE;
     }
+}
+
+//m_rf flag setter
+ISR(INT2_vect) {
+    RF_READ = 1;
+    m_rf_read(buffer, BUFFER_SIZE);
+
+    m_usb_tx_string("RF: ");
+    m_usb_tx_hex(buffer[0]);
+    m_usb_tx_hex("\r\n");
+
+    handleRfGamestate((uint8_t) buffer[0]);
 }
 
 
