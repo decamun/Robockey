@@ -59,12 +59,10 @@ void update_puck_angle ()
 
 
   for(i = 0; i<7; i++){
-    if(i != 4 && i != 2) {
       puck_angle += PT_values[i]*PT_angles[i];
       total += PT_values[i];
-    }
-    //m_usb_tx_int(PT_values[i]);
-   // m_usb_tx_string("\t");
+      //m_usb_tx_int(PT_values[i]);
+      // m_usb_tx_string("\t");
   }
   puck_angle = puck_angle/total;
 

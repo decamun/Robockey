@@ -18,17 +18,16 @@
 #define ACCURACY 30
 #define DRIVE_KP 3
 #define DRIVE_KD 500
-#define MAX_DELTA_ANGLE 3.14159/6
-#define FIXED_DT 0.1
+#define MAX_DELTA_ANGLE (3.14159f/6)
+#define FIXED_DT 0.1f
 
+#define GOTO_KP 1.0f
+#define GOTO_KD 0.1f
+#define MAX_DIST 100.0f
+#define GOTO_POWER_KP 1.0f
+#define GOTO_POWER_KD 0.1f
 
-#define GOTO_KP 1
-#define GOTO_KD 0.1
-#define MAX_DIST 100
-#define GOTO_POWER_KP 1
-#define GOTO_POWER_KD 0.1
-
-static float DRIVE_POWER = 0;
+static float DRIVE_POWER = 0.0f;
 
 // Variables for GOTO
 static int goto_x = 0;
@@ -65,14 +64,14 @@ void stop()
 	leftOFF();
 }
 
-static float goto_prev_error = 0;
-static float goto_prev_time = 0;
-static float goto_prev_distance = 0;
+static float goto_prev_error = 0.0f;
+static float goto_prev_time = 0.0f;
+static float goto_prev_distance = 0.0f;
 
 void resetGoTo() {
-    goto_prev_error = 0;
-    goto_prev_time = 0;        
-    goto_prev_distance = 0;
+    goto_prev_error = 0.0f;
+    goto_prev_time = 0.0f;        
+    goto_prev_distance = 0.0f;
 }
 
 /**
@@ -83,23 +82,26 @@ float getAnglePID2(float current_angle, float target_angle) {
     
     //handle edge case with zero rollover
 	if(fabs(delta_angle) > DRIVE_PI) {
-		if(delta_angle > 0) {
-			delta_angle = delta_angle - 2 * DRIVE_PI;
+		if(delta_angle > 0.0f) {
+			delta_angle = delta_angle - 2.0f * DRIVE_PI;
 		} else {
-			delta_angle = delta_angle + 2 * DRIVE_PI;
+			delta_angle = delta_angle + 2.0f * DRIVE_PI;
 		}
 	}
 
     // Scale error to be between 0 and 1
     float error = delta_angle / DRIVE_PI;
-    float res = GOTO_KP * error + GOTO_KD * (error - goto_prev_error) / FIXED_DT;
+    float res = GOTO_KP * error + GOTO_KD * ((error - goto_prev_error) / ((float)FIXED_DT));
     goto_prev_error = error;
 
-    m_usb_tx_string("Error: ");
-    m_usb_tx_int((int)(100 * error));
+    m_usb_tx_string("Error, Raw: ");
+    m_usb_tx_int((int)(100* error));
+    m_usb_tx_string("\t");
+    m_usb_tx_int((int)((100 * (target_angle - current_angle))));
+
     m_usb_tx_string("\r\n");
 
-    m_usb_tx_string("Angle Res: ");
+    m_usb_tx_string("PD: ");
     m_usb_tx_int((int)(100 * res));
     m_usb_tx_string("\r\n");
 

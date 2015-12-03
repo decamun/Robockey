@@ -88,7 +88,9 @@ void main()
 {
     initialize();
     m_wait(1000);
+    resetGoTo(); // Ensure that PD loops are set to 0
 
+    //TODO: Change this back to PAUSE for real play
     current_state = PLAY; 
 
     while (1) {
@@ -96,7 +98,6 @@ void main()
            // Get the current position and orientation
             localize_update();
             update_puck_angle();
-            float angle = get_puck_angle();
 
             m_usb_tx_string("State ");
             m_usb_tx_int(current_state);
@@ -130,12 +131,12 @@ void main()
 
                     m_usb_tx_string("");
 
-                    float power = getAnglePID2(0, get_puck_angle());
-                    float base_power = 0.3;
+                    float power = getAnglePID2(get_puck_angle(), 0.0f);
+                    float base_power = 0.3f;
 
-                    float right_power = 0;
-                    float left_power = 0;
-                    if (power > 0) {
+                    float right_power = 0.0f;
+                    float left_power = 0.0f;
+                    if (power > 0.0f) {
                         right_power = base_power + power;
                         left_power = base_power;
                         } else {
