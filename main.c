@@ -120,8 +120,8 @@ void main()
 
                 case SEARCHING:
                     //TODO: CHANGE BACK TO 0.5
-                    setRight(0);
-                    setLeft(-0);
+                    setRight(0.3f);
+                    setLeft(-0.3f);
 
                     if(get_see_puck()) {
                         current_state = ACQUIRE;
@@ -180,8 +180,7 @@ void main()
 
                 case GOTO_GOAL:
                     //goTo(GOAL_X, GOAL_Y);
-                    setLeft(.7);
-                    setRight(.7);
+                    getPosition
 
                     if (!get_see_puck()) {
                         current_state = SEARCHING;
