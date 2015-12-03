@@ -234,6 +234,7 @@ void initialize() {
 
     //enable kicker ports
     set(DDRB, 7);
+    cleat(PORTB, 7);
 
     //enable inputs for switches
     clear(DDRB, 4);
