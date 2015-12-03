@@ -89,7 +89,7 @@ void main()
     initialize();
     m_wait(1000);
 
-    current_state = PAUSE;
+    current_state = PLAY; 
 
     while (1) {
         if(TICK_HAPPENED) {
@@ -98,12 +98,12 @@ void main()
             update_puck_angle();
             float angle = get_puck_angle();
 
-            // m_usb_tx_string("State ");
-            // m_usb_tx_int(current_state);
-            // m_usb_tx_string("\r\n");
-            // m_usb_tx_string("Puck ");
-            // m_usb_tx_int((int) (100 * get_puck_angle()));
-            // m_usb_tx_string("\r\n");
+            m_usb_tx_string("State ");
+            m_usb_tx_int(current_state);
+            m_usb_tx_string("\r\n");
+            m_usb_tx_string("Puck ");
+            m_usb_tx_int((int) (100 * get_puck_angle()));
+            m_usb_tx_string("\r\n");
 
             switch(current_state) {
                 case PAUSE:
@@ -268,7 +268,10 @@ void report_error(const char *err) {
 }
 
 void kick()	{
-    KICK_TICKS = (int)(TICKS_PER_SECOND * 0.125);
+    set(PORTB, 7);
+    m_wait(200);
+    clear(PORTB, 7);
+    //KICK_TICKS = (int)(TICKS_PER_SECOND * 0.125);
 }
 
 void handleRfGamestate(uint8_t value) {
