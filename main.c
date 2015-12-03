@@ -133,18 +133,22 @@ void main()
 
                     float power = getAnglePID2(get_puck_angle(), 0.0f);
                     
-                    float base_power = 0.55f;
+                    float base_power = 0.87f;
 
                     float right_power = 0.0f;
                     float left_power = 0.0f;
 
+
                     if (power < 0.0f) {
-                        right_power = base_power + -power;
-                        left_power = base_power; 
+                        right_power = -power;
+                        left_power = power * 0.8f; 
                     } else {
-                        left_power = base_power + power;
-                        right_power = base_power;
+                        left_power = power;
+                        right_power = -power * 0.8f;
                     }
+
+                    left_power += base_power;
+                    right_power += base_power;
 
                     setLeft(left_power);
                     setRight(right_power);

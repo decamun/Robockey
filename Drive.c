@@ -21,8 +21,8 @@
 #define MAX_DELTA_ANGLE (3.14159f/6)
 #define FIXED_DT 0.1f
 
-#define GOTO_KP 1.5f
-#define GOTO_KD 0.5f
+#define GOTO_KP 4.4f
+#define GOTO_KD 1.25f
 
 #define MAX_DIST 100.0f
 #define GOTO_POWER_KP 1.0f
@@ -272,6 +272,7 @@ void goStraight(int distance, int direction, float velocity) //goes straight a c
 void leftON(float power, int direction)
 {
 	if(power > 1) power = 1;
+    if(power < 0) power = 0;
 
 	start_pwm1(1024,power);
 
@@ -304,6 +305,7 @@ void leftOFF()
 void rightON(float power, int direction)
 {
     if(power > 1) power = 1;
+    if(power < 0) power = 0;
 
 	start_pwm3(1024,power);
 
