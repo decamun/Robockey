@@ -106,6 +106,14 @@ void main()
             m_usb_tx_int((int) (100 * get_puck_angle()));
             m_usb_tx_string("\r\n");
 
+            m_usb_tx_string("Pos (x, y, t): (");
+            m_usb_tx_int((int) (100.0f * getPosition()[0]));
+            m_usb_tx_string(", ");
+            m_usb_tx_int((int) (100.0f * getPosition()[1]));
+            m_usb_tx_string(", ");
+            m_usb_tx_int((int) (100.0f * getPosition()[2]));
+            m_usb_tx_string(")\r\n");
+
             switch(current_state) {
                 case PAUSE:
                     clear(PORTD, LED_pin); // TURN OFF positioning LED
