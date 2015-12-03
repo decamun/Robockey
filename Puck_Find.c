@@ -88,7 +88,8 @@ void update_puck_angle ()
 //maps a distance to a total intensity value from Puck_Find
 void update_puck_distance(int total_adc) {
   float x = ((float)total_adc)/1000;
-  puck_distance_cm = 6f*x*x*x*x - 50.911f*x*x*x + 154.567f*x*x - 211.193055181f*x + 131.517501154089f;
+  puck_distance_cm = -0.6403265388044020f*x*x*x*x*x + 11.1836942019141000f*x*x*x*x - 65.6311556466222000f*x*x*x + 172.1065675953300000f*x*x - 219.4881106074590000f*x + 132.6899820916250000f
+;
 
 }
 
