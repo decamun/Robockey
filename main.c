@@ -119,9 +119,8 @@ void main()
                     break;
 
                 case SEARCHING:
-                    //TODO: CHANGE BACK TO 0.5
-                    setRight(0.5);
-                    setLeft(-0.5);
+                    setRight(0.5f);
+                    setLeft(-0.5f);
 
                     if(get_see_puck()) {
                         current_state = ACQUIRE;
@@ -151,9 +150,9 @@ void main()
                     setRight(right_power);
 
                     m_usb_tx_string("Motor Powers: Left: ");
-                    m_usb_tx_int((int)(left_power * 100));
+                    m_usb_tx_int((int)(left_power * 100.0f));
                     m_usb_tx_string(" percent\tRight:");
-                    m_usb_tx_int((int)(right_power * 100));
+                    m_usb_tx_int((int)(right_power * 100.0f));
                     m_usb_tx_string(" percent\n\r");
 
 
@@ -182,8 +181,7 @@ void main()
 
                 case GOTO_GOAL:
                     //goTo(GOAL_X, GOAL_Y);
-                    setLeft(.7);
-                    setRight(.7);
+
 
                     if (!get_see_puck()) {
                         current_state = SEARCHING;
