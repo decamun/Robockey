@@ -149,9 +149,9 @@ void main()
                     setLeft(left_power);
                     setRight(right_power);
                     m_usb_tx_string("Motor Powers: Left: ");
-                    m_usb_tx_int((int))(left_power * 100.0f));
+                    m_usb_tx_int((int)(left_power * 100.0f));
                     m_usb_tx_string(" percent\tRight:");
-                    m_usb_tx_int((int))(right_power * 100.0f));
+                    m_usb_tx_int((int)(right_power * 100.0f));
                     m_usb_tx_string(" percent\n\r");
 
 
@@ -180,7 +180,7 @@ void main()
 
                 case GOTO_GOAL:
                     //goTo(GOAL_X, GOAL_Y);
-                    getPosition
+
 
                     if (!get_see_puck()) {
                         current_state = SEARCHING;
