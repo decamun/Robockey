@@ -91,7 +91,7 @@ void main()
     resetGoTo(); // Ensure that PD loops are set to 0
 
     //TODO: Change this back to PAUSE for real play
-    current_state = PLAY; 
+    current_state = PLAY;
 
     while (1) {
         if(TICK_HAPPENED) {
@@ -148,6 +148,12 @@ void main()
 
                     setLeft(left_power);
                     setRight(right_power);
+                    m_usb_tx_string("Motor Powers: Left: ");
+                    m_usb_tx_int((int))(left_power * 100));
+                    m_usb_tx_string(" percent\tRight:");
+                    m_usb_tx_int((int))(right_power * 100));
+                    m_usb_tx_string(" percent\n\r");
+
 
                     //if (fabs(angle) <= DRIVE_PI / 8) {
                     //    setLeft(0.5);
