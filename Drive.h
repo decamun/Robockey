@@ -15,7 +15,6 @@
 
 #define FORWARDS 0
 #define BACKWARDS 1
-#define DRIVE_PI 3.14159f
 
 typedef enum {STOP, PROGRESS, DONE} drive_state;
 typedef enum {D_NONE, GOTO, SEARCH, TURN} drive_action;

@@ -10,14 +10,14 @@
 #include "m_usb.h"
 
 static uint16_t dropped_frames = 0;
-static float LOCALIZE_CENTER_XY[2] = {1111, 1111};
-static float LOCALIZE_ANGLE = 1.5;
+static float LOCALIZE_CENTER_XY[2] = {1111.0f, 1111.0f};
+static float LOCALIZE_ANGLE = 1.5f;
 static char LOCALIZE_INIT = 0;
 static uint16_t data[12];
 char rx_buffer;
 
 static float location[3]; //for function localize_location
-static float T[2] = {512, 384};
+static float T[2] = {512.0f, 384.0f};
 
 void localize_init() {
   if(m_wii_open()) {
@@ -127,8 +127,8 @@ void localize_calculate(uint16_t* data)
 
     //main function
     float distance [4][4];
-    float max_distance = 0;
-    float curr_distance = 0;
+    float max_distance = 0.0f;
+    float curr_distance = 0.0f;
     int main_points[2];
     int other_points[2];
     int j = 0;
@@ -188,9 +188,9 @@ void localize_calculate(uint16_t* data)
 	  LOCALIZE_CENTER_XY[1] = LOCALIZE_CENTER_XY[1] * (LOCALIZE_LPF) + centerxy_tx[1] * (1 - LOCALIZE_LPF); //low pass transformed location
 
     if(angle_adg > 0) {
-      angle_adg = angle_adg - 2 * 3.14159;
+      angle_adg = angle_adg - 2.0f * DRIVE_PI;
     }
-    LOCALIZE_ANGLE = LOCALIZE_ANGLE * (LOCALIZE_LPF) + (-angle_adg) * (1 - LOCALIZE_LPF);
+    LOCALIZE_ANGLE = LOCALIZE_ANGLE * (LOCALIZE_LPF) + (-angle_adg) * (1.0f - LOCALIZE_LPF);
 
 
     //USB DEBUG CODE
@@ -202,7 +202,7 @@ void localize_calculate(uint16_t* data)
       m_usb_tx_string("\t");
       m_usb_tx_int((int)(centerxy_tx[1]));
       m_usb_tx_string("\t");
-      m_usb_tx_int((int)(-100*(angle_adg+ 3.14159)));
+      m_usb_tx_int((int)(-100.0f*(angle_adg+ DRIVE_PI)));
       m_usb_tx_string("\n");
     }
 
