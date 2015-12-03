@@ -8,6 +8,7 @@
 
 static float puck_angle = 0;
 static int see_puck = 0;
+static int puck_behind = 0;
 static float puck_distance_cm;
 
 void update_puck_angle ()
@@ -61,26 +62,34 @@ void update_puck_angle ()
 
 
   for(i = 0; i<7; i++){
+    if(i != 1 && i != 2 && i != 4) { //remove unused points
       puck_angle += PT_values[i]*PT_angles[i];
       total += PT_values[i];
+    }
       //m_usb_tx_int(PT_values[i]);
       // m_usb_tx_string("\t");
   }
-  update_puck_distance(total + PT_values[2] + PT_values[4]);
+
   puck_angle = puck_angle/total;
+  total = total + PT_values[1] + PT_values[2] + PT_values[4]; // add back in unused points
+  update_puck_distance(total);
 
   m_usb_tx_string("Distance: ");
   m_usb_tx_int((int)(get_puck_distance()));
   m_usb_tx_string("\n\r");
 
   m_usb_tx_string("Total: ");
-  m_usb_tx_int(total + PT_values[2] + PT_values[4]);
+  m_usb_tx_int(total);
   m_usb_tx_string("\n\r");
 
-  if(total + PT_values[2] + PT_values[4] > 50){
+  if(total > 50){
   	see_puck = 1;
+    puck_behind = 0;
+  } else if (PT_values[1] > 100) {
+    puck_behind = 1;
   } else {
   	see_puck = 0;
+    puck_behind = 0;
   }
 }
 
@@ -99,6 +108,10 @@ float get_puck_distance() {
 
 int get_see_puck() {
 	return see_puck;
+}
+
+int get_puck_behind() {
+  return puck_behind;
 }
 
 float get_puck_angle() {
