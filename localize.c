@@ -24,6 +24,7 @@ void localize_init() {
     LOCALIZE_INIT = 1;
   } else {
     report_error("Could not open the Wii camera");
+    m_usb_tx_string("Could not open the Wii camera");
   }
 
 }

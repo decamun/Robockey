@@ -22,13 +22,15 @@ char buffer[BUFFER_SIZE];
 //flags
 int RF_READ = 0;
 int TICK_HAPPENED = 0;
+int TEAM_RED = 0;
 
 int GO = 0;
 int BLINK = 0;
 int SEARCH_MODE = 0;
 
 int KICK_TICKS = 0;
-int LED_pin = 5;
+int LED_pin = 2;
+int OFF_LED_Pin = 3;
 void report_error(const char *err);
 void initialize();
 void kick();
@@ -140,7 +142,7 @@ void main()
                     m_usb_tx_string("");
 
                     float power = getAnglePID2(get_puck_angle(), 0.0f);
-                    
+
                     float base_power = 0.87f;
 
                     float right_power = 0.0f;
@@ -149,7 +151,7 @@ void main()
 
                     if (power < 0.0f) {
                         right_power = -power;
-                        left_power = power * 0.8f; 
+                        left_power = power * 0.8f;
                     } else {
                         left_power = power;
                         right_power = -power * 0.8f;
@@ -231,25 +233,44 @@ void main()
 
 void initialize() {
     m_clockdivide(0);
+    //enable inputs for switches
+    clear(DDRB, 4);
+    set(PORTB, 4);
+    clear(DDRB, 5);
+    set(PORTB, 5);
 
     //Changing Output pin for different team
-    if(RED)
-    {
-        LED_pin = 6;
+    if(puck_left() || puck_right()) {
+      TEAM_RED = 1;
+    } else {
+      TEAM_RED = 0;
+    }
 
+    set(DDRB, 2);
+    set(DDRB, 3);
+    if(TEAM_RED)
+    {
+      set(PORTB, 3);
+      clear(PORTB, 2);
+    } else {
+      set(PORTB, 2);
+      clear(PORTB, 3);
     }
 
     clear(DDRD, 3);
 
     //Enabling Positioning LED Pins for output
-    //set(DDRD, 5);
-    //set(DDRD, 6);
+    // set(DDRB, LED_pin);
+    // set(PORTB, LED_pin);
+    //
+    // set(DDRB, OFF_LED_Pin);
+    // clear(PORTB, OFF_LED_Pin);
 
     //driver board enable line
-    set(DDRB, 2); //enable output
-    set(PORTB, 2); //pull high
+    //set(DDRB, 2); //enable output
+    //set(PORTB, 2); //pull high
 
-    //enable direction lines
+    //enable direction lines (v+?)
     set(DDRB, 0);
     set(DDRB, 1);
 
@@ -257,11 +278,7 @@ void initialize() {
     set(DDRB, 7);
     clear(PORTB, 7);
 
-    //enable inputs for switches
-    clear(DDRB, 4);
-    set(PORTB, 4);
-    clear(DDRB, 5);
-    set(PORTB, 5);
+
 
     set_power(INITIAL_POWER);
 
