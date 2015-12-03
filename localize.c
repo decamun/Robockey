@@ -50,6 +50,18 @@ void localize_update() {
         rx_buffer = m_usb_rx_char();
         m_red(OFF);
       }
+      if(!MATLAB_GRAPH || rx_buffer || 1) {
+        //m_usb_rx_flush();
+        m_red(ON);
+        int i;
+        for(i = 0; i < 4; i++) {
+          //m_usb_tx_int(data[i*3]);
+          //m_usb_tx_string("\t");
+          //m_usb_tx_int(data[i*3 + 1]);
+          //m_usb_tx_string("\t");
+        }
+        m_usb_tx_string("\n\r");
+      }
     }
 
 
