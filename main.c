@@ -119,8 +119,9 @@ void main()
                     break;
 
                 case SEARCHING:
-                    setRight(0.5);
-                    setLeft(-0.5);
+                    //TODO: CHANGE BACK TO 0.5
+                    setRight(0);
+                    setLeft(-0);
 
                     if(get_see_puck()) {
                         current_state = ACQUIRE;
@@ -132,14 +133,15 @@ void main()
                     m_usb_tx_string("");
 
                     float power = getAnglePID2(get_puck_angle(), 0.0f);
-                    float base_power = 0.3f;
+                    float base_power = 0.0f;
 
                     float right_power = 0.0f;
                     float left_power = 0.0f;
-                    if (power > 0.0f) {
-                        right_power = base_power + power;
+
+                    if (power < 0.0f) {
+                        right_power = base_power + -power;
                         left_power = base_power;
-                        } else {
+                    } else {
                         left_power = base_power + power;
                         right_power = base_power;
                     }

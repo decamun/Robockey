@@ -72,7 +72,7 @@ void update_puck_angle ()
   m_usb_tx_string(")\r\n");
 
   for(i = 0; i<7; i++){
-    if(i != 1 && i != 2 && i != 4) { //remove unused points
+    if(i != 1) { //remove unused points
       puck_angle += PT_values[i]*PT_angles[i];
       total += PT_values[i];
     }
@@ -81,7 +81,7 @@ void update_puck_angle ()
   }
 
   puck_angle = puck_angle/total;
-  total = total + PT_values[1] + PT_values[2] + PT_values[4]; // add back in unused points
+  total = total + PT_values[1]; // add back in unused points
   update_puck_distance(total);
 
   m_usb_tx_string("Distance: ");

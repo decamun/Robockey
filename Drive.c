@@ -21,7 +21,7 @@
 #define MAX_DELTA_ANGLE (3.14159f/6)
 #define FIXED_DT 0.1f
 
-#define GOTO_KP 2.0f
+#define GOTO_KP 1.0f
 #define GOTO_KD 0.1f
 #define MAX_DIST 100.0f
 #define GOTO_POWER_KP 1.0f
