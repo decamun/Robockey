@@ -94,6 +94,15 @@ float getAnglePID2(float current_angle, float target_angle) {
     float error = delta_angle / DRIVE_PI;
     float res = GOTO_KP * error + GOTO_KD * (error - goto_prev_error) / FIXED_DT;
     goto_prev_error = error;
+
+    m_usb_tx_string("Error: ");
+    m_usb_tx_int((int)(100 * error));
+    m_usb_tx_string("\r\n");
+
+    m_usb_tx_string("Angle Res: ");
+    m_usb_tx_int((int)(100 * res));
+    m_usb_tx_string("\r\n");
+
     return res; 
 }
 

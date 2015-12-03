@@ -127,19 +127,35 @@ void main()
                     break;
 
                 case ACQUIRE:
-                    //ogoToHeading(getPosition(), get_puck_angle(), 10);
 
+                    m_usb_tx_string("");
 
-                    if (fabs(angle) <= DRIVE_PI / 8) {
-                        setLeft(0.5);
-                        setRight(0.5);
-                    } else if (angle > 0) {
-												setRight(0.6);
-												setLeft(0.2);
+                    float power = getAnglePID2(0, get_puck_angle());
+                    float base_power = 0.3;
+
+                    float right_power = 0;
+                    float left_power = 0;
+                    if (power > 0) {
+                        right_power = base_power + power;
+                        left_power = base_power;
                     } else {
-												setLeft(0.6);
-                        setRight(0.2);
+                        left_power = base_power + power;
+                        right_power = base_power;
                     }
+
+                    setLeft(left_power);
+                    setRight(right_power);
+
+                    //if (fabs(angle) <= DRIVE_PI / 8) {
+                    //    setLeft(0.5);
+                    //    setRight(0.5);
+                    //} else if (angle > 0) {
+					//							setRight(0.6);
+					//							setLeft(0.2);
+                    //} else {
+					//							setLeft(0.6);
+                    //    setRight(0.2);
+                    //}
 
                     if (puck_middle()) {
                         current_state = GOTO_GOAL;
@@ -155,8 +171,9 @@ void main()
 
                 case GOTO_GOAL:
                     //goTo(GOAL_X, GOAL_Y);
-										setLeft(.7);
-										setRight(.7);
+                    setLeft(.7);
+                    setRight(.7);
+
                     if (!get_see_puck()) {
                         current_state = SEARCHING;
                     } else if (!puck_middle()) {
