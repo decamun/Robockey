@@ -21,8 +21,9 @@
 #define MAX_DELTA_ANGLE (3.14159f/6)
 #define FIXED_DT 0.1f
 
-#define GOTO_KP 1.0f
-#define GOTO_KD 0.1f
+#define GOTO_KP 1.5f
+#define GOTO_KD 0.5f
+
 #define MAX_DIST 100.0f
 #define GOTO_POWER_KP 1.0f
 #define GOTO_POWER_KD 0.1f
@@ -91,8 +92,7 @@ float getAnglePID2(float current_angle, float target_angle) {
     
     // Scale error to be between 0 and 1
     float error = delta_angle / DRIVE_PI;
-
-    float res = GOTO_KP * error + GOTO_KD * ((error - goto_prev_error) / ((float)FIXED_DT));
+    float res = GOTO_KP * error + GOTO_KD * (error - goto_prev_error);
     goto_prev_error = error;
 
     m_usb_tx_string("Error, Raw: ");

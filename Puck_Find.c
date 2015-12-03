@@ -95,7 +95,7 @@ void update_puck_angle ()
   if(total > 50){
   	see_puck = 1;
     puck_behind = 0;
-  } else if (PT_values[1] > 100) {
+  } else if (PT_values[1] > 200) {
     puck_behind = 1;
   } else {
   	see_puck = 0;

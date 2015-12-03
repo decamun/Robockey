@@ -133,14 +133,15 @@ void main()
                     m_usb_tx_string("");
 
                     float power = getAnglePID2(get_puck_angle(), 0.0f);
-                    float base_power = 0.0f;
+                    
+                    float base_power = 0.55f;
 
                     float right_power = 0.0f;
                     float left_power = 0.0f;
 
                     if (power < 0.0f) {
                         right_power = base_power + -power;
-                        left_power = base_power;
+                        left_power = base_power; 
                     } else {
                         left_power = base_power + power;
                         right_power = base_power;
@@ -148,10 +149,11 @@ void main()
 
                     setLeft(left_power);
                     setRight(right_power);
+
                     m_usb_tx_string("Motor Powers: Left: ");
-                    m_usb_tx_int((int))(left_power * 100));
+                    m_usb_tx_int((int)(left_power * 100));
                     m_usb_tx_string(" percent\tRight:");
-                    m_usb_tx_int((int))(right_power * 100));
+                    m_usb_tx_int((int)(right_power * 100));
                     m_usb_tx_string(" percent\n\r");
 
 
