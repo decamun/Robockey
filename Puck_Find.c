@@ -32,7 +32,7 @@ void update_puck_angle ()
   // m_usb_tx_string("ADC4: ");
   // m_usb_tx_int(ADC);
   // m_usb_tx_string("\n\r");
-  PT_values[2] = 0;//ADC;
+  PT_values[2] = ADC;
   ADC5();
   // m_usb_tx_string("ADC5: ");
   // m_usb_tx_int(ADC);
@@ -47,7 +47,7 @@ void update_puck_angle ()
   // m_usb_tx_string("ADC7: ");
   // m_usb_tx_int(ADC);
   // m_usb_tx_string("\n\r");
-  PT_values[4] = 0;//ADC;
+  PT_values[4] = ADC;
   ADC8();
   // m_usb_tx_string("ADC8: ");
   // m_usb_tx_int(ADC);
@@ -59,8 +59,10 @@ void update_puck_angle ()
 
 
   for(i = 0; i<7; i++){
-    puck_angle += PT_values[i]*PT_angles[i];
-    total += PT_values[i];
+    if(i != 4 && i != 2) {
+      puck_angle += PT_values[i]*PT_angles[i];
+      total += PT_values[i];
+    }
     //m_usb_tx_int(PT_values[i]);
    // m_usb_tx_string("\t");
   }
@@ -70,7 +72,7 @@ void update_puck_angle ()
   //m_usb_tx_string("\t");
   //m_usb_tx_int((int)(puck_angle * 100));
 
-  if(total > 50){
+  if(total + PT_values[2] + PT_value[4] > 50){
   	see_puck = 1;
   } else {
   	see_puck = 0;

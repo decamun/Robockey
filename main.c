@@ -128,8 +128,6 @@ void main()
 
                 case ACQUIRE:
                     //ogoToHeading(getPosition(), get_puck_angle(), 10);
-
-
                     if (fabs(angle) <= DRIVE_PI / 8) {
                         setLeft(0.5);
                         setRight(0.5);
