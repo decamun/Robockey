@@ -56,7 +56,7 @@ void update_puck_angle ()
   //m_usb_tx_string("\n\r");
   PT_values[0] = ADC;
 
-  puck_angle = 0;
+  puck_angle = 0.0f;
   total = 0;
 
 
@@ -66,6 +66,7 @@ void update_puck_angle ()
       //m_usb_tx_int(PT_values[i]);
       // m_usb_tx_string("\t");
   }
+
   update_puck_distance(total + PT_values[2] + PT_values[4]);
   puck_angle = puck_angle/total;
 
@@ -77,7 +78,7 @@ void update_puck_angle ()
   m_usb_tx_int(total + PT_values[2] + PT_values[4]);
   m_usb_tx_string("\n\r");
 
-  if(total + PT_values[2] + PT_values[4] > 50){
+  if(total + PT_values[2] + PT_values[4] > 100){
   	see_puck = 1;
   } else {
   	see_puck = 0;
@@ -88,7 +89,7 @@ void update_puck_angle ()
 //maps a distance to a total intensity value from Puck_Find
 void update_puck_distance(int total_adc) {
   float x = ((float)total_adc)/1000;
-  puck_distance_cm = 6f*x*x*x*x - 50.911f*x*x*x + 154.567f*x*x - 211.193055181f*x + 131.517501154089f;
+  puck_distance_cm = 6.0f*x*x*x*x - 50.911f*x*x*x + 154.567f*x*x - 211.193055181f*x + 131.517501154089f;
 
 }
 
