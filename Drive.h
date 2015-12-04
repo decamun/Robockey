@@ -50,7 +50,7 @@ void resetGoTo();
  * Goes to the specified position on the field (in cm)
  */
 
-float getAnglePID2(float curr, float target);
+float getAnglePID2(float curr, float target, float KP, float KD);
 void goTo(int x, int y); 
 void drive_search();
 void turn(float target_angle); //turns a certain angle in RAD

@@ -17,16 +17,21 @@
 #define CHANNEL 1
 
 #define TICK_FREQUENCY 200
-#define TICK_LENGTH 0.0128
-#define TICKS_PER_SECOND 78.125
+#define TICK_LENGTH 0.0128.0f
+#define TICKS_PER_SECOND 78.125.0f
 
 #define BUFFER_SIZE 10
 
 #define MAX_INTENSITY_M_WII 2
-#define LOCALIZE_LPF 0.93
+#define LOCALIZE_LPF 0.93f
 
-#define BOUNDS_X ??? //
-#define BOUNDS_Y ??? //
-#define GOAL_WIDTH ??? //
+#define GOAL_X -310.0f 
+#define GOAL_Y  0.0f
+#define WALL_X 0.0f
+#define WALL_Y 180.0f
+
+#define BOUNDS_X 0//
+#define BOUNDS_Y 0//
+#define GOAL_WIDTH 0//
 
 #endif

@@ -35,7 +35,7 @@ void report_error(const char *err);
 void initialize();
 void kick();
 
-typedef enum {SEARCHING = 0, ACQUIRE, GOTO_GOAL, PUCK_TURN, PAUSE, PLAY} robot_state;
+typedef enum {SEARCHING = 0, ACQUIRE, GOTO_GOAL, PUCK_TURN, PAUSE, PLAY, GOTO_ZERO} robot_state;
 static robot_state current_state = PAUSE;
 
 void testMotors() {
@@ -109,11 +109,11 @@ void main()
             m_usb_tx_string("\r\n");
 
             m_usb_tx_string("Pos (x, y, t): (");
-            m_usb_tx_int((int) (100.0f * getPosition()[0]));
+            m_usb_tx_int((int) (getPosition()[0]));
             m_usb_tx_string(", ");
-            m_usb_tx_int((int) (100.0f * getPosition()[1]));
+            m_usb_tx_int((int) (getPosition()[1]));
             m_usb_tx_string(", ");
-            m_usb_tx_int((int) (100.0f * getPosition()[2]));
+            m_usb_tx_int((int) (getPosition()[2]));
             m_usb_tx_string(")\r\n");
 
             switch(current_state) {
@@ -139,8 +139,6 @@ void main()
 
                 case ACQUIRE:
 
-                    m_usb_tx_string("");
-
                     goToHeadingVel(0.87f, get_puck_angle(), 0.0f); 
 
                     if (puck_middle()) {
@@ -156,7 +154,7 @@ void main()
                     break;
 
                 case GOTO_GOAL:
-                    //goTo(GOAL_X, GOAL_Y);
+                    goToPosition(getPosition(), 0.77f, GOAL_X, GOAL_Y);
 
                     if (!get_see_puck()) {
                         current_state = SEARCHING;
@@ -176,6 +174,8 @@ void main()
                     } else {
                         current_state = ACQUIRE;
                     }
+                case GOTO_ZERO:
+                    goToPosition(getPosition(), 0.7f, 0.0f, 0.0f);
             }
 
             // We're done until the next clock update
@@ -255,6 +255,7 @@ void initialize() {
     start0(TICK_FREQUENCY);
     interupt0(1);
     ADC_init();
+    localize_init();
 }
 
 

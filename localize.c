@@ -1,5 +1,3 @@
-
-
 #include <stdint.h>
 #include "options.h"
 #include <math.h>
@@ -8,6 +6,8 @@
 #include "m_wii.h"
 #include "m_bus.h"
 #include "m_usb.h"
+
+#define ALPHA 0.8f
 
 static uint16_t dropped_frames = 0;
 static float LOCALIZE_CENTER_XY[2] = {1111.0f, 1111.0f};
@@ -21,30 +21,28 @@ static float T[2] = {512.0f, 384.0f};
 
 void localize_init() {  
   // Following code to get around possible init error m_wii_open
+  m_usb_tx_string("Initializing the m_wii...\r\n");
+
   char open = 0;
   open = m_wii_open();
 
   if(open) {
     LOCALIZE_INIT = 1;
   } else {
-    report_error("Could not open the Wii camera");
-    m_usb_tx_string("Could not open the Wii camera");
+    //report_error("Could not open the Wii camera");
+    m_usb_tx_string("Could not open the Wii camera\r\n");
   }
 
 }
 
 void localize_update() {
-  m_usb_tx_string("Starting Localize\n");
-
   if(USB_DEBUG && m_usb_isconnected()) {
     m_usb_tx_string("Started to Localize\n\r");
   }
 
-  if(!LOCALIZE_INIT) {
-    localize_init();
-  }
-
-  if(m_wii_read(data)) {
+  char read = 0;
+  read = m_wii_read(data);
+  if(read) {
     m_usb_tx_string("Read some Data\n");
     //USB DEBUG CODE
     if((USB_DEBUG || MATLAB_GRAPH )&& m_usb_isconnected()) {
@@ -56,34 +54,20 @@ void localize_update() {
         rx_buffer = m_usb_rx_char();
         m_red(OFF);
       }
-      if(!MATLAB_GRAPH || rx_buffer || 1) {
-        //m_usb_rx_flush();
-        m_red(ON);
-        int i;
-        for(i = 0; i < 4; i++) {
-          //m_usb_tx_int(data[i*3]);
-          //m_usb_tx_string("\t");
-          //m_usb_tx_int(data[i*3 + 1]);
-          //m_usb_tx_string("\t");
-        }
-        m_usb_tx_string("\n\r");
-      }
+      //if(!MATLAB_GRAPH || rx_buffer || 1) {
+      //  m_usb_rx_flush();
+      //  m_red(ON);
+      //  int i;
+      //  for(i = 0; i < 4; i++) {
+      //    //m_usb_tx_int(data[i*3]);
+      //    //m_usb_tx_string("\t");
+      //    //m_usb_tx_int(data[i*3 + 1]);
+      //    //m_usb_tx_string("\t");
+      //  }
+      //  m_usb_tx_string("\n\r");
+      //}
     }
-    //RF debug CODE
-    //************UNFINISHED**********
-    //if(RF_DEBUG) {
-    //  char DEBUFFER[16];
-    //  int i;
-    //  for(i = 0, i < 4, i++) {
-    //    *DEBUFFER[i * 2] = &data[i * 3];
-    //    *DEBUFFER[i * 2 + 1] = &data[i * 3 + 1];
-    //  }
-    //}
-    //***********\UNFINISHED**********
-
-
-
-
+    //
     //calculate position
     localize_calculate(data);
 
@@ -97,8 +81,11 @@ void localize_update() {
       m_usb_tx_string("\n\r");
     }
   } else {
-     report_error("Could not connect to USB in localize");
+     // report_error("Could not connect to USB in localize");
      m_usb_tx_string("Fuck this is bad\n\r");
+     if (!LOCALIZE_INIT) {
+        m_usb_tx_string("THE CAMERA WAS NOT INITIALIZED\r\n");
+     }
   }
 }
 
@@ -206,7 +193,9 @@ void localize_calculate(uint16_t* data)
     m_usb_tx_int((int)(100.0f * angle_adg));
     m_usb_tx_string("\n\r");
 
-    LOCALIZE_ANGLE = LOCALIZE_ANGLE * (LOCALIZE_LPF) + (-angle_adg) * (1.0f - LOCALIZE_LPF);
+    // Perform a low pass filter
+    //LOCALIZE_ANGLE = LOCALIZE_ANGLE * (LOCALIZE_LPF) + (-angle_adg) * (1.0f - LOCALIZE_LPF);
+    LOCALIZE_ANGLE = -angle_adg;  
 
 
     //USB DEBUG CODE
@@ -259,12 +248,12 @@ void localize_calculate(uint16_t* data)
     }
 
   } else {
-    m_usb_tx_string("DIDN'T LOCALIZE\n");
     dropped_frames++;
   }
 }
 
 
+// NOW WITH SIMPLE LOW PASS FILTER
 float* localize_location() {
   location[0] = LOCALIZE_CENTER_XY[0];
   location[1] = LOCALIZE_CENTER_XY[1];

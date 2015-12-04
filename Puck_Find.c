@@ -62,14 +62,16 @@ void update_puck_angle ()
   puck_angle = 0.0f;
   total = 0;
 
-  m_usb_tx_string("ADC: (");
-  for (i = 0; i < 7; i++) {
-      int ind = PT_index[i];
-      m_usb_tx_int(PT_values[ind]);
-      m_usb_tx_string(", ");
-  }
+  if (m_usb_isconnected()) {
+      m_usb_tx_string("ADC: (");
+      for (i = 0; i < 7; i++) {
+          int ind = PT_index[i];
+          m_usb_tx_int(PT_values[ind]);
+          m_usb_tx_string(", ");
+      }
 
-  m_usb_tx_string(")\r\n");
+      m_usb_tx_string(")\r\n");
+  }
 
   for(i = 0; i<7; i++){
     if(i != 3) { //remove unused points
