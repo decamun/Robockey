@@ -109,24 +109,40 @@ float getAnglePID2(float current_angle, float target_angle) {
     return res;
 }
 
+void goToHeadingVel(float base_power, float target_angle, float current_angle) {
+    float power = getAnglePID2(target_angle, current_angle);
+
+    float base_power = 0.87f;
+
+    float right_power = 0.0f;
+    float left_power = 0.0f;
+
+
+    if (power < 0.0f) {
+        right_power = -power;
+        left_power = power * 0.8f; 
+    } else {
+        left_power = power;
+        right_power = -power * 0.8f;
+    }
+
+    left_power += base_power;
+    right_power += base_power;
+
+    setLeft(left_power);
+    setRight(right_power);
+
+    m_usb_tx_string("Motor Powers: Left: ");
+    m_usb_tx_int((int)(left_power * 100.0f));
+    m_usb_tx_string(" percent\tRight: ");
+    m_usb_tx_int((int)(right_power * 100.0f));
+    m_usb_tx_string(" percent\n\r");
+}
+
 
 void goToPosition(float* position, float base_power, float target_x, float target_y) {
     float target_angle = atan2f(target_y - position[1], target_x - position[0]);
-    float res = getAnglePID2(0, target_angle);
-
-    float left_power;
-    float right_power;
-
-    if(res > 0) {
-        left_power = res + base_power;
-        right_power = base_power;
-    } else {
-        left_power = base_power;
-        right_power = res + base_power;
-    }
-
-    setRight(left_power);
-    setLeft(right_power);
+    goToHeadingVel(base_power, target_angle, getPosition[2]);
 }
 
 void goToHeading(float* position, float target_angle, float target_dist) {

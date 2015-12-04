@@ -29,6 +29,13 @@ void goToHeading(float* position, float target_angle, float target_dist);
 
 
 /**
+ * Go to a heading at a constant base_power velocity 
+ * Use 0.87f for aggressive maneuvering
+ */
+void goToHeadingVel(float base_power, float target_angle, float current_angle);
+
+
+/**
  * Use the same turn/move forward behavior as goToHeading, except that the
  * target is an x,y position.
  */

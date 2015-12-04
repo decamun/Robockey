@@ -19,8 +19,12 @@ char rx_buffer;
 static float location[3]; //for function localize_location
 static float T[2] = {512.0f, 384.0f};
 
-void localize_init() {
-  if(m_wii_open()) {
+void localize_init() {  
+  // Following code to get around possible init error m_wii_open
+  char open = 0;
+  open = m_wii_open();
+
+  if(open) {
     LOCALIZE_INIT = 1;
   } else {
     report_error("Could not open the Wii camera");
@@ -38,8 +42,6 @@ void localize_update() {
   }
 
   if(m_wii_read(data)) {
-
-
     //USB DEBUG CODE
     if((USB_DEBUG || MATLAB_GRAPH )&& m_usb_isconnected()) {
       if(USB_DEBUG){

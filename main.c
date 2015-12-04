@@ -139,45 +139,7 @@ void main()
 
                     m_usb_tx_string("");
 
-                    float power = getAnglePID2(get_puck_angle(), 0.0f);
-                    
-                    float base_power = 0.87f;
-
-                    float right_power = 0.0f;
-                    float left_power = 0.0f;
-
-
-                    if (power < 0.0f) {
-                        right_power = -power;
-                        left_power = power * 0.8f; 
-                    } else {
-                        left_power = power;
-                        right_power = -power * 0.8f;
-                    }
-
-                    left_power += base_power;
-                    right_power += base_power;
-
-                    setLeft(left_power);
-                    setRight(right_power);
-
-                    m_usb_tx_string("Motor Powers: Left: ");
-                    m_usb_tx_int((int)(left_power * 100.0f));
-                    m_usb_tx_string(" percent\tRight: ");
-                    m_usb_tx_int((int)(right_power * 100.0f));
-                    m_usb_tx_string(" percent\n\r");
-
-
-                    //if (fabs(angle) <= DRIVE_PI / 8) {
-                    //    setLeft(0.5);
-                    //    setRight(0.5);
-                    //} else if (angle > 0) {
-					//							setRight(0.6);
-					//							setLeft(0.2);
-                    //} else {
-					//							setLeft(0.6);
-                    //    setRight(0.2);
-                    //}
+                    goToHeadingVel(0.87f, get_puck_angle(), 0.0f); 
 
                     if (puck_middle()) {
                         current_state = GOTO_GOAL;
@@ -193,7 +155,6 @@ void main()
 
                 case GOTO_GOAL:
                     //goTo(GOAL_X, GOAL_Y);
-
 
                     if (!get_see_puck()) {
                         current_state = SEARCHING;
