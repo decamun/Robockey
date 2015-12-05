@@ -18,10 +18,13 @@ char rx_buffer;
 
 static float location[3]; //for function localize_location
 static float T[2] = {512.0f, 384.0f};
+static bool TEAM_RED;
 
-void localize_init() {  
+void localize_init(int TEAM_RED_M) {  
   // Following code to get around possible init error m_wii_open
   m_usb_tx_string("Initializing the m_wii...\r\n");
+
+  TEAM_RED = TEAM_RED_M;
 
   char open = 0;
   open = m_wii_open();
@@ -179,11 +182,15 @@ void localize_calculate(uint16_t* data)
     centerxy_tx[0] = -sinf(angle_adg) * centerxy[0] - cosf(angle_adg) * centerxy[1];
 
     LOCALIZE_CENTER_XY[0] = LOCALIZE_CENTER_XY[0] * (LOCALIZE_LPF) + centerxy_tx[0] * (1 - LOCALIZE_LPF);
-	  LOCALIZE_CENTER_XY[1] = LOCALIZE_CENTER_XY[1] * (LOCALIZE_LPF) + centerxy_tx[1] * (1 - LOCALIZE_LPF); //low pass transformed location
+    LOCALIZE_CENTER_XY[1] = LOCALIZE_CENTER_XY[1] * (LOCALIZE_LPF) + centerxy_tx[1] * (1 - LOCALIZE_LPF); //low pass transformed location
 
     if(angle_adg > 0) {
-      angle_adg = angle_adg - 2.0f * DRIVE_PI;
+        angle_adg = angle_adg - 2.0f * DRIVE_PI;
     }
+    //
+    // if (angle_adg > DRIVE_PI) {
+    //     angle_adg = -(2 * DRIVE_PI - angle_adg);
+    // }
 
     m_usb_tx_string("Localize Information: x:");
     m_usb_tx_int((int)(centerxy_tx[0]));
@@ -255,8 +262,9 @@ void localize_calculate(uint16_t* data)
 
 // NOW WITH SIMPLE LOW PASS FILTER
 float* localize_location() {
-  location[0] = LOCALIZE_CENTER_XY[0];
-  location[1] = LOCALIZE_CENTER_XY[1];
-  location[2] = LOCALIZE_ANGLE;
+  int flip = (TEAM_RED) ? 1 : -1;
+  location[0] = flip * LOCALIZE_CENTER_XY[0];
+  location[1] = flip * LOCALIZE_CENTER_XY[1];
+  location[2] = (TEAM_RED) ? LOCALIZE_ANGLE : LOCALIZE_ANGLE + DRIVE_PI;
   return location;
 }

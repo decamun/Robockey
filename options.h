@@ -9,8 +9,6 @@
 
 #define INITIAL_POWER 1
 
-#define RED 1 // if team blue RED = 0 //OBSOLETE
-
 #define RF_DEBUG 0
 #define RF_DEBUG_ADDRESS 0x16
 #define ADDRESS 0x15
@@ -25,8 +23,8 @@
 #define MAX_INTENSITY_M_WII 2
 #define LOCALIZE_LPF 0.93f
 
-#define GOAL_X -310.0f 
-#define GOAL_Y  0.0f
+#define GOAL_X 330.0f 
+#define GOAL_Y 0.0f
 #define WALL_X 0.0f
 #define WALL_Y 180.0f
 

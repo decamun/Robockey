@@ -76,6 +76,7 @@ void resetGoTo() {
 /**
  * PD loop on two angle measurements
  */
+
 float getAnglePID2(float current_angle, float target_angle, float KP, float KD) {
     float delta_angle = target_angle - current_angle;
 
@@ -110,7 +111,7 @@ float getAnglePID2(float current_angle, float target_angle, float KP, float KD) 
 }
 
 void goToHeadingVel(float base_power, float target_angle, float current_angle) {
-    float power = getAnglePID2(target_angle, current_angle, 4.4f, 1.25f);
+    float power = getAnglePID2(target_angle, current_angle, 2.2f, 0.8f);
 
     //float base_power = 0.87f;
 
@@ -119,10 +120,10 @@ void goToHeadingVel(float base_power, float target_angle, float current_angle) {
 
     if (power < 0.0f) {
         right_power = -power;
-        left_power = power * 0.8f; 
+        left_power = power * 0.5f; 
     } else {
         left_power = power;
-        right_power = -power * 0.8f;
+        right_power = -power * 0.5f;
     }
 
     left_power += base_power;
@@ -138,23 +139,48 @@ void goToHeadingVel(float base_power, float target_angle, float current_angle) {
     m_usb_tx_string(" percent\n\r");
 }
 
+float headingToTarget(float* position, float target_x, float target_y) {
+    float target_angle = atan2f(target_y - position[1], target_x - position[0]);
+        if (target_angle < 0) {
+            target_angle = target_angle + 2.0f * DRIVE_PI;
+            
+        }
+        // target_angle = -target_angle;
+        float curr_angle = position[2];
+        float delta = curr_angle - target_angle;
+
+        if(delta >= DRIVE_PI) {
+            delta -= 2.0f * DRIVE_PI;
+        } else if (delta <= -DRIVE_PI) {
+            delta += 2.0f * DRIVE_PI;
+        }
+
+        m_usb_tx_string("Angle (target, curr, delta, power): (");
+        m_usb_tx_int(((int)100*target_angle));
+        m_usb_tx_string(", ");
+        m_usb_tx_int(100*curr_angle);
+        m_usb_tx_string(", ");
+        m_usb_tx_int(100 * (delta));
+
+        m_usb_tx_string(")\r\n");
+
+        return delta;
+}
 
 void goToPosition(float* position, float base_power, float target_x, float target_y) {
     float x_err = target_x - position[0];
     float y_err = target_y - position[1];
 
-    float target_angle = atan2f(target_y - position[1], target_x - position[0]);
-    float curr_angle = position[2];
-    curr_angle = (curr_angle > DRIVE_PI) ? -(2 * DRIVE_PI - curr_angle) : curr_angle;
-
-    float power = getAnglePID2(target_angle, curr_angle, 2.2f, 0.7f);
+    float delta = headingToTarget(position, target_x, target_y);
     
+    //curr_angle = (curr_angle > DRIVE_PI) ? -(2 * DRIVE_PI - curr_angle) : curr_angle;
+
+    float power = getAnglePID2(delta, 0, 2.2f, 0.7f);
 
     float right_power = 0.0f;
     float left_power = 0.0f;
 
-
-    if (power < 0.0f) {
+    if (power < 0) {
         right_power = -power;
         left_power = power * 0.4f; 
     } else {
@@ -168,17 +194,7 @@ void goToPosition(float* position, float base_power, float target_x, float targe
     setLeft(left_power);
     setRight(right_power);
 
-    m_usb_tx_string("Angle (target, curr, delta, raw): (");
-    m_usb_tx_int(((int)100*target_angle));
-    m_usb_tx_string(", ");
-    m_usb_tx_int(100*curr_angle);
-    m_usb_tx_string(", ");
-    m_usb_tx_int(100 * (target_angle - curr_angle));
-    m_usb_tx_string(", ");
-    m_usb_tx_int(100 * position[2]);
-
-    m_usb_tx_string(")\r\n");
-}
+    }
 
 void goToHeading(float* position, float target_angle, float target_dist) {
     float current_angle = 0;

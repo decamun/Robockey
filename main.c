@@ -82,9 +82,97 @@ void fullTestMotor() {
 }
 
 void testPuckRead() {
-     update_puck_angle();
+    update_puck_angle();
     m_usb_tx_long(get_puck_angle());
     m_usb_tx_string("\r\n");
+}
+
+void forward() {
+    switch(current_state) {
+        case PAUSE:
+            clear(PORTD, LED_pin); // TURN OFF positioning LED
+            setRight(0);
+            setLeft(0);
+            break;
+
+        case PLAY:
+            set(PORTD, LED_pin);
+            current_state = SEARCHING;
+            break;
+
+        case SEARCHING:
+            setRight(0.5f);
+            setLeft(-0.5f);
+
+            if(get_see_puck())  {
+                current_state = ACQUIRE;
+            }
+            break;
+
+        case ACQUIRE:
+            if(get_puck_distance() < 10) {
+                goToHeadingVel(0.5f, -get_puck_angle(), 0.0f);
+            } else {
+                goToHeadingVel(0.87f, -get_puck_angle(), 0.0f); 
+            }
+
+            //if (fabs(headingToTarget(getPosition(), -GOAL_X, GOAL_Y)) < DRIVE_PI / 6.0f && getPosition()[0] > 50) {
+            //    goToHeadingVel(0.5f, -get_puck_angle(), 0.0f);
+            //} else {
+            //}
+            bool puck_in_front = ((int)(get_puck_distance() < 3) && fabs(get_puck_angle()) < DRIVE_PI / 6);
+            if (puck_middle() || puck_in_front) {
+                current_state = GOTO_GOAL;
+                resetGoTo();
+            }
+
+            if (!get_see_puck()) {
+                current_state = SEARCHING;
+                resetGoTo();
+            }
+
+            break;
+
+        case GOTO_GOAL:
+            m_wait(100);
+            goToPosition(getPosition(), 0.3f, GOAL_X, GOAL_Y);
+            //int eps = 50;
+
+            //if(fabs(GOAL_X - getPosition()[0]) < 50 && fabs(GOAL_Y - getPosition()[1] < 100)) {
+            //    float target_angle = atan2(GOAL_Y - getPosition()[1], GOAL_X - getPosition()[0]);
+            //    float curr_angle = getPosition()[2];
+            //    curr_angle = (curr_angle > DRIVE_PI) ? -(2 * DRIVE_PI - curr_angle) : curr_angle; 
+            //    float delta_angle = fabs(target_angle - curr_angle);
+            //    if (delta_angle < DRIVE_PI / 6) {
+            //        kick();
+            //    }
+            //}
+
+
+            if (!get_see_puck()) {
+                current_state = SEARCHING;
+            } else if (!(puck_middle() || ((int)(get_puck_distance() < 3) && fabs(get_puck_angle()) < DRIVE_PI / 6) )) {
+                current_state = ACQUIRE;
+            }
+
+            break;
+
+        case PUCK_TURN:
+            if (puck_left()) {
+                setRight(0.8);
+            } else if (puck_left()) {
+                setLeft(0.8);
+            } else if (puck_middle()) {
+                current_state = GOTO_GOAL;
+            } else {
+                current_state = ACQUIRE;
+            }
+            break;
+
+        case GOTO_ZERO:
+            goToPosition(getPosition(), 0.7f, GOAL_X, GOAL_Y);
+            break;
+    }
 }
 
 void main()
@@ -94,20 +182,21 @@ void main()
     resetGoTo(); // Ensure that PD loops are set to 0
 
     //TODO: Change this back to PAUSE for real play
-    current_state = PAUSE;
+    current_state = PLAY;
 
     while (1) {
         if(TICK_HAPPENED) {
-           // Get the current position and orientation
+            // Get the current position and orientation
             localize_update();
             update_puck_angle();
 
             m_usb_tx_string("State ");
             m_usb_tx_int(current_state);
             m_usb_tx_string("\r\n");
-            m_usb_tx_string("Puck ");
+            m_usb_tx_string("Puck (angle, see)");
             m_usb_tx_int((int) (100 * get_puck_angle()));
             m_usb_tx_string("\r\n");
+
 
             m_usb_tx_string("Pos (x, y, t): (");
             m_usb_tx_int((int) (getPosition()[0]));
@@ -117,67 +206,7 @@ void main()
             m_usb_tx_int((int) (getPosition()[2]));
             m_usb_tx_string(")\r\n");
 
-            switch(current_state) {
-                case PAUSE:
-                    clear(PORTD, LED_pin); // TURN OFF positioning LED
-                    setRight(0);
-                    setLeft(0);
-                    break;
-
-                case PLAY:
-                    set(PORTD, LED_pin);
-                    current_state = SEARCHING;
-                    break;
-
-                case SEARCHING:
-                    setRight(0.5f);
-                    setLeft(-0.5f);
-
-                    if(get_see_puck()) {
-                        current_state = ACQUIRE;
-                    }
-                    break;
-
-                case ACQUIRE:
-
-                    goToHeadingVel(0.87f, get_puck_angle(), 0.0f); 
-
-                    if (puck_middle() || ((int)(get_puck_distance()<3))) {
-                        current_state = GOTO_GOAL;
-                        resetGoTo();
-                    }
-
-                    if (!get_see_puck()) {
-                        current_state = SEARCHING;
-                        resetGoTo();
-                    }
-
-                    break;
-
-                case GOTO_GOAL:
-                    goToPosition(getPosition(), 0.77f, GOAL_X, GOAL_Y);
-
-                    if (!get_see_puck()) {
-                        current_state = SEARCHING;
-                    } else if (!puck_middle()) {
-                        current_state = ACQUIRE;
-                    }
-
-                    break;
-
-                case PUCK_TURN:
-                    if (puck_left()) {
-                        setRight(0.8);
-                    } else if (puck_left()) {
-                        setLeft(0.8);
-                    } else if (puck_middle()) {
-                        current_state = GOTO_GOAL;
-                    } else {
-                        current_state = ACQUIRE;
-                    }
-                case GOTO_ZERO:
-                    goToPosition(getPosition(), 0.7f, 0.0f, 0.0f);
-            }
+            forward();
 
             // We're done until the next clock update
             TICK_HAPPENED = 0;
@@ -190,7 +219,6 @@ void main()
         }
 
     }
-
 }
 
 void initialize() {
@@ -240,8 +268,6 @@ void initialize() {
     set(DDRB, 7);
     clear(PORTB, 7);
 
-
-
     set_power(INITIAL_POWER);
 
     //initialize RF
@@ -256,7 +282,7 @@ void initialize() {
     start0(TICK_FREQUENCY);
     interupt0(1);
     ADC_init();
-    localize_init();
+    localize_init(TEAM_RED);
 }
 
 
@@ -320,18 +346,16 @@ void handleRfGamestate(uint8_t value) {
     } else if(value == 0xA6) { // Halftime
         current_state = PAUSE;
 
-        if(TEAM_RED){
+        if (TEAM_RED) {
             TEAM_RED = 0; 
             clear(PORTB,3); // Change LED color at halftime
             set(PORTB,2);
         }
-        else{
+        else {
             TEAM_RED = 1; 
             clear(PORTB,2);
             set(PORTB,3);
         }
-
-
 
     } else if(value == 0xA7) { // Game Over
         current_state = PAUSE;

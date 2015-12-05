@@ -21,7 +21,7 @@ void update_puck_angle ()
   int total = 0;
   int i = 0;
 
-  float PT_index[7] = {6, 1, 2, 5, 4, 0, 3};
+  //float PT_index[7] = {6, 1, 2, 5, 4, 0, 3};
 
   ADC0();
   //m_usb_tx_string("ADC0: ");
@@ -59,31 +59,39 @@ void update_puck_angle ()
   //m_usb_tx_string("\n\r");
   PT_values[0] = ADC;
 
+  PT_values[3] = 0;
+
   puck_angle = 0.0f;
   total = 0;
+
+  for(i = 0; i<7; i++){
+      if(PT_values[i] < 100) {
+          PT_values[i] = 0;
+      }
+
+      /// WHHYY?
+      //if(i != 3) { //remove unused points
+      puck_angle += PT_values[i]*PT_angles[i];
+      total += PT_values[i];
+      //}
+      //m_usb_tx_int(PT_values[i]);
+      // m_usb_tx_string("\t");
+  }
 
   if (m_usb_isconnected()) {
       m_usb_tx_string("ADC: (");
       for (i = 0; i < 7; i++) {
-          int ind = PT_index[i];
-          m_usb_tx_int(PT_values[ind]);
+          m_usb_tx_int(PT_values[i]);
           m_usb_tx_string(", ");
       }
 
       m_usb_tx_string(")\r\n");
   }
 
-  for(i = 0; i<7; i++){
-    if(i != 3) { //remove unused points
-      puck_angle += PT_values[i]*PT_angles[i];
-      total += PT_values[i];
-    }
-      //m_usb_tx_int(PT_values[i]);
-      // m_usb_tx_string("\t");
-  }
+
 
   puck_angle = puck_angle/total;
-  total = total + PT_values[3]; // add back in unused points
+  //total = total + PT_values[3]; // add back in unused points
   update_puck_distance(total);
 
   m_usb_tx_string("Distance: ");
@@ -94,14 +102,15 @@ void update_puck_angle ()
   m_usb_tx_int(total);
   m_usb_tx_string("\n\r");
 
-  if(total > 50){
+  see_puck = 0;
+  puck_behind = 0;
+    
+  if(total > 100){
   	see_puck = 1;
-    puck_behind = 0;
-  } else if (PT_values[1] > 200) {
+  } 
+
+  if (fabs(total - PT_values[6]) > 50) {
     puck_behind = 1;
-  } else {
-  	see_puck = 0;
-    puck_behind = 0;
   }
 }
 

@@ -51,6 +51,9 @@ void resetGoTo();
  */
 
 float getAnglePID2(float curr, float target, float KP, float KD);
+
+float headingToTarget(float *position, float target_x, float target_y);
+
 void goTo(int x, int y); 
 void drive_search();
 void turn(float target_angle); //turns a certain angle in RAD
