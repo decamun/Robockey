@@ -27,6 +27,7 @@ int TEAM_RED = 0;
 int GO = 0;
 int BLINK = 0;
 int SEARCH_MODE = 0;
+int ii = 0;
 
 int KICK_TICKS = 0;
 int LED_pin = 2;
@@ -93,7 +94,7 @@ void main()
     resetGoTo(); // Ensure that PD loops are set to 0
 
     //TODO: Change this back to PAUSE for real play
-    current_state = PLAY;
+    current_state = PAUSE;
 
     while (1) {
         if(TICK_HAPPENED) {
@@ -141,7 +142,7 @@ void main()
 
                     goToHeadingVel(0.87f, get_puck_angle(), 0.0f); 
 
-                    if (puck_middle()) {
+                    if (puck_middle() || ((int)(get_puck_distance()<3))) {
                         current_state = GOTO_GOAL;
                         resetGoTo();
                     }
@@ -281,6 +282,26 @@ void handleRfGamestate(uint8_t value) {
         m_green(TOGGLE);
         m_wait(500);
 
+        if(TEAM_RED) // Flashing light for comm test
+    {
+        for(ii = 0; ii<2; ii++){
+
+          clear(PORTB,3);
+          m_wait(200);
+          set(PORTB,3);
+          m_wait(200);
+        }
+
+    } else {  
+        for(ii = 0; ii<2; ii++){
+
+          clear(PORTB,2);
+          m_wait(200);
+          set(PORTB,2);
+          m_wait(200);
+        }
+    }
+
     } else if (value == 0xA1) { // Play
         current_state = PLAY;
 
@@ -298,6 +319,19 @@ void handleRfGamestate(uint8_t value) {
 
     } else if(value == 0xA6) { // Halftime
         current_state = PAUSE;
+
+        if(TEAM_RED){
+            TEAM_RED = 0; 
+            clear(PORTB,3); // Change LED color at halftime
+            set(PORTB,2);
+        }
+        else{
+            TEAM_RED = 1; 
+            clear(PORTB,2);
+            set(PORTB,3);
+        }
+
+
 
     } else if(value == 0xA7) { // Game Over
         current_state = PAUSE;
