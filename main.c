@@ -110,11 +110,12 @@ void forward() {
             break;
 
         case ACQUIRE:
-            if(get_puck_distance() < 10) {
-                goToHeadingVel(0.5f, -get_puck_angle(), 0.0f);
-            } else {
-                goToHeadingVel(0.87f, -get_puck_angle(), 0.0f); 
-            }
+
+            goToHeadingVel(0.5f, -get_puck_angle(), 0.0f);
+            //if(get_puck_distance() < 50) {
+            //} else {
+            //    goToHeadingVel(0.7f, -get_puck_angle(), 0.0f); 
+            //}
 
             //if (fabs(headingToTarget(getPosition(), -GOAL_X, GOAL_Y)) < DRIVE_PI / 6.0f && getPosition()[0] > 50) {
             //    goToHeadingVel(0.5f, -get_puck_angle(), 0.0f);
@@ -134,7 +135,6 @@ void forward() {
             break;
 
         case GOTO_GOAL:
-            m_wait(100);
             goToPosition(getPosition(), 0.3f, GOAL_X, GOAL_Y);
             //int eps = 50;
 
@@ -151,7 +151,7 @@ void forward() {
 
             if (!get_see_puck()) {
                 current_state = SEARCHING;
-            } else if (!(puck_middle() || ((int)(get_puck_distance() < 3) && fabs(get_puck_angle()) < DRIVE_PI / 6) )) {
+            } else if (!(puck_middle() || ((int)(get_puck_distance() < 8) && fabs(get_puck_angle()) < DRIVE_PI / 6) )) {
                 current_state = ACQUIRE;
             }
 

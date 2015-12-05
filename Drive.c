@@ -80,14 +80,11 @@ void resetGoTo() {
 float getAnglePID2(float current_angle, float target_angle, float KP, float KD) {
     float delta_angle = target_angle - current_angle;
 
-    //handle edge case with zero rollover
-	if(fabs(delta_angle) > DRIVE_PI) {
-		if(delta_angle > 0.0f) {
-			delta_angle = delta_angle - 2.0f * DRIVE_PI;
-		} else {
-			delta_angle = delta_angle + 2.0f * DRIVE_PI;
-		}
-	}
+    if(delta_angle >= DRIVE_PI) {
+        delta_angle -= 2.0f * DRIVE_PI;
+    } else if (delta_angle <= -DRIVE_PI) {
+        delta_angle += 2.0f * DRIVE_PI;
+    }
 
     // Scale error to be between 0 and 1
     float error = delta_angle / DRIVE_PI;
@@ -111,7 +108,7 @@ float getAnglePID2(float current_angle, float target_angle, float KP, float KD) 
 }
 
 void goToHeadingVel(float base_power, float target_angle, float current_angle) {
-    float power = getAnglePID2(target_angle, current_angle, 2.2f, 0.8f);
+    float power = getAnglePID2(target_angle, current_angle, 1.2f, 0.7f);
 
     //float base_power = 0.87f;
 
@@ -172,13 +169,18 @@ void goToPosition(float* position, float base_power, float target_x, float targe
     float y_err = target_y - position[1];
 
     float delta = headingToTarget(position, target_x, target_y);
-    
+
     //curr_angle = (curr_angle > DRIVE_PI) ? -(2 * DRIVE_PI - curr_angle) : curr_angle;
 
-    float power = getAnglePID2(delta, 0, 2.2f, 0.7f);
+    float power = getAnglePID2(delta, 0, 1.0f, 0.5f);
 
     float right_power = 0.0f;
     float left_power = 0.0f;
+
+    float delta_power = 1.0f - (fabs(delta) / DRIVE_PI);
+    if (delta_power < base_power) {
+        delta_power = base_power;
+    }
 
     if (power < 0) {
         right_power = -power;
@@ -188,13 +190,13 @@ void goToPosition(float* position, float base_power, float target_x, float targe
         right_power = -power * 0.4f;
     }
 
-    left_power += base_power;
-    right_power += base_power;
+    left_power += delta_power;
+    right_power += delta_power;
 
     setLeft(left_power);
     setRight(right_power);
 
-    }
+}
 
 void goToHeading(float* position, float target_angle, float target_dist) {
     float current_angle = 0;

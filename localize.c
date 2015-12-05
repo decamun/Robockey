@@ -265,6 +265,6 @@ float* localize_location() {
   int flip = (TEAM_RED) ? 1 : -1;
   location[0] = flip * LOCALIZE_CENTER_XY[0];
   location[1] = flip * LOCALIZE_CENTER_XY[1];
-  location[2] = (TEAM_RED) ? LOCALIZE_ANGLE : LOCALIZE_ANGLE + DRIVE_PI;
+  location[2] = (TEAM_RED) ? LOCALIZE_ANGLE : fmod((LOCALIZE_ANGLE + DRIVE_PI), (2.0f * DRIVE_PI));
   return location;
 }
