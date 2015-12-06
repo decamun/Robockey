@@ -1,4 +1,3 @@
-
 #include <avr/io.h>
 #include "options.h"
 #include "m_general.h"
@@ -36,7 +35,8 @@ void report_error(const char *err);
 void initialize();
 void kick();
 
-typedef enum {SEARCHING = 0, ACQUIRE, GOTO_GOAL, PUCK_TURN, PAUSE, PLAY, GOTO_ZERO} robot_state;
+typedef enum {SEARCHING = 0, ACQUIRE, GOTO_GOAL, PUCK_TURN, PAUSE, PLAY, GOTO_ZERO, 
+              GOTO_GUARD, SEARCH_LEFT, SEARCH_RIGHT, TRACK, FACE_GUARD} robot_state;
 static robot_state current_state = PAUSE;
 
 void testMotors() {
@@ -87,12 +87,77 @@ void testPuckRead() {
     m_usb_tx_string("\r\n");
 }
 
+void goalie() {
+
+    float angle = getPosition()[2];
+
+    switch(current_state) {
+        case PLAY:
+            current_state = GOTO_GUARD; 
+        case GOTO_GUARD:
+            goToPosition(getPosition(), 0.4f, 0.4f, GUARD_X, GUARD_Y);
+            float eps = 20.0f;
+            if (fabs(getPosition()[0] - GUARD_X) < eps && fabs(getPosition()[1] - GUARD_Y) < eps) {
+                current_state = FACE_GUARD;  
+            }
+            break;
+        case FACE_GUARD:
+            setLeft(0.6f);
+            setRight(-0.6f);
+            if (fabs(getPosition()[2]) < 0.1f) {
+                current_state = SEARCH_LEFT ;
+            }
+            break;
+        case SEARCH_LEFT:
+            setRight(-0.5f);
+            setLeft(0.5f);
+                if(angle > (DRIVE_PI / 2.0f) && angle < DRIVE_PI) {
+                    current_state = SEARCH_RIGHT;
+                }
+
+            if (get_see_puck()) {
+                current_state = TRACK;
+            }
+            break;
+        case SEARCH_RIGHT:
+            setRight(0.5f);
+            setLeft(-0.5f);
+                if(angle >  DRIVE_PI && angle < 3.0f * DRIVE_PI / 2.0f) {
+                    current_state = SEARCH_LEFT;
+                }
+            if (get_see_puck()) {
+                current_state = TRACK;
+            }
+
+            break;
+        case TRACK:
+            trackHeading(-get_puck_angle(), 0.0f); 
+
+            if (!get_see_puck()) {
+                current_state = SEARCH_LEFT;
+            } 
+
+            if (get_puck_distance() < 20) {
+                current_state = ACQUIRE;
+            }
+            break;
+        case ACQUIRE:
+            goToHeadingVel(0.6f, -(1.2f * get_puck_angle()), 0.0f, 3.0f, 2.0f);
+
+            if (!get_see_puck()) {
+                current_state = GOTO_GUARD;
+            }
+            break;
+        case GOTO_GOAL:
+            break;
+    }
+}
+
 void forward() {
     switch(current_state) {
         case PAUSE:
             clear(PORTD, LED_pin); // TURN OFF positioning LED
-            setRight(0);
-            setLeft(0);
+            stop();
             break;
 
         case PLAY:
@@ -101,9 +166,7 @@ void forward() {
             break;
 
         case SEARCHING:
-            setRight(0.5f);
-            setLeft(-0.5f);
-
+           spin(); 
             if(get_see_puck())  {
                 current_state = ACQUIRE;
             }
@@ -111,8 +174,13 @@ void forward() {
 
         case ACQUIRE:
 
-            goToHeadingVel(0.5f, -get_puck_angle(), 0.0f);
-            //if(get_puck_distance() < 50) {
+
+            if(get_puck_distance() < 20.0f) {
+                goToHeadingVel(0.6f, -get_puck_angle(), 0.0f, 1.2f, 0.7f);
+            } else {
+                goToHeadingVel(0.77f, -get_puck_angle(), 0.0f, 1.2f, 0.7f); 
+
+            }
             //} else {
             //    goToHeadingVel(0.7f, -get_puck_angle(), 0.0f); 
             //}
@@ -121,8 +189,8 @@ void forward() {
             //    goToHeadingVel(0.5f, -get_puck_angle(), 0.0f);
             //} else {
             //}
-            bool puck_in_front = ((int)(get_puck_distance() < 3) && fabs(get_puck_angle()) < DRIVE_PI / 6);
-            if (puck_middle() || puck_in_front) {
+            //bool puck_in_front = ((int)(get_puck_distance() < 3) && fabs(get_puck_angle()) < DRIVE_PI / 6);
+            if (puck_middle()) {
                 current_state = GOTO_GOAL;
                 resetGoTo();
             }
@@ -135,7 +203,7 @@ void forward() {
             break;
 
         case GOTO_GOAL:
-            goToPosition(getPosition(), 0.3f, GOAL_X, GOAL_Y);
+            goToPosition(getPosition(), 0.3f, 0.9f, GOAL_X, GOAL_Y);
             //int eps = 50;
 
             //if(fabs(GOAL_X - getPosition()[0]) < 50 && fabs(GOAL_Y - getPosition()[1] < 100)) {
@@ -147,21 +215,23 @@ void forward() {
             //        kick();
             //    }
             //}
+            //
 
-
-            if (!get_see_puck()) {
-                current_state = SEARCHING;
-            } else if (!(puck_middle() || ((int)(get_puck_distance() < 8) && fabs(get_puck_angle()) < DRIVE_PI / 6) )) {
+            if(!(puck_middle())) {
                 current_state = ACQUIRE;
-            }
+                resetGoTo(); 
+            } else if (!get_see_puck()) {
+                current_state = SEARCHING;
+                resetGoTo();
+            } 
 
             break;
 
         case PUCK_TURN:
             if (puck_left()) {
-                setRight(0.8);
+                setRight(0.8f);
             } else if (puck_left()) {
-                setLeft(0.8);
+                setLeft(0.8f);
             } else if (puck_middle()) {
                 current_state = GOTO_GOAL;
             } else {
@@ -170,7 +240,7 @@ void forward() {
             break;
 
         case GOTO_ZERO:
-            goToPosition(getPosition(), 0.7f, GOAL_X, GOAL_Y);
+            goToPosition(getPosition(), 0.7f, 0.8f, GOAL_X, GOAL_Y);
             break;
     }
 }
@@ -203,10 +273,10 @@ void main()
             m_usb_tx_string(", ");
             m_usb_tx_int((int) (getPosition()[1]));
             m_usb_tx_string(", ");
-            m_usb_tx_int((int) (getPosition()[2]));
+            m_usb_tx_int((int) 100 * (getPosition()[2]));
             m_usb_tx_string(")\r\n");
 
-            forward();
+            goalie();
 
             // We're done until the next clock update
             TICK_HAPPENED = 0;

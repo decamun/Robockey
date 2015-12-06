@@ -5,6 +5,7 @@
 #include "Puck_Find.h"
 
 #define PT_THRESHOLD 93
+#define MIN_PUCK_DIST 3.0f
 
 static float puck_angle = 0;
 static int see_puck = 0;
@@ -141,7 +142,10 @@ int puck_right(){
   return (int)(!check(PINB, 4));
 }
 int puck_middle(){
-  return (int)(!check(PIND, 3));
+    bool middle = ((int)!check(PIND, 3));
+    bool min_dist = (int)(get_puck_distance() < MIN_PUCK_DIST);
+    bool min_angle = fabs(get_puck_angle()) < 0.3f;
+  return (middle || (min_dist && min_angle)); 
 }
 int puck_left(){
   return (int)(!check(PINB, 5));

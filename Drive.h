@@ -19,6 +19,8 @@
 typedef enum {STOP, PROGRESS, DONE} drive_state;
 typedef enum {D_NONE, GOTO, SEARCH, TURN} drive_action;
 
+static float power_left = 0.0f;
+
 /** Move forward while trying to achieve a target heading.
  * This function will change the base speed based on the distance of the target,
  * slowing as we get closer.
@@ -27,19 +29,21 @@ typedef enum {D_NONE, GOTO, SEARCH, TURN} drive_action;
  */
 void goToHeading(float* position, float target_angle, float target_dist);
 
+void trackHeading(float target_angle, float current_angle);
+
 
 /**
  * Go to a heading at a constant base_power velocity 
  * Use 0.87f for aggressive maneuvering
  */
-void goToHeadingVel(float base_power, float target_angle, float current_angle);
+void goToHeadingVel(float base_power, float target_angle, float current_angle, float KP, float KD);
 
 
 /**
  * Use the same turn/move forward behavior as goToHeading, except that the
  * target is an x,y position.
  */
-void goToPosition(float *position, float base_power, float target_x, float target_y);
+void goToPosition(float *position, float base_power, float K, float target_x, float target_y);
 
 /**
  * Resets PD controller set in the GoTo function
@@ -71,6 +75,7 @@ void setRight(float power);
 void rightOFF();
 
 void stop();
+void spin();
 
 drive_action get_drive_action();
 drive_state get_drive_state();

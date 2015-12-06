@@ -25,6 +25,10 @@
 
 #define GOAL_X 330.0f 
 #define GOAL_Y 0.0f
+
+#define GUARD_X -270.0f
+#define GUARD_Y 0.0f
+
 #define WALL_X 0.0f
 #define WALL_Y 180.0f
 

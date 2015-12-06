@@ -26,6 +26,8 @@
 #define GOTO_POWER_KP 1.0f
 #define GOTO_POWER_KD 0.1f
 
+#define P_ALPHA 0.7f
+
 static float DRIVE_POWER = 0.0f;
 
 // Variables for GOTO
@@ -57,10 +59,13 @@ void set_power(float power) {
 
 void stop()
 {
-    curr_action = D_NONE;
-    curr_drive_state = STOP;
-	rightOFF();
-	leftOFF();
+    setLeft(0.0f);
+    setRight(0.0f);
+
+    //curr_action = D_NONE;
+    //curr_drive_state = STOP;
+	//rightOFF();
+	//leftOFF();
 }
 
 static float goto_prev_error = 0.0f;
@@ -107,8 +112,27 @@ float getAnglePID2(float current_angle, float target_angle, float KP, float KD) 
     return res;
 }
 
-void goToHeadingVel(float base_power, float target_angle, float current_angle) {
-    float power = getAnglePID2(target_angle, current_angle, 1.2f, 0.7f);
+void trackHeading(float target_angle, float current_angle) {
+    float power = getAnglePID2(target_angle, current_angle, 3.3f, 2.0f);
+    float right_power = 0.0f;
+    float left_power = 0.0f;
+
+     if (power < 0.0f) {
+        right_power = -power;
+        left_power = power; 
+    } else {
+        left_power = power;
+        right_power = -power;
+    }
+
+    setLeft(left_power);
+    setRight(right_power);
+
+}
+
+
+void goToHeadingVel(float base_power, float target_angle, float current_angle, float KP, float KD) {
+    float power = getAnglePID2(target_angle, current_angle, KP, KD);
 
     //float base_power = 0.87f;
 
@@ -128,12 +152,6 @@ void goToHeadingVel(float base_power, float target_angle, float current_angle) {
 
     setLeft(left_power);
     setRight(right_power);
-
-    m_usb_tx_string("Motor Powers: Left: ");
-    m_usb_tx_int((int)(left_power * 100.0f));
-    m_usb_tx_string(" percent\tRight: ");
-    m_usb_tx_int((int)(right_power * 100.0f));
-    m_usb_tx_string(" percent\n\r");
 }
 
 float headingToTarget(float* position, float target_x, float target_y) {
@@ -158,16 +176,17 @@ float headingToTarget(float* position, float target_x, float target_y) {
         m_usb_tx_int(100*curr_angle);
         m_usb_tx_string(", ");
         m_usb_tx_int(100 * (delta));
+        m_usb_tx_string(", ");
+        m_usb_tx_int(100 * target_x);
+        m_usb_tx_string(", ");
+        m_usb_tx_int(100 * target_y);
 
         m_usb_tx_string(")\r\n");
 
         return delta;
 }
 
-void goToPosition(float* position, float base_power, float target_x, float target_y) {
-    float x_err = target_x - position[0];
-    float y_err = target_y - position[1];
-
+void goToPosition(float* position, float base_power, float K, float target_x, float target_y) {
     float delta = headingToTarget(position, target_x, target_y);
 
     //curr_angle = (curr_angle > DRIVE_PI) ? -(2 * DRIVE_PI - curr_angle) : curr_angle;
@@ -177,7 +196,8 @@ void goToPosition(float* position, float base_power, float target_x, float targe
     float right_power = 0.0f;
     float left_power = 0.0f;
 
-    float delta_power = 1.0f - (fabs(delta) / DRIVE_PI);
+    float delta_power = K * (1.0f - (fabs(delta) / DRIVE_PI));
+
     if (delta_power < base_power) {
         delta_power = base_power;
     }
@@ -223,6 +243,7 @@ void goToHeading(float* position, float target_angle, float target_dist) {
         right_power = -res + base_power;
     }
 
+    //TODO: DIRECTIONS ARE WRONG
     setRight(left_power);
     setLeft(right_power);
 }
@@ -355,15 +376,21 @@ void leftON(float power, int direction)
 	}
 }
 
+
+
 void setLeft(float power) {
     int direction = FORWARDS;
+
     if(power < 0.0f) {
         power = -power;
         direction = BACKWARDS;
     }
 
-    leftON(power, direction);
+    //m_usb_tx_string("Power Left: ");
+    //m_usb_tx_int(100 * power_left);
+    //m_usb_tx_string("\r\n");
 
+    leftON(power, direction);
 }
 
 void leftOFF()
@@ -373,10 +400,10 @@ void leftOFF()
 
 void rightON(float power, int direction)
 {
-    if(power > 1) power = 1;
-    if(power < 0) power = 0;
+    if(power > 1) power = 1.0f;
+    if(power < 0) power = 0.0f;
 
-	start_pwm3(1024,power);
+	start_pwm3(1024, power);
 
 	if (direction == FORWARDS)
 	{
@@ -388,6 +415,12 @@ void rightON(float power, int direction)
 	}
 }
 
+void spin() {
+    setRight(0.5f);
+    setLeft(-0.5f);
+
+}
+
 void setRight(float power) {
     int direction = FORWARDS;
     if(power < 0.0f) {
@@ -395,6 +428,13 @@ void setRight(float power) {
         direction = BACKWARDS;
     }
 
+    //m_usb_tx_string("Power Right (filter, raw): ");
+    //m_usb_tx_int(100 * power);
+    //m_usb_tx_string(",");
+    //m_usb_tx_int(100 * power_right);
+    //m_usb_tx_string(", ");
+    //m_usb_tx_int(100 * power);
+    //m_usb_tx_string("\r\n");
     rightON(power, direction);
 }
 

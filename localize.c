@@ -260,7 +260,6 @@ void localize_calculate(uint16_t* data)
 }
 
 
-// NOW WITH SIMPLE LOW PASS FILTER
 float* localize_location() {
   int flip = (TEAM_RED) ? 1 : -1;
   location[0] = flip * LOCALIZE_CENTER_XY[0];
