@@ -38,4 +38,6 @@
 #define BOUNDS_Y 0//
 #define GOAL_WIDTH 0//
 
+#define WALL_AVOIDANCE_PX 20
+
 #endif

@@ -267,3 +267,14 @@ float* localize_location() {
   location[2] = (TEAM_RED) ? LOCALIZE_ANGLE : fmod((LOCALIZE_ANGLE + DRIVE_PI), (2.0f * DRIVE_PI));
   return location;
 }
+
+int heading_for_wall() {
+  //float x_heading = location[0] + WALL_AVOIDANCE_PX * cosf(location[2]);
+  float y_heading = location[1] + WALL_AVOIDANCE_PX * sinf(location[2]);
+  
+  if(fabs(y_heading) > WALL_Y) {
+    return 1;
+  } else {
+    return 0;
+  }
+}
