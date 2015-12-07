@@ -3,6 +3,8 @@
 #include "m_bus.h"
 #include "m_usb.h"
 #include "Puck_Find.h"
+#include "globalVariables.h"
+#include "options.h"
 
 #define PT_THRESHOLD 93
 #define MIN_PUCK_DIST 3.0f
@@ -11,10 +13,11 @@ static float puck_angle = 0;
 static int see_puck = 0;
 static int puck_behind = 0;
 static float puck_distance_cm;
+static float puck_position[3] = {0,0,0};
 
 void update_puck_angle ()
 {
-  float PT_angles[7] = {-0.96, -0.48, 0, 3.14, 0, 0.48, 0.96};
+  float PT_angles[7] = {0.96, 0.48, 0, 3.14, 0, -0.48, -0.96};
   //{Wide Left, left spike, left front, back, right front, right spike, wide right}
 
   float PT_values[7] = {0,0,0,0,0,0,0};
@@ -28,55 +31,58 @@ void update_puck_angle ()
   //m_usb_tx_string("ADC0: ");
   //m_usb_tx_int(ADC);
   //m_usb_tx_string("\n\r");
-  PT_values[6] = ADC;
+  //PT_values[6] = ADC;
+  PT_values[0] = ADC;
   ADC1();
   //m_usb_tx_string("ADC1: ");
   //m_usb_tx_int(ADC);
   //m_usb_tx_string("\n\r");
-  PT_values[3] = ADC;
+  //PT_values[3] = ADC;
+  PT_values[1] = ADC;
   ADC4();
   //m_usb_tx_string("ADC4: ");
   //m_usb_tx_int(ADC);
   //m_usb_tx_string("\n\r");
+  //PT_values[2] = ADC;
   PT_values[2] = ADC;
   ADC5();
   //m_usb_tx_string("ADC5: ");
   //m_usb_tx_int(ADC);
   //m_usb_tx_string("\n\r");
-  PT_values[1] = ADC;
+  //PT_values[1] = ADC;
+  PT_values[3] = ADC;
   ADC6();
   //m_usb_tx_string("ADC6: ");
   //m_usb_tx_int(ADC);
   //m_usb_tx_string("\n\r");
-  PT_values[5] = ADC;
+  //PT_values[5] = ADC;
+  PT_values[4] = ADC;
   ADC7();
   //m_usb_tx_string("ADC7: ");
   //m_usb_tx_int(ADC);
   //m_usb_tx_string("\n\r");
-  PT_values[4] = ADC;
+  PT_values[5] = ADC;
   ADC8();
   //m_usb_tx_string("ADC8: ");
   //m_usb_tx_int(ADC);
   //m_usb_tx_string("\n\r");
-  PT_values[0] = ADC;
+  PT_values[6] = ADC;
 
-  PT_values[3] = 0;
+  //PT_values[3] = 0;
 
   puck_angle = 0.0f;
   total = 0;
 
   for(i = 0; i<7; i++){
+      if(SHITTY){
+        PT_values[i] = PT_values[i] * 4;
+      }
       if(PT_values[i] < 100) {
           PT_values[i] = 0;
       }
 
-      /// WHHYY?
-      //if(i != 3) { //remove unused points
       puck_angle += PT_values[i]*PT_angles[i];
       total += PT_values[i];
-      //}
-      //m_usb_tx_int(PT_values[i]);
-      // m_usb_tx_string("\t");
   }
 
   if (m_usb_isconnected()) {
@@ -95,6 +101,10 @@ void update_puck_angle ()
   //total = total + PT_values[3]; // add back in unused points
   update_puck_distance(total);
 
+  puck_position[2] = (float)(puck_angle + getPosition()[2]);           // Working Out global puck angle
+  puck_position[0] = (float)(getPosition()[0]+get_puck_distance()*2.6f*cosf(puck_position[2])); // Puck x- position
+  puck_position[1] = (float)(getPosition()[1]+get_puck_distance()*2.6f*sinf(puck_position[2])); // Puck y - position
+
   m_usb_tx_string("Distance: ");
   m_usb_tx_int((int)(get_puck_distance()));
   m_usb_tx_string("\n\r");
@@ -103,12 +113,22 @@ void update_puck_angle ()
   m_usb_tx_int(total);
   m_usb_tx_string("\n\r");
 
+  m_usb_tx_string("Puck Position: ");
+  m_usb_tx_int(puck_position[0]);
+  m_usb_tx_string(", ");
+  m_usb_tx_int(puck_position[1]);
+  m_usb_tx_string(", ");
+  m_usb_tx_int(puck_position[2]*100);
+  m_usb_tx_string("\n\r");
+
+
+
   see_puck = 0;
   puck_behind = 0;
-    
+
   if(total > 100){
   	see_puck = 1;
-  } 
+  }
 
   if (fabs(total - PT_values[6]) > 50) {
     puck_behind = 1;
@@ -145,8 +165,13 @@ int puck_middle(){
     bool middle = ((int)!check(PIND, 3));
     bool min_dist = (int)(get_puck_distance() < MIN_PUCK_DIST);
     bool min_angle = fabs(get_puck_angle()) < 0.3f;
-  return (middle || (min_dist && min_angle)); 
+  return (middle || (min_dist && min_angle));
 }
 int puck_left(){
   return (int)(!check(PINB, 5));
+}
+
+float *get_puck_position()
+{
+  return puck_position;
 }

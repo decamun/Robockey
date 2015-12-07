@@ -20,7 +20,7 @@ static float location[3]; //for function localize_location
 static float T[2] = {512.0f, 384.0f};
 static bool TEAM_RED;
 
-void localize_init(int TEAM_RED_M) {  
+void localize_init(int TEAM_RED_M) {
   // Following code to get around possible init error m_wii_open
   m_usb_tx_string("Initializing the m_wii...\r\n");
 
@@ -202,7 +202,7 @@ void localize_calculate(uint16_t* data)
 
     // Perform a low pass filter
     //LOCALIZE_ANGLE = LOCALIZE_ANGLE * (LOCALIZE_LPF) + (-angle_adg) * (1.0f - LOCALIZE_LPF);
-    LOCALIZE_ANGLE = -angle_adg;  
+    LOCALIZE_ANGLE = -angle_adg;
 
 
     //USB DEBUG CODE

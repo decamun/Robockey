@@ -9,4 +9,5 @@ int puck_middle();
 int puck_right();
 void update_puck_distance(int total_adc);
 float get_puck_distance();
+float *get_puck_position();
 #endif

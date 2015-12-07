@@ -31,13 +31,42 @@ int ii = 0;
 int KICK_TICKS = 0;
 int LED_pin = 2;
 int OFF_LED_Pin = 3;
+
+int indicators[3] = {0,1,2};
+
 void report_error(const char *err);
 void initialize();
 void kick();
 
-typedef enum {SEARCHING = 0, ACQUIRE, GOTO_GOAL, PUCK_TURN, PAUSE, PLAY, GOTO_ZERO, 
+typedef enum {SEARCHING = 0, ACQUIRE, GOTO_GOAL, PUCK_TURN, PAUSE, PLAY, GOTO_ZERO,
               GOTO_GUARD, SEARCH_LEFT, SEARCH_RIGHT, TRACK, FACE_GUARD} robot_state;
 static robot_state current_state = PAUSE;
+
+void set_indicators(robot_state _01, robot_state _11){
+    indicators[0] = _01;
+    indicators[1] = _11;
+
+    set(DDRD, 5);
+    set(DDRD, 7);
+}
+
+void update_indicators(){
+  int i = 0;
+    for (i = 0; i < 3; i++){
+      if (indicators[0] == current_state){
+          clear(PORTD, 5);
+          set(PORTD, 7);
+      }
+      else if (indicators[1] == current_state){
+          set(PORTD, 5);
+          set(PORTD, 7);
+      }
+      else {
+        clear(PORTD, 5);
+        clear(PORTD, 7);
+      }
+    }
+}
 
 void testMotors() {
     setRight(0.5);
@@ -90,15 +119,21 @@ void testPuckRead() {
 void goalie() {
 
     float angle = getPosition()[2];
+    float GUARD_X = getPosition()[0];
+    float GUARD_Y = getPosition()[1];
 
     switch(current_state) {
+        case PAUSE:
+            clear(PORTD, LED_pin); // TURN OFF positioning LED
+            stop();
+            break;
         case PLAY:
-            current_state = GOTO_GUARD; 
+            current_state = GOTO_GUARD;
         case GOTO_GUARD:
-            goToPosition(getPosition(), 0.4f, 0.4f, GUARD_X, GUARD_Y);
-            float eps = 20.0f;
+            goToPosition(getPosition(), 0.5f, 0.5f, GUARD_X, GUARD_Y);
+            float eps = 30.0f;
             if (fabs(getPosition()[0] - GUARD_X) < eps && fabs(getPosition()[1] - GUARD_Y) < eps) {
-                current_state = FACE_GUARD;  
+                current_state = FACE_GUARD;
             }
             break;
         case FACE_GUARD:
@@ -118,6 +153,11 @@ void goalie() {
             if (get_see_puck()) {
                 current_state = TRACK;
             }
+
+      //      if(fabs(getPosition()[0] - GUARD_X) > eps && fabs(getPosition()[1] - GUARD_Y) > eps);
+      //        {
+    //            current_state = GOTO_GUARD;
+    //        }
             break;
         case SEARCH_RIGHT:
             setRight(0.5f);
@@ -131,13 +171,13 @@ void goalie() {
 
             break;
         case TRACK:
-            trackHeading(-get_puck_angle(), 0.0f); 
+            trackHeading(-get_puck_angle(), 0.0f);
 
             if (!get_see_puck()) {
                 current_state = SEARCH_LEFT;
-            } 
-
-            if (get_puck_distance() < 20) {
+            }
+          //if (get_puck_position()[0]<-200) {
+            if (get_puck_distance() < 40) {
                 current_state = ACQUIRE;
             }
             break;
@@ -147,8 +187,14 @@ void goalie() {
             if (!get_see_puck()) {
                 current_state = GOTO_GUARD;
             }
-            break;
+
+            if (puck_middle()) {
+                current_state = GOTO_GOAL;
+                resetGoTo();
+            }
+
         case GOTO_GOAL:
+
             break;
     }
 }
@@ -166,7 +212,7 @@ void forward() {
             break;
 
         case SEARCHING:
-           spin(); 
+           spin();
             if(get_see_puck())  {
                 current_state = ACQUIRE;
             }
@@ -178,11 +224,11 @@ void forward() {
             if(get_puck_distance() < 20.0f) {
                 goToHeadingVel(0.6f, -get_puck_angle(), 0.0f, 1.2f, 0.7f);
             } else {
-                goToHeadingVel(0.77f, -get_puck_angle(), 0.0f, 1.2f, 0.7f); 
+                goToHeadingVel(0.77f, -get_puck_angle(), 0.0f, 1.2f, 0.7f);
 
             }
             //} else {
-            //    goToHeadingVel(0.7f, -get_puck_angle(), 0.0f); 
+            //    goToHeadingVel(0.7f, -get_puck_angle(), 0.0f);
             //}
 
             //if (fabs(headingToTarget(getPosition(), -GOAL_X, GOAL_Y)) < DRIVE_PI / 6.0f && getPosition()[0] > 50) {
@@ -209,7 +255,7 @@ void forward() {
             //if(fabs(GOAL_X - getPosition()[0]) < 50 && fabs(GOAL_Y - getPosition()[1] < 100)) {
             //    float target_angle = atan2(GOAL_Y - getPosition()[1], GOAL_X - getPosition()[0]);
             //    float curr_angle = getPosition()[2];
-            //    curr_angle = (curr_angle > DRIVE_PI) ? -(2 * DRIVE_PI - curr_angle) : curr_angle; 
+            //    curr_angle = (curr_angle > DRIVE_PI) ? -(2 * DRIVE_PI - curr_angle) : curr_angle;
             //    float delta_angle = fabs(target_angle - curr_angle);
             //    if (delta_angle < DRIVE_PI / 6) {
             //        kick();
@@ -219,11 +265,11 @@ void forward() {
 
             if(!(puck_middle())) {
                 current_state = ACQUIRE;
-                resetGoTo(); 
+                resetGoTo();
             } else if (!get_see_puck()) {
                 current_state = SEARCHING;
                 resetGoTo();
-            } 
+            }
 
             break;
 
@@ -249,6 +295,9 @@ void main()
 {
     initialize();
     m_wait(1000);
+    localize_update();
+
+
     resetGoTo(); // Ensure that PD loops are set to 0
 
     //TODO: Change this back to PAUSE for real play
@@ -276,8 +325,8 @@ void main()
             m_usb_tx_int((int) 100 * (getPosition()[2]));
             m_usb_tx_string(")\r\n");
 
-            goalie();
 
+            goalie();
             // We're done until the next clock update
             TICK_HAPPENED = 0;
         }
@@ -286,12 +335,18 @@ void main()
             //handle new RF info
             RF_READ = 0;
             rf_comm(buffer);
+
+
         }
 
     }
 }
 
 void initialize() {
+
+
+
+
     m_clockdivide(0);
     //enable inputs for switches
     clear(DDRB, 4);
@@ -388,7 +443,7 @@ void handleRfGamestate(uint8_t value) {
           m_wait(200);
         }
 
-    } else {  
+    } else {
         for(ii = 0; ii<2; ii++){
 
           clear(PORTB,2);
@@ -417,12 +472,12 @@ void handleRfGamestate(uint8_t value) {
         current_state = PAUSE;
 
         if (TEAM_RED) {
-            TEAM_RED = 0; 
+            TEAM_RED = 0;
             clear(PORTB,3); // Change LED color at halftime
             set(PORTB,2);
         }
         else {
-            TEAM_RED = 1; 
+            TEAM_RED = 1;
             clear(PORTB,2);
             set(PORTB,3);
         }
