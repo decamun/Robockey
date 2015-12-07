@@ -50,6 +50,11 @@ void avoid_wall() {
     }
 }
 
+void test_kicker() {
+  kick();
+  m_wait(3000);
+}
+
 void set_indicators(robot_state _01, robot_state _11){
     indicators[0] = _01;
     indicators[1] = _11;
@@ -314,6 +319,7 @@ void main()
     //TODO: Change this back to PAUSE for real play
     current_state = PLAY;
 
+    //while(1) {test_kicker();} //test the kicking code
     while (1) {
         if(TICK_HAPPENED) {
             // Get the current position and orientation
