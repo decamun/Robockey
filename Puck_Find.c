@@ -75,13 +75,16 @@ void update_puck_angle ()
 
   for(i = 0; i<7; i++){
       if(SHITTY){
-        PT_values[i] = PT_values[i] * 4;
+        PT_values[i] = PT_values[i] * 2;
       }
-      if(PT_values[i] < 100) {
+      if(PT_values[i] < 10) {
           PT_values[i] = 0;
       }
 
       puck_angle += PT_values[i]*PT_angles[i];
+      if(SHITTY){
+        puck_angle = -puck_angle;
+      }
       total += PT_values[i];
   }
 
