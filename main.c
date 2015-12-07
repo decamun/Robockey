@@ -42,6 +42,14 @@ typedef enum {SEARCHING = 0, ACQUIRE, GOTO_GOAL, PUCK_TURN, PAUSE, PLAY, GOTO_ZE
               GOTO_GUARD, SEARCH_LEFT, SEARCH_RIGHT, TRACK, FACE_GUARD} robot_state;
 static robot_state current_state = PAUSE;
 
+void avoid_wall() {
+    if(localize_heading_for_wall()) {
+        setRight(-0.5f);
+        setLeft(-0.5f);
+        m_wait(200);
+    }
+}
+
 void set_indicators(robot_state _01, robot_state _11){
     indicators[0] = _01;
     indicators[1] = _11;
@@ -212,7 +220,8 @@ void forward() {
             break;
 
         case SEARCHING:
-           spin();
+            spin();
+            avoid_wall();
             if(get_see_puck())  {
                 current_state = ACQUIRE;
             }
@@ -263,6 +272,7 @@ void forward() {
             //}
             //
 
+
             if(!(puck_middle())) {
                 current_state = ACQUIRE;
                 resetGoTo();
@@ -287,6 +297,7 @@ void forward() {
 
         case GOTO_ZERO:
             goToPosition(getPosition(), 0.7f, 0.8f, GOAL_X, GOAL_Y);
+            avoid_wall();
             break;
     }
 }

@@ -268,7 +268,7 @@ float* localize_location() {
   return location;
 }
 
-int heading_for_wall() {
+int localize_heading_for_wall() {
   //float x_heading = location[0] + WALL_AVOIDANCE_PX * cosf(location[2]);
   float y_heading = location[1] + WALL_AVOIDANCE_PX * sinf(location[2]);
   
