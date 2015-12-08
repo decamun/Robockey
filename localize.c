@@ -258,7 +258,9 @@ void localize_calculate(uint16_t* data)
     dropped_frames++;
   }
 }
-
+int localize_current() {
+  return (dropped_frames < 20);
+}
 
 float* localize_location() {
   int flip = (TEAM_RED) ? 1 : -1;

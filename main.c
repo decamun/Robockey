@@ -47,10 +47,20 @@ typedef enum {SEARCHING = 0, ACQUIRE, GOTO_GOAL, PUCK_TURN, PAUSE, PLAY, GOTO_ZE
 static robot_state current_state = PAUSE;
 
 void avoid_wall() {
-    while(localize_heading_for_wall()) {
+    while(localize_heading_for_wall() && localize_current()) {
       localize_update();
-      setRight(-0.5f);
-      setLeft(-0.5f);
+      update_puck_angle();
+      if(get_puck_distance() > 50){
+        setRight(-0.5f);
+        setLeft(-0.5f);
+      } else if(get_puck_angle() < 0) {
+        setLeft(-0.5f);
+        setRight(0.0f);
+      } else {
+        setRight(-0.5f);
+        setLeft(0.0f);
+      }
+
     }
 }
 
@@ -271,7 +281,7 @@ void forward() {
                 goToHeadingVel(0.77f, -get_puck_angle(), 0.0f, 1.2f, 0.7f);
 
             }*/
-
+            avoid_wall();
             if(get_puck_distance() < 45.0f) {
                 float offset_angle = (get_puck_angle() + getPosition()[2]) * 0.1;
                 goToHeadingVel(0.5f, -get_puck_angle() + offset_angle, 0.0f, 1.2f, 0.7f);
@@ -319,7 +329,7 @@ void forward() {
             //    }
             //}
             //
-            if(getPosition()[0] > 200) {
+            if(getPosition()[0] > 0) {
               kick();
               current_state = SEARCHING;
 
@@ -388,6 +398,7 @@ void main()
             m_usb_tx_string(", ");
             m_usb_tx_int((int) 100 * (getPosition()[2]));
             m_usb_tx_string(")\r\n");
+            if(KICK_TICKS > 0){KICK_TICKS--;}
             forward();//goalie();
             if(TX_counter > TX_INTERMISSION) {
               sendRfRobotInfo();
@@ -503,10 +514,13 @@ void report_error(const char *err) {
 }
 
 void kick()	{
-    set(PORTB, 7);
-    m_wait(200);
-    clear(PORTB, 7);
-    //KICK_TICKS = (int)(TICKS_PER_SECOND * 0.125);
+    if(KICK_TICKS ==0) {
+      set(PORTB, 7);
+      m_wait(200);
+      clear(PORTB, 7);
+      //KICK_TICKS = (int)(TICKS_PER_SECOND * 0.125);
+    }
+    KICK_TICKS = 200;
 }
 
 void distributePacket(char* out_buffer) {
