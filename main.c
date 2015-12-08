@@ -56,6 +56,7 @@ void test_kicker() {
   m_wait(3000);
 }
 
+  int i;
 void set_indicators(robot_state _01, robot_state _11){
     indicators[0] = _01;
     indicators[1] = _11;
