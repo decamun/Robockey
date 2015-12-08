@@ -22,7 +22,9 @@ char buffer[BUFFER_SIZE];
 int RF_READ = 0;
 int TICK_HAPPENED = 0;
 int TEAM_RED = 0;
-char* ROBOT_ADDRESSES[3];
+char ROBOT_ADDRESSES[3];
+int ROBOT_INFO[3][7];
+unsigned int TX_counter = 0;
 
 int GO = 0;
 int BLINK = 0;
@@ -57,7 +59,7 @@ void test_kicker() {
 }
 
 void test_rf() {
-  char out_buffer[10] = {0xA9,0x69,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00};
+  char out_buffer[10] = {0xAA,0x69,ROBOT_NUMBER,0x01,0x02,0x03,0x04,0x05,0x06,0x07};
   int i;
   for(i = 1; i <= 3; i++) {
     if(i != ROBOT_NUMBER) {
@@ -146,6 +148,14 @@ void testPuckRead() {
     update_puck_angle();
     m_usb_tx_long(get_puck_angle());
     m_usb_tx_string("\r\n");
+}
+
+void master() {
+
+}
+
+void slave() {
+
 }
 
 void goalie() {
@@ -334,12 +344,11 @@ void main()
 
 
     resetGoTo(); // Ensure that PD loops are set to 0
+    while(1) {m_wait(1000);}//test_rf();}
+
 
     //TODO: Change this back to PAUSE for real play
     current_state = PLAY;
-    while(1) {
-      test_rf();
-    }
     while (1) {
         if(TICK_HAPPENED) {
             // Get the current position and orientation
@@ -361,9 +370,15 @@ void main()
             m_usb_tx_string(", ");
             m_usb_tx_int((int) 100 * (getPosition()[2]));
             m_usb_tx_string(")\r\n");
-
-
             goalie();
+            if(TX_counter > TX_INTERMISSION) {
+              RobotInfo();
+              TX_counter = 0;
+            } else {
+              TX_counter++;
+            }
+
+
             // We're done until the next clock update
             TICK_HAPPENED = 0;
         }
@@ -431,6 +446,7 @@ void initialize() {
     clear(PORTB, 7);
 
     set_power(INITIAL_POWER);
+    set_indicators(INDICATE_STATES);
 
     //initialize RF
     char address;
@@ -473,6 +489,21 @@ void kick()	{
     m_wait(200);
     clear(PORTB, 7);
     //KICK_TICKS = (int)(TICKS_PER_SECOND * 0.125);
+}
+
+void distributePacket(char* out_buffer) {
+  int i;
+  for(i = 1; i <= 3; i++) {
+    if(i != ROBOT_NUMBER) {
+      m_usb_tx_string("Sending to Addess: ");
+      m_usb_tx_int((uint8_t)ROBOT_ADDRESSES[i-1]);
+      m_rf_send(ROBOT_ADDRESSES[i-1], out_buffer, BUFFER_SIZE);
+      m_usb_tx_string("\n\r");
+    }
+  }
+  m_usb_tx_string("Sending from Address: ");
+  m_usb_tx_int((uint8_t)ROBOT_ADDRESSES[ROBOT_NUMBER-1]);
+  m_usb_tx_string("\n\r");
 }
 
 void handleRfGamestate(uint8_t value) {
@@ -552,14 +583,46 @@ void handleRfCommand(char* rf_buffer) {
 }
 
 void handleRfRobotInfo(char* rf_buffer) {
-  m_usb_tx_string("Recieved Robot Info\n");
   int i;
+  int j;
+  m_usb_tx_string("Recieved Robot Info\n");
   m_usb_tx_string("Buffer:(");
   for(i = 0; i < 10; i++) {
     m_usb_tx_int((uint8_t)rf_buffer[i]);
     m_usb_tx_string("\t");
   }
   m_usb_tx_string(")\n\r");
+
+  //transcode robot information to correct indeces
+  for(i = 3; i < 10; i++) {
+    ROBOT_INFO[-1 + (uint8_t)rf_buffer[2]][i-3] = (int8_t)rf_buffer[i];
+  }
+
+  m_usb_tx_string("Recieved new robot info. Info updated to: \n\r");
+  for(i = 0; i < 3; i++) {
+    for(j = 0; j < 7; j++) {
+      m_usb_tx_int(ROBOT_INFO[i][j]);
+      m_usb_tx_string("\t");
+    }
+    m_usb_tx_string("\n\r");
+  }
+}
+
+void sendRfRobotInfo(){
+  char rf_buffer[10];
+  rf_buffer[0] = 0xAA;
+  rf_buffer[1] = PASSCODE;
+  rf_buffer[2] = (char)ROBOT_NUMBER;
+  rf_buffer[3] = (char)current_state;
+  rf_buffer[4] = 1; //TODO make this report position (GOALIE OR FORWARD)
+  rf_buffer[5] = (char)localize_location()[0];
+  rf_buffer[6] = (char)localize_location()[1];
+  rf_buffer[7] = (char)localize_location()[2];
+  rf_buffer[8] = 0;
+  rf_buffer[9] = 0;
+  rf_buffer[10] = 0;
+
+  distributePacket(rf_buffer);
 }
 
 void handleRfPuckLocation(char* rf_buffer) {
