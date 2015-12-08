@@ -319,7 +319,11 @@ void forward() {
             //    }
             //}
             //
+            if(getPosition()[0] > 200) {
+              kick();
+              current_state = SEARCHING;
 
+            }
 
             if(!(puck_middle())) {
                 current_state = ACQUIRE;
@@ -334,8 +338,10 @@ void forward() {
         case PUCK_TURN:
             if (puck_left()) {
                 setRight(0.85f);
+                setLeft(0.0f);
             } else if (puck_right()) {
                 setLeft(0.85f);
+                setRight(0.0f);
             } else if (puck_middle()) {
                 current_state = GOTO_GOAL;
             } else {
