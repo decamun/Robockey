@@ -7,6 +7,7 @@
 #define USB_DEBUG 0
 #define MATLAB_GRAPH 0
 
+
 #define INITIAL_POWER 1
 
 #define SHITTY 1
@@ -15,6 +16,7 @@
 #define RF_DEBUG_ADDRESS 0x16
 #define ADDRESS 0x15
 #define CHANNEL 1
+#define PASSCODE 0x69
 
 #define TICK_FREQUENCY 200
 #define TICK_LENGTH 0.0128.0f

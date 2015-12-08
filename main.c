@@ -445,48 +445,48 @@ void kick()	{
 }
 
 void handleRfGamestate(uint8_t value) {
-    if(value == 0xA0) { //Comm Test
-        BLINK = 1;
-        m_green(TOGGLE);
-        m_wait(500);
+  if(value == 0xA0) { //Comm Test
+    BLINK = 1;
+    m_green(TOGGLE);
+    m_wait(500);
 
-        if(TEAM_RED) // Flashing light for comm test
+    if(TEAM_RED) // Flashing light for comm test
     {
-        for(ii = 0; ii<2; ii++){
+      for(ii = 0; ii<2; ii++){
 
-          clear(PORTB,3);
-          m_wait(200);
-          set(PORTB,3);
-          m_wait(200);
-        }
+        clear(PORTB,3);
+        m_wait(200);
+        set(PORTB,3);
+        m_wait(200);
+      }
 
     } else {
-        for(ii = 0; ii<2; ii++){
+      for(ii = 0; ii<2; ii++){
 
-          clear(PORTB,2);
-          m_wait(200);
-          set(PORTB,2);
-          m_wait(200);
-        }
+        clear(PORTB,2);
+        m_wait(200);
+        set(PORTB,2);
+        m_wait(200);
+      }
     }
 
     } else if (value == 0xA1) { // Play
-        current_state = PLAY;
+      current_state = PLAY;
 
     } else if(value == 0xA2) { // Goal R
-        current_state = PAUSE;
+      current_state = PAUSE;
 
     } else if(value == 0xA3) { // Goal B
-        current_state = PAUSE;
+      current_state = PAUSE;
 
     } else if(value == 0xA4) { // Pause
-        current_state = PAUSE;
+      current_state = PAUSE;
 
     } else if(value == 0xA5) { // detangle
-        current_state = PAUSE;
+      current_state = PAUSE;
 
     } else if(value == 0xA6) { // Halftime
-        current_state = PAUSE;
+      current_state = PAUSE;
 
         if (TEAM_RED) {
             TEAM_RED = 0;
@@ -500,8 +500,54 @@ void handleRfGamestate(uint8_t value) {
         }
 
     } else if(value == 0xA7) { // Game Over
-        current_state = PAUSE;
+      current_state = PAUSE;
     }
+}
+
+void handleRfCommand(char* rf_buffer) {
+  m_usb_tx_string("Recieved Rf Command: ");
+  if(((uint8_t)rf_buffer[2])) {
+    m_usb_tx_string("Goalie\n");
+  } else {
+    m_usb_tx_string("Forward\n");
+  }
+  int i;
+  m_usb_tx_string("Buffer:(");
+  for(i = 0; i < 12; i++) {
+    m_usb_tx_int((uint8_t)rf_buffer[i]);
+    m_usb_tx_string("\t");
+  }
+  m_usb_tx_string(")\n\r");
+}
+
+void handleRfRobotInfo(char* rf_buffer) {
+  m_usb_tx_string("Recieved Robot Info\n");
+  int i;
+  m_usb_tx_string("Buffer:(");
+  for(i = 0; i < 12; i++) {
+    m_usb_tx_int((uint8_t)rf_buffer[i]);
+    m_usb_tx_string("\t");
+  }
+  m_usb_tx_string(")\n\r");
+}
+
+void handleRfPuckLocation(char* rf_buffer) {
+  m_usb_tx_string("Recieved Puck Location\n");
+  int i;
+  m_usb_tx_string("Buffer:(");
+  for(i = 0; i < 12; i++) {
+    m_usb_tx_int((uint8_t)rf_buffer[i]);
+    m_usb_tx_string("\t");
+  }
+  m_usb_tx_string(")\n\r");
+}
+
+int validateString(uint8_t rf_passcode) {
+  if(rf_passcode == PASSCODE) {
+    return 1;
+  } else {
+    return 0;
+  }
 }
 
 //m_rf flag setter
@@ -512,8 +558,17 @@ ISR(INT2_vect) {
     m_usb_tx_string("RF: ");
     m_usb_tx_hex(buffer[0]);
     m_usb_tx_hex("\r\n");
-
-    handleRfGamestate((uint8_t) buffer[0]);
+    uint8_t value = (uint8_t) buffer[0];
+    uint8_t passcode = (uint8_t) buffer[1];
+    if(value == 0xA8 && validateString(passcode)) { // Robot Game State Command
+      handleRfCommand(buffer);
+    } else if(value == 0xA9 && validateString(passcode)) { // Puck Location
+      handleRfPuckLocation(buffer);
+    } else if(value == 0xAA && validateString(passcode)) { // Robot Info
+      handleRfRobotInfo(buffer);
+    } else {
+      handleRfGamestate(value);
+    }
 }
 
 
