@@ -42,6 +42,9 @@ static float delta_angle = 0;
 
 static float* position = 0;
 
+float power_left = 0.0f;
+float power_right = 0.0f;
+
 static drive_state curr_drive_state = STOP;
 static drive_action curr_action = D_NONE;
 
@@ -386,11 +389,12 @@ void setLeft(float power) {
         direction = BACKWARDS;
     }
 
-    //m_usb_tx_string("Power Left: ");
-    //m_usb_tx_int(100 * power_left);
-    //m_usb_tx_string("\r\n");
+    power_left = P_ALPHA * power + (1.0f - P_ALPHA) * power_left;
+    m_usb_tx_string("Power Left: ");
+    m_usb_tx_int(100 * power_left);
+    m_usb_tx_string("\r\n");
 
-    leftON(power, direction);
+    leftON(power_left, direction);
 }
 
 void leftOFF()
@@ -435,7 +439,9 @@ void setRight(float power) {
     //m_usb_tx_string(", ");
     //m_usb_tx_int(100 * power);
     //m_usb_tx_string("\r\n");
-    rightON(power, direction);
+
+    power_right = P_ALPHA * power + (1.0f - P_ALPHA) * power_right; 
+    rightON(power_right, direction);
 }
 
 

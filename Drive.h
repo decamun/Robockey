@@ -19,7 +19,6 @@
 typedef enum {STOP, PROGRESS, DONE} drive_state;
 typedef enum {D_NONE, GOTO, SEARCH, TURN} drive_action;
 
-static float power_left = 0.0f;
 
 /** Move forward while trying to achieve a target heading.
  * This function will change the base speed based on the distance of the target,
