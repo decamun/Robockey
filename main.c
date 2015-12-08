@@ -22,6 +22,7 @@ char buffer[BUFFER_SIZE];
 int RF_READ = 0;
 int TICK_HAPPENED = 0;
 int TEAM_RED = 0;
+char* ROBOT_ADDRESSES[3];
 
 int GO = 0;
 int BLINK = 0;
@@ -319,7 +320,6 @@ void main()
     //TODO: Change this back to PAUSE for real play
     current_state = PLAY;
 
-    //while(1) {test_kicker();} //test the kicking code
     while (1) {
         if(TICK_HAPPENED) {
             // Get the current position and orientation
@@ -413,11 +413,22 @@ void initialize() {
     set_power(INITIAL_POWER);
 
     //initialize RF
-    m_rf_open(CHANNEL, ADDRESS, BUFFER_SIZE);
+    char address;
+    if(ROBOT_NUMBER == 1) {
+      address = ROBOT_1_ADDRESS;
+    } else if(ROBOT_NUMBER == 2) {
+      address = ROBOT_2_ADDRESS;
+    } else {
+      address = ROBOT_3_ADDRESS;
+    }
+    ROBOT_ADDRESSES[0] = ROBOT_1_ADDRESS;
+    ROBOT_ADDRESSES[1] = ROBOT_2_ADDRESS;
+    ROBOT_ADDRESSES[2] = ROBOT_3_ADDRESS;
+    m_rf_open(CHANNEL, address, BUFFER_SIZE);
 
     //initialize USB
     if(USB_DEBUG || MATLAB_GRAPH || FORCE_USB) {
-        m_usb_init();
+      m_usb_init();
     }
 
     //start timer0
@@ -513,7 +524,7 @@ void handleRfCommand(char* rf_buffer) {
   }
   int i;
   m_usb_tx_string("Buffer:(");
-  for(i = 0; i < 12; i++) {
+  for(i = 0; i < 10; i++) {
     m_usb_tx_int((uint8_t)rf_buffer[i]);
     m_usb_tx_string("\t");
   }
@@ -524,7 +535,7 @@ void handleRfRobotInfo(char* rf_buffer) {
   m_usb_tx_string("Recieved Robot Info\n");
   int i;
   m_usb_tx_string("Buffer:(");
-  for(i = 0; i < 12; i++) {
+  for(i = 0; i < 10; i++) {
     m_usb_tx_int((uint8_t)rf_buffer[i]);
     m_usb_tx_string("\t");
   }
@@ -535,7 +546,7 @@ void handleRfPuckLocation(char* rf_buffer) {
   m_usb_tx_string("Recieved Puck Location\n");
   int i;
   m_usb_tx_string("Buffer:(");
-  for(i = 0; i < 12; i++) {
+  for(i = 0; i < 10; i++) {
     m_usb_tx_int((uint8_t)rf_buffer[i]);
     m_usb_tx_string("\t");
   }
@@ -544,20 +555,23 @@ void handleRfPuckLocation(char* rf_buffer) {
 
 int validateString(uint8_t rf_passcode) {
   if(rf_passcode == PASSCODE) {
+    m_usb_tx_string("String Validation Succeded\n");
     return 1;
   } else {
+    m_usb_tx_string("String Validation Failed\n");
     return 0;
   }
 }
 
 //m_rf flag setter
 ISR(INT2_vect) {
+    m_green(TOGGLE);
     RF_READ = 1;
     m_rf_read(buffer, BUFFER_SIZE);
 
     m_usb_tx_string("RF: ");
     m_usb_tx_hex(buffer[0]);
-    m_usb_tx_hex("\r\n");
+    m_usb_tx_string("\r\n");
     uint8_t value = (uint8_t) buffer[0];
     uint8_t passcode = (uint8_t) buffer[1];
     if(value == 0xA8 && validateString(passcode)) { // Robot Game State Command
