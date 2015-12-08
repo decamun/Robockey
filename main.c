@@ -38,13 +38,18 @@ int OFF_LED_Pin = 3;
 
 int indicators[3] = {0,1,2};
 
+float GUARD_X ;
+float GUARD_Y ;
+
 void report_error(const char *err);
 void initialize();
 void kick();
 
 typedef enum {SEARCHING = 0, ACQUIRE, GOTO_GOAL, PUCK_TURN, PAUSE, PLAY, GOTO_ZERO,
               GOTO_GUARD, SEARCH_LEFT, SEARCH_RIGHT, TRACK, FACE_GUARD} robot_state;
-static robot_state current_state = PAUSE;
+typedef enum {FORWARD, GOALIE} robot_role;
+robot_state current_state = PAUSE;
+robot_role current_role = STARTING_ROLE; 
 
 void avoid_wall() {
     while(localize_heading_for_wall() && localize_current()) {
@@ -170,10 +175,7 @@ void slave() {
 }
 
 void goalie() {
-
     float angle = getPosition()[2];
-    float GUARD_X = getPosition()[0];
-    float GUARD_Y = getPosition()[1];
 
     switch(current_state) {
         case PAUSE:
@@ -182,6 +184,7 @@ void goalie() {
             break;
         case PLAY:
             current_state = GOTO_GUARD;
+            break;
         case GOTO_GUARD:
             goToPosition(getPosition(), 0.5f, 0.5f, GUARD_X, GUARD_Y);
             float eps = 30.0f;
@@ -192,7 +195,7 @@ void goalie() {
         case FACE_GUARD:
             setLeft(0.6f);
             setRight(-0.6f);
-            if (fabs(getPosition()[2]) < 0.1f) {
+            if (fabs(getPosition()[2]) < 0.1f || fabs(getPosition()[2]) > 6.18f) {
                 current_state = SEARCH_LEFT ;
             }
             break;
@@ -207,17 +210,13 @@ void goalie() {
                 current_state = TRACK;
             }
 
-      //      if(fabs(getPosition()[0] - GUARD_X) > eps && fabs(getPosition()[1] - GUARD_Y) > eps);
-      //        {
-    //            current_state = GOTO_GUARD;
-    //        }
-            break;
+           break;
         case SEARCH_RIGHT:
             setRight(0.5f);
             setLeft(-0.5f);
-                if(angle >  DRIVE_PI && angle < 3.0f * DRIVE_PI / 2.0f) {
-                    current_state = SEARCH_LEFT;
-                }
+            if(angle >  DRIVE_PI && angle < 3.0f * DRIVE_PI / 2.0f) {
+                current_state = SEARCH_LEFT;
+            }
             if (get_see_puck()) {
                 current_state = TRACK;
             }
@@ -229,8 +228,8 @@ void goalie() {
             if (!get_see_puck()) {
                 current_state = SEARCH_LEFT;
             }
-          //if (get_puck_position()[0]<-200) {
-            if (get_puck_distance() < 40) {
+
+            if (get_puck_position()[0] < -200 || get_puck_distance() < 10) {
                 current_state = ACQUIRE;
             }
             break;
@@ -241,14 +240,18 @@ void goalie() {
                 current_state = GOTO_GUARD;
             }
 
-            if (puck_middle()) {
-                current_state = GOTO_GOAL;
-                resetGoTo();
+            if(getPosition()[0] > 200) {
+                //kick();
             }
 
-        case GOTO_GOAL:
-
             break;
+        case GOTO_GOAL:
+            //TODO: SHOULD WE GOTO GOAL?
+            break;
+        default:
+            current_state = PLAY;
+            break;
+
     }
 }
 
@@ -274,6 +277,7 @@ void forward() {
 
         case ACQUIRE:
 
+<<<<<<< HEAD
 
             /*if(get_puck_distance() < 20.0f) {
                 goToHeadingVel(0.6f, -get_puck_angle(), 0.0f, 1.2f, 0.7f);
@@ -281,6 +285,9 @@ void forward() {
                 goToHeadingVel(0.77f, -get_puck_angle(), 0.0f, 1.2f, 0.7f);
 
             }*/
+=======
+            avoid_wall();
+>>>>>>> origin/code_refactor
             if(get_puck_distance() < 45.0f) {
                 float offset_angle = (get_puck_angle() + getPosition()[2]) * 0.1;
                 goToHeadingVel(0.5f, -get_puck_angle() + offset_angle, 0.0f, 1.2f, 0.7f);
@@ -289,15 +296,6 @@ void forward() {
 
             }
 
-            //} else {
-            //    goToHeadingVel(0.7f, -get_puck_angle(), 0.0f);
-            //}
-
-            //if (fabs(headingToTarget(getPosition(), -GOAL_X, GOAL_Y)) < DRIVE_PI / 6.0f && getPosition()[0] > 50) {
-            //    goToHeadingVel(0.5f, -get_puck_angle(), 0.0f);
-            //} else {
-            //}
-            //bool puck_in_front = ((int)(get_puck_distance() < 3) && fabs(get_puck_angle()) < DRIVE_PI / 6);
             if (puck_middle()) {
               current_state = GOTO_GOAL;
               resetGoTo();
@@ -316,22 +314,9 @@ void forward() {
 
         case GOTO_GOAL:
             goToPosition(getPosition(), 0.3f, 0.9f, GOAL_X, GOAL_Y);
-            //int eps = 50;
-
-            //if(fabs(GOAL_X - getPosition()[0]) < 50 && fabs(GOAL_Y - getPosition()[1] < 100)) {
-            //    float target_angle = atan2(GOAL_Y - getPosition()[1], GOAL_X - getPosition()[0]);
-            //    float curr_angle = getPosition()[2];
-            //    curr_angle = (curr_angle > DRIVE_PI) ? -(2 * DRIVE_PI - curr_angle) : curr_angle;
-            //    float delta_angle = fabs(target_angle - curr_angle);
-            //    if (delta_angle < DRIVE_PI / 6) {
-            //        kick();
-            //    }
-            //}
-            //
             if(getPosition()[0] > 0) {
               kick();
               current_state = SEARCHING;
-
             }
 
             if(!(puck_middle())) {
@@ -362,6 +347,9 @@ void forward() {
             goToPosition(getPosition(), 0.7f, 0.8f, GOAL_X, GOAL_Y);
             avoid_wall();
             break;
+        default:
+            current_state = PLAY;
+            break;
     }
 }
 
@@ -370,20 +358,25 @@ void main()
     initialize();
     m_wait(1000);
     localize_update();
-
-
+    int wait = 0;
+    for(wait = 0; wait < 200; wait++) {localize_update();}
+    GUARD_X = getPosition()[0];
+    GUARD_Y = getPosition()[1];
     resetGoTo(); // Ensure that PD loops are set to 0
 
     //TODO: Change this back to PAUSE for real play
     current_state = PLAY;
+    current_role = STARTING_ROLE; 
     while (1) {
         if(TICK_HAPPENED) {
             // Get the current position and orientation
             localize_update();
             update_puck_angle();
 
-            m_usb_tx_string("State ");
+            m_usb_tx_string("State, Role: ");
             m_usb_tx_int(current_state);
+            m_usb_tx_string(" , ");
+            m_usb_tx_int(current_role);
             m_usb_tx_string("\r\n");
             m_usb_tx_string("Puck (angle, see)");
             m_usb_tx_int((int) (100 * get_puck_angle()));
@@ -397,15 +390,28 @@ void main()
             m_usb_tx_string(", ");
             m_usb_tx_int((int) 100 * (getPosition()[2]));
             m_usb_tx_string(")\r\n");
+
+            m_usb_tx_string("GUARD (X, Y): (");
+            m_usb_tx_int(GUARD_X);
+            m_usb_tx_string(", ");
+            m_usb_tx_int(GUARD_Y);
+            m_usb_tx_string(")\r\n");
+
+            if (current_role == FORWARD) {
+                    forward();
+            } else if (current_role == GOALIE) {
+                    goalie();
+            } else {
+                m_usb_tx_string("FATAL ERROR: INVALID ROLE\r\n");
+            }
+
             if(KICK_TICKS > 0){KICK_TICKS--;}
-            forward();//goalie();
             if(TX_counter > TX_INTERMISSION) {
               sendRfRobotInfo();
               TX_counter = 0;
             } else {
               TX_counter++;
             }
-
 
             // We're done until the next clock update
             TICK_HAPPENED = 0;
@@ -423,10 +429,6 @@ void main()
 }
 
 void initialize() {
-
-
-
-
     m_clockdivide(0);
     //enable inputs for switches
     clear(DDRB, 4);
