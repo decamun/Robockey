@@ -281,7 +281,6 @@ void forward() {
                 goToHeadingVel(0.77f, -get_puck_angle(), 0.0f, 1.2f, 0.7f);
 
             }*/
-            avoid_wall();
             if(get_puck_distance() < 45.0f) {
                 float offset_angle = (get_puck_angle() + getPosition()[2]) * 0.1;
                 goToHeadingVel(0.5f, -get_puck_angle() + offset_angle, 0.0f, 1.2f, 0.7f);
