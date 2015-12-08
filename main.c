@@ -49,10 +49,10 @@ typedef enum {SEARCHING = 0, ACQUIRE, GOTO_GOAL, PUCK_TURN, PAUSE, PLAY, GOTO_ZE
               GOTO_GUARD, SEARCH_LEFT, SEARCH_RIGHT, TRACK, FACE_GUARD} robot_state;
 typedef enum {FORWARD, GOALIE} robot_role;
 robot_state current_state = PAUSE;
-robot_role current_role = STARTING_ROLE; 
+robot_role current_role = STARTING_ROLE;
 
 void avoid_wall() {
-    while(localize_heading_for_wall() && localize_current()) {
+    /*while(localize_heading_for_wall() && localize_current()) {
       localize_update();
       update_puck_angle();
       if(get_puck_distance() > 50){
@@ -66,7 +66,7 @@ void avoid_wall() {
         setLeft(0.0f);
       }
 
-    }
+    }*/
 }
 
 void test_kicker() {
@@ -277,17 +277,6 @@ void forward() {
 
         case ACQUIRE:
 
-<<<<<<< HEAD
-
-            /*if(get_puck_distance() < 20.0f) {
-                goToHeadingVel(0.6f, -get_puck_angle(), 0.0f, 1.2f, 0.7f);
-            } else {
-                goToHeadingVel(0.77f, -get_puck_angle(), 0.0f, 1.2f, 0.7f);
-
-            }*/
-=======
-            avoid_wall();
->>>>>>> origin/code_refactor
             if(get_puck_distance() < 45.0f) {
                 float offset_angle = (get_puck_angle() + getPosition()[2]) * 0.1;
                 goToHeadingVel(0.5f, -get_puck_angle() + offset_angle, 0.0f, 1.2f, 0.7f);
@@ -366,7 +355,7 @@ void main()
 
     //TODO: Change this back to PAUSE for real play
     current_state = PLAY;
-    current_role = STARTING_ROLE; 
+    current_role = STARTING_ROLE;
     while (1) {
         if(TICK_HAPPENED) {
             // Get the current position and orientation
