@@ -11,6 +11,7 @@ void localize_update();
 void localize_calculate(uint16_t* data);
 float* localize_location();
 int localize_heading_for_wall();
+int localize_current();
 
 
 #endif

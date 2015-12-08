@@ -14,6 +14,7 @@
 #include <math.h>
 #include <stdint.h>
 #include "Puck_Find.h"
+//#include "rf.h"
 
 char buffer[BUFFER_SIZE];
 
@@ -51,10 +52,20 @@ robot_state current_state = PAUSE;
 robot_role current_role = STARTING_ROLE; 
 
 void avoid_wall() {
-    if(localize_heading_for_wall()) {
+    while(localize_heading_for_wall() && localize_current()) {
+      localize_update();
+      update_puck_angle();
+      if(get_puck_distance() > 50){
         setRight(-0.5f);
         setLeft(-0.5f);
-        m_wait(200);
+      } else if(get_puck_angle() < 0) {
+        setLeft(-0.5f);
+        setRight(0.0f);
+      } else {
+        setRight(-0.5f);
+        setLeft(0.0f);
+      }
+
     }
 }
 
@@ -265,16 +276,23 @@ void forward() {
             break;
 
         case ACQUIRE:
-            if(get_puck_distance() < 20.0f) {
-                goToHeadingVel(0.6f, -get_puck_angle(), 0.0f, 1.2f, 0.7f);
+
+            avoid_wall();
+            if(get_puck_distance() < 45.0f) {
+                float offset_angle = (get_puck_angle() + getPosition()[2]) * 0.1;
+                goToHeadingVel(0.5f, -get_puck_angle() + offset_angle, 0.0f, 1.2f, 0.7f);
             } else {
-                goToHeadingVel(0.77f, -get_puck_angle(), 0.0f, 1.2f, 0.7f);
+                goToHeadingVel(0.6f, -get_puck_angle(), 0.0f, 1.2f, 0.7f);
 
             }
 
-           if (puck_middle()) {
-                current_state = GOTO_GOAL;
-                resetGoTo();
+            if (puck_middle()) {
+              current_state = GOTO_GOAL;
+              resetGoTo();
+            }
+            if (puck_left() || puck_right()) {
+              current_state = PUCK_TURN;
+              resetGoTo();
             }
 
             if (!get_see_puck()) {
@@ -286,19 +304,10 @@ void forward() {
 
         case GOTO_GOAL:
             goToPosition(getPosition(), 0.3f, 0.9f, GOAL_X, GOAL_Y);
-            //int eps = 50;
-
-            //if(fabs(GOAL_X - getPosition()[0]) < 50 && fabs(GOAL_Y - getPosition()[1] < 100)) {
-            //    float target_angle = atan2(GOAL_Y - getPosition()[1], GOAL_X - getPosition()[0]);
-            //    float curr_angle = getPosition()[2];
-            //    curr_angle = (curr_angle > DRIVE_PI) ? -(2 * DRIVE_PI - curr_angle) : curr_angle;
-            //    float delta_angle = fabs(target_angle - curr_angle);
-            //    if (delta_angle < DRIVE_PI / 6) {
-            //        kick();
-            //    }
-            //}
-            //
-
+            if(getPosition()[0] > 0) {
+              kick();
+              current_state = SEARCHING;
+            }
 
             if(!(puck_middle())) {
                 current_state = ACQUIRE;
@@ -312,9 +321,11 @@ void forward() {
 
         case PUCK_TURN:
             if (puck_left()) {
-                setRight(0.8f);
-            } else if (puck_left()) {
-                setLeft(0.8f);
+                setRight(0.85f);
+                setLeft(0.0f);
+            } else if (puck_right()) {
+                setLeft(0.85f);
+                setRight(0.0f);
             } else if (puck_middle()) {
                 current_state = GOTO_GOAL;
             } else {
@@ -341,7 +352,7 @@ void main()
     for(wait = 0; wait < 200; wait++) {localize_update();}
     GUARD_X = getPosition()[0];
     GUARD_Y = getPosition()[1];
-
+    resetGoTo(); // Ensure that PD loops are set to 0
 
     //TODO: Change this back to PAUSE for real play
     current_state = PLAY;
@@ -384,14 +395,13 @@ void main()
                 m_usb_tx_string("FATAL ERROR: INVALID ROLE\r\n");
             }
 
+            if(KICK_TICKS > 0){KICK_TICKS--;}
             if(TX_counter > TX_INTERMISSION) {
-              //TODO: WHERE IS THIS?
-              //RobotInfo();
+              sendRfRobotInfo();
               TX_counter = 0;
             } else {
               TX_counter++;
             }
-
 
             // We're done until the next clock update
             TICK_HAPPENED = 0;
@@ -495,10 +505,13 @@ void report_error(const char *err) {
 }
 
 void kick()	{
-    set(PORTB, 7);
-    m_wait(200);
-    clear(PORTB, 7);
-    //KICK_TICKS = (int)(TICKS_PER_SECOND * 0.125);
+    if(KICK_TICKS ==0) {
+      set(PORTB, 7);
+      m_wait(200);
+      clear(PORTB, 7);
+      //KICK_TICKS = (int)(TICKS_PER_SECOND * 0.125);
+    }
+    KICK_TICKS = 200;
 }
 
 void distributePacket(char* out_buffer) {

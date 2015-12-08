@@ -258,7 +258,9 @@ void localize_calculate(uint16_t* data)
     dropped_frames++;
   }
 }
-
+int localize_current() {
+  return (dropped_frames < 20);
+}
 
 float* localize_location() {
   int flip = (TEAM_RED) ? 1 : -1;
@@ -270,8 +272,16 @@ float* localize_location() {
 
 int localize_heading_for_wall() {
   //float x_heading = location[0] + WALL_AVOIDANCE_PX * cosf(location[2]);
-  float y_heading = location[1] + WALL_AVOIDANCE_PX * sinf(location[2]);
-  
+  float y_heading = getPosition()[1] + WALL_AVOIDANCE_PX * sinf(location[2]);
+  if(y_heading  * getPosition()[2] < 0) {
+    y_heading = 0;
+  }
+  m_usb_tx_string("Y-heading: ");
+  m_usb_tx_int((int16_t)y_heading);
+  m_usb_tx_string(" Y-position: ");
+  m_usb_tx_int((int16_t)getPosition()[1]);
+  m_usb_tx_string("\n\r");
+
   if(fabs(y_heading) > WALL_Y) {
     return 1;
   } else {

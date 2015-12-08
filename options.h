@@ -44,7 +44,7 @@
 //#define GUARD_Y 0.0f
 
 #define WALL_X 0.0f
-#define WALL_Y 180.0f
+#define WALL_Y 100.0f
 
 #define BOUNDS_X 0//
 #define BOUNDS_Y 0//
