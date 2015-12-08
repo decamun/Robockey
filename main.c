@@ -337,7 +337,9 @@ void main()
 
     //TODO: Change this back to PAUSE for real play
     current_state = PLAY;
-
+    while(1) {
+      test_rf();
+    }
     while (1) {
         if(TICK_HAPPENED) {
             // Get the current position and orientation
