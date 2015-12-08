@@ -56,7 +56,24 @@ void test_kicker() {
   m_wait(3000);
 }
 
+void test_rf() {
+  char out_buffer[10] = {0xA9,0x69,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00};
   int i;
+  for(i = 1; i <= 3; i++) {
+    if(i != ROBOT_NUMBER) {
+      m_usb_tx_string("Sending to Addess: ");
+      m_usb_tx_int((uint8_t)ROBOT_ADDRESSES[i-1]);
+      m_rf_send(ROBOT_ADDRESSES[i-1], out_buffer, 10);
+      m_usb_tx_string("\n\r");
+    }
+  }
+  m_usb_tx_string("Sending from Address: ");
+  m_usb_tx_int((uint8_t)ROBOT_ADDRESSES[ROBOT_NUMBER-1]);
+  m_usb_tx_string("\n\r");
+  m_green(TOGGLE);
+  m_wait(1000);
+}
+
 void set_indicators(robot_state _01, robot_state _11){
     indicators[0] = _01;
     indicators[1] = _11;
@@ -573,6 +590,7 @@ ISR(INT2_vect) {
     m_usb_tx_string("RF: ");
     m_usb_tx_hex(buffer[0]);
     m_usb_tx_string("\r\n");
+    //handleRfGamestate((uint8_t) buffer[0]);
     uint8_t value = (uint8_t) buffer[0];
     uint8_t passcode = (uint8_t) buffer[1];
     if(value == 0xA8 && validateString(passcode)) { // Robot Game State Command
