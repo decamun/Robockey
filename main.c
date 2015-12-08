@@ -14,6 +14,7 @@
 #include <math.h>
 #include <stdint.h>
 #include "Puck_Find.h"
+//#include "rf.h"
 
 char buffer[BUFFER_SIZE];
 
@@ -46,10 +47,10 @@ typedef enum {SEARCHING = 0, ACQUIRE, GOTO_GOAL, PUCK_TURN, PAUSE, PLAY, GOTO_ZE
 static robot_state current_state = PAUSE;
 
 void avoid_wall() {
-    if(localize_heading_for_wall()) {
-        setRight(-0.5f);
-        setLeft(-0.5f);
-        m_wait(200);
+    while(localize_heading_for_wall()) {
+      localize_update();
+      setRight(-0.5f);
+      setLeft(-0.5f);
     }
 }
 
@@ -264,12 +265,21 @@ void forward() {
         case ACQUIRE:
 
 
-            if(get_puck_distance() < 20.0f) {
+            /*if(get_puck_distance() < 20.0f) {
                 goToHeadingVel(0.6f, -get_puck_angle(), 0.0f, 1.2f, 0.7f);
             } else {
                 goToHeadingVel(0.77f, -get_puck_angle(), 0.0f, 1.2f, 0.7f);
 
+            }*/
+
+            if(get_puck_distance() < 45.0f) {
+                float offset_angle = (get_puck_angle() + getPosition()[2]) * 0.1;
+                goToHeadingVel(0.5f, -get_puck_angle() + offset_angle, 0.0f, 1.2f, 0.7f);
+            } else {
+                goToHeadingVel(0.6f, -get_puck_angle(), 0.0f, 1.2f, 0.7f);
+
             }
+
             //} else {
             //    goToHeadingVel(0.7f, -get_puck_angle(), 0.0f);
             //}
@@ -280,8 +290,12 @@ void forward() {
             //}
             //bool puck_in_front = ((int)(get_puck_distance() < 3) && fabs(get_puck_angle()) < DRIVE_PI / 6);
             if (puck_middle()) {
-                current_state = GOTO_GOAL;
-                resetGoTo();
+              current_state = GOTO_GOAL;
+              resetGoTo();
+            }
+            if (puck_left() || puck_right()) {
+              current_state = PUCK_TURN;
+              resetGoTo();
             }
 
             if (!get_see_puck()) {
@@ -319,9 +333,9 @@ void forward() {
 
         case PUCK_TURN:
             if (puck_left()) {
-                setRight(0.8f);
-            } else if (puck_left()) {
-                setLeft(0.8f);
+                setRight(0.85f);
+            } else if (puck_right()) {
+                setLeft(0.85f);
             } else if (puck_middle()) {
                 current_state = GOTO_GOAL;
             } else {
@@ -344,8 +358,6 @@ void main()
 
 
     resetGoTo(); // Ensure that PD loops are set to 0
-    while(1) {m_wait(1000);}//test_rf();}
-
 
     //TODO: Change this back to PAUSE for real play
     current_state = PLAY;
@@ -370,9 +382,9 @@ void main()
             m_usb_tx_string(", ");
             m_usb_tx_int((int) 100 * (getPosition()[2]));
             m_usb_tx_string(")\r\n");
-            goalie();
+            forward();//goalie();
             if(TX_counter > TX_INTERMISSION) {
-              RobotInfo();
+              sendRfRobotInfo();
               TX_counter = 0;
             } else {
               TX_counter++;
