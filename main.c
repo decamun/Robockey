@@ -48,6 +48,7 @@ void kick();
 typedef enum {SEARCHING = 0, ACQUIRE, GOTO_GOAL, PUCK_TURN, PAUSE, PLAY, GOTO_ZERO,
               GOTO_GUARD, SEARCH_LEFT, SEARCH_RIGHT, TRACK, FACE_GUARD} robot_state;
 typedef enum {FORWARD, GOALIE} robot_role;
+
 robot_state current_state = PAUSE;
 robot_role current_role = STARTING_ROLE; 
 
