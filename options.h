@@ -1,7 +1,7 @@
 #ifndef OPTIONS
 #define OPTIONS
 
-#define ROBOT_NUMBER 1
+#define ROBOT_NUMBER 2
 #define MASTER_NUMBER 2
 #define ROBOT_1_ADDRESS 0x14
 #define ROBOT_2_ADDRESS 0x15

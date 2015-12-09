@@ -52,6 +52,7 @@ robot_state current_state = PAUSE;
 robot_role current_role = STARTING_ROLE;
 
 void avoid_wall() {
+  //TODO fix this
     /*while(localize_heading_for_wall() && localize_current()) {
       localize_update();
       update_puck_angle();
@@ -278,8 +279,22 @@ void forward() {
         case ACQUIRE:
 
             if(get_puck_distance() < 45.0f) {
-                float offset_angle = (get_puck_angle() + getPosition()[2]) * 0.1;
-                goToHeadingVel(0.5f, -get_puck_angle() + offset_angle, 0.0f, 1.2f, 0.7f);
+                float angle_factor = negpi2pi(getPosition()[2]);
+                if(angle_factor > 3.14159f/2) {
+                  angle_factor = 3.14159f - angle_factor;
+                } else if(-angle_factor < -3.14159f/2) {
+                  angle_factor = -3.14159f - angle_factor;
+                }
+
+                float offset_angle = (get_puck_angle() + angle_factor) * 0.2;
+                m_usb_tx_string("Heading Offset: ");
+                m_usb_tx_int((int16_t)(offset_angle * 100));
+                m_usb_tx_string(" puck_angle: ");
+                m_usb_tx_int((int16_t)(get_puck_angle() * 100));
+                m_usb_tx_string(" robot_angle: ");
+                m_usb_tx_int((int16_t)(negpi2pi(getPosition()[2]) * 100));
+                m_usb_tx_string("\n\r");
+                goToHeadingVel(0.5f, -get_puck_angle() - offset_angle, 0.0f, 1.2f, 0.7f);
             } else {
                 goToHeadingVel(0.6f, -get_puck_angle(), 0.0f, 1.2f, 0.7f);
 
@@ -303,8 +318,10 @@ void forward() {
 
         case GOTO_GOAL:
             goToPosition(getPosition(), 0.3f, 0.9f, GOAL_X, GOAL_Y);
-            if(getPosition()[0] > 0) {
+            if(getPosition()[0] > 100 && fabs(getPosition()[1]) < 70 && negpi2pi(getPosition()[2]) < 1) {
               kick();
+              stop();
+              m_wait(1000);
               current_state = SEARCHING;
             }
 
@@ -345,7 +362,7 @@ void forward() {
 void main()
 {
     initialize();
-    m_wait(1000);
+    m_wait(30);
     localize_update();
     int wait = 0;
     for(wait = 0; wait < 200; wait++) {localize_update();}
