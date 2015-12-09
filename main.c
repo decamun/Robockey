@@ -75,13 +75,39 @@ void avoid_wall() {
 
 void wait_for_play() {
   while(current_state == PAUSE) {
-    m_wait(10);
+    m_wait(100);
   }
 }
 
 void test_kicker() {
   kick();
   m_wait(3000);
+}
+
+void usb_debug(){
+  m_usb_tx_string("State, Role: ");
+  m_usb_tx_int(current_state);
+  m_usb_tx_string(" , ");
+  m_usb_tx_int(current_role);
+  m_usb_tx_string("\r\n");
+  m_usb_tx_string("Puck (angle, see)");
+  m_usb_tx_int((int) (100 * get_puck_angle()));
+  m_usb_tx_string("\r\n");
+
+
+  m_usb_tx_string("Pos (x, y, t): (");
+  m_usb_tx_int((int) (getPosition()[0]));
+  m_usb_tx_string(", ");
+  m_usb_tx_int((int) (getPosition()[1]));
+  m_usb_tx_string(", ");
+  m_usb_tx_int((int) 100 * (getPosition()[2]));
+  m_usb_tx_string(")\r\n");
+
+  m_usb_tx_string("GUARD (X, Y): (");
+  m_usb_tx_int(GUARD_X);
+  m_usb_tx_string(", ");
+  m_usb_tx_int(GUARD_Y);
+  m_usb_tx_string(")\r\n");
 }
 
 void test_rf() {
@@ -193,7 +219,7 @@ void goalie() {
         case PAUSE:
             clear(PORTD, LED_pin); // TURN OFF positioning LED
             stop();
-            wait_for_play();
+            //wait_for_play();
             break;
         case PLAY:
             current_state = GOTO_GUARD;
@@ -296,7 +322,7 @@ void forward() {
         case PAUSE:
             clear(PORTD, LED_pin); // TURN OFF positioning LED
             stop();
-            wait_for_play();
+            //wait_for_play();
             break;
 
         case PLAY:
@@ -396,103 +422,77 @@ void forward() {
 
 void main()
 {
-    initialize();
+  initialize();
 
-    while (1) {
+  while (1) {
+    if(RF_READ) {
+        //handle new RF info
+      RF_READ = 0;
 
-        //while(current_state == PAUSE) {
-    //    if(RF_READ) {
-    //        m_usb_tx_string("SAW RF DATA");
-    //        //handle new RF info
-    //        RF_READ = 0;
-    //        rf_comm(buffer);
-    //    }
-    //}
+      //TODO figure out what rf_comm() is and if it should be there
+      //rf_comm(buffer);
 
-        if(TICK_HAPPENED) {
-            // Get the current position and orientation
-            localize_update();
-            update_puck_angle();
+      uint8_t value = (uint8_t) buffer[0];
+      uint8_t passcode = (uint8_t) buffer[1];
+      handleRfGamestate(value);
+      /*
+      if(value == 0xA8 && validateString(passcode)) { // Robot Game State Command
+        handleRfCommand(buffer);
+      } else if(value == 0xA9 && validateString(passcode)) { // Puck Location
+        handleRfPuckLocation(buffer);
+      } else if(value == 0xAA && validateString(passcode)) { // Robot Info
+        handleRfRobotInfo(buffer);
+      } else {
 
-            m_usb_tx_string("State, Role: ");
-            m_usb_tx_int(current_state);
-            m_usb_tx_string(" , ");
-            m_usb_tx_int(current_role);
-            m_usb_tx_string("\r\n");
-            m_usb_tx_string("Puck (angle, see)");
-            m_usb_tx_int((int) (100 * get_puck_angle()));
-            m_usb_tx_string("\r\n");
+      }
+      */
 
-
-            m_usb_tx_string("Pos (x, y, t): (");
-            m_usb_tx_int((int) (getPosition()[0]));
-            m_usb_tx_string(", ");
-            m_usb_tx_int((int) (getPosition()[1]));
-            m_usb_tx_string(", ");
-            m_usb_tx_int((int) 100 * (getPosition()[2]));
-            m_usb_tx_string(")\r\n");
-
-            m_usb_tx_string("GUARD (X, Y): (");
-            m_usb_tx_int(GUARD_X);
-            m_usb_tx_string(", ");
-            m_usb_tx_int(GUARD_Y);
-            m_usb_tx_string(")\r\n");
-
-            if (current_role == FORWARD) {
-                    forward();
-            } else if (current_role == GOALIE) {
-                    goalie();
-            } else {
-                m_usb_tx_string("FATAL ERROR: INVALID ROLE\r\n");
-            }
-
-            if(fabs(getPosition()[0])> WALL_X+50 || fabs(getPosition()[1]> WALL_Y+50))
-            {
-              clear(PORTD, 7);
-            }
-            else{
-              set(PORTD,7);
-            }
-
-            if(KICK_TICKS > 0){KICK_TICKS--;}
-            if(TX_counter > TX_INTERMISSION) {
-              //sendRfRobotInfo();
-              TX_counter = 0;
-            } else {
-              TX_counter++;
-            }
-
-            update_indicators();
-
-            // We're done until the next clock update
-            TICK_HAPPENED = 0;
-        }
-
-        if(RF_READ) {
-            //handle new RF info
-            RF_READ = 0;
-            rf_comm(buffer);
-            uint8_t value = (uint8_t) buffer[0];
-            uint8_t passcode = (uint8_t) buffer[1];
-                          handleRfGamestate(value);
-/*
-            if(value == 0xA8 && validateString(passcode)) { // Robot Game State Command
-              handleRfCommand(buffer);
-            } else if(value == 0xA9 && validateString(passcode)) { // Puck Location
-              handleRfPuckLocation(buffer);
-            } else if(value == 0xAA && validateString(passcode)) { // Robot Info
-              handleRfRobotInfo(buffer);
-            } else {
-
-            }
-            */
-
-                m_usb_tx_string("RF: ");
-    m_usb_tx_hex(buffer[0]);
-    m_usb_tx_string("\r\n");
-                }
-
+      m_usb_tx_string("RF: ");
+      m_usb_tx_hex(buffer[0]);
+      m_usb_tx_string("\r\n");
     }
+    usb_debug();
+
+    if(TICK_HAPPENED && current_state != PAUSE) {
+      // Get the current position and orientation
+      localize_update();
+      update_puck_angle();
+      if (current_role == FORWARD) {
+        forward();
+      } else if (current_role == GOALIE) {
+        goalie();
+      } else {
+        m_usb_tx_string("FATAL ERROR: INVALID ROLE\r\n");
+      }
+
+      if(fabs(getPosition()[0])> WALL_X+50 || fabs(getPosition()[1]> WALL_Y+50))
+      {
+        clear(PORTD, 7);
+      }
+      else{
+        set(PORTD,7);
+      }
+
+      if(KICK_TICKS > 0){KICK_TICKS--;}
+      if(TX_counter > TX_INTERMISSION) {
+        //sendRfRobotInfo();
+        TX_counter = 0;
+      } else {
+        TX_counter++;
+      }
+
+      update_indicators();
+
+      // We're done until the next clock update
+      TICK_HAPPENED = 0;
+
+
+    } else if(current_state == PAUSE) {
+      clear(PORTD, LED_pin); // TURN OFF positioning LED
+      stop();
+      resetGoTo();
+    }
+  }
 }
 
 void initialize() {
@@ -559,6 +559,9 @@ void initialize() {
     ROBOT_ADDRESSES[0] = ROBOT_1_ADDRESS;
     ROBOT_ADDRESSES[1] = ROBOT_2_ADDRESS;
     ROBOT_ADDRESSES[2] = ROBOT_3_ADDRESS;
+
+    m_usb_tx_string("RF Address: ");
+    m_usb_tx_hex(address);
     m_rf_open(CHANNEL, address, BUFFER_SIZE);
 
     //initialize USB
