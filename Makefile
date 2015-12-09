@@ -44,7 +44,7 @@ all:	main.hex
 
 install: flash
 
-flash: all
+flash: clean all
 	dfu-programmer atmega32u4 erase
 	dfu-programmer atmega32u4 flash main.hex
 

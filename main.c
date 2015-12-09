@@ -169,7 +169,6 @@ void testPuckRead() {
 }
 
 void master() {
-
 }
 
 void slave() {

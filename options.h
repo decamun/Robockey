@@ -9,12 +9,7 @@
 #define TX_INTERMISSION 30
 
 #define DRIVE_PI 3.14159f
-<<<<<<< HEAD
-#define STARTING_ROLE GOALIE 
-=======
 #define STARTING_ROLE FORWARD
->>>>>>> 381cf00c0ea3eee73e9526e3f8c08ea7b18dd450
-
 
 #define FORCE_USB 1
 #define USB_DEBUG 0
