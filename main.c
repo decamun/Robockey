@@ -337,7 +337,7 @@ void forward() {
             break;
 
         case GOTO_GOAL:
-            goToPosition(getPosition(), 0.3f, 0.8f, GOAL_X, GOAL_Y);
+            goToPosition(getPosition(), 0.3f, 0.7f, GOAL_X, GOAL_Y);
             if(getPosition()[0] > 100 && fabs(getPosition()[1]) < 70 && negpi2pi(getPosition()[2]) < 1) {
               kick();
               stop();
@@ -394,7 +394,14 @@ void main()
     current_state = STARTING_STATE;
     current_role = STARTING_ROLE;
 
-    while(current_state = PAUSE) { }
+    //while(current_state == PAUSE) {
+    //    if(RF_READ) {
+    //        m_usb_tx_string("SAW RF DATA");
+    //        //handle new RF info
+    //        RF_READ = 0;
+    //        rf_comm(buffer);
+    //    }
+    //}
 
     while (1) {
         if(TICK_HAPPENED) {
@@ -450,7 +457,6 @@ void main()
             //handle new RF info
             RF_READ = 0;
             rf_comm(buffer);
-
 
         }
 
