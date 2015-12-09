@@ -38,8 +38,16 @@ void update_puck_angle ()
   //m_usb_tx_int(ADC);
   //m_usb_tx_string("\n\r");
   //PT_values[3] = ADC;
-  PT_values[1] = ADC;
+
+  //TODO fix the broken component on robot 1 and remove this
+  if(ROBOT_NUMBER != 1) {
+    PT_values[1] = ADC;
+  } else {
+    PT_values[1] = 0;
+  }
   ADC4();
+
+
   //m_usb_tx_string("ADC4: ");
   //m_usb_tx_int(ADC);
   //m_usb_tx_string("\n\r");

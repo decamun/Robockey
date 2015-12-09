@@ -122,7 +122,7 @@ void trackHeading(float target_angle, float current_angle) {
 
      if (power < 0.0f) {
         right_power = -power;
-        left_power = power; 
+        left_power = power;
     } else {
         left_power = power;
         right_power = -power;
@@ -144,7 +144,7 @@ void goToHeadingVel(float base_power, float target_angle, float current_angle, f
 
     if (power < 0.0f) {
         right_power = -power;
-        left_power = power * 0.5f; 
+        left_power = power * 0.5f;
     } else {
         left_power = power;
         right_power = -power * 0.5f;
@@ -161,7 +161,7 @@ float headingToTarget(float* position, float target_x, float target_y) {
     float target_angle = atan2f(target_y - position[1], target_x - position[0]);
         if (target_angle < 0) {
             target_angle = target_angle + 2.0f * DRIVE_PI;
-            
+
         }
         // target_angle = -target_angle;
         float curr_angle = position[2];
@@ -207,7 +207,7 @@ void goToPosition(float* position, float base_power, float K, float target_x, fl
 
     if (power < 0) {
         right_power = -power;
-        left_power = power * 0.4f; 
+        left_power = power * 0.4f;
     } else {
         left_power = power;
         right_power = -power * 0.4f;
@@ -392,6 +392,11 @@ void setLeft(float power) {
     power_left = P_ALPHA * power + (1.0f - P_ALPHA) * power_left;
     m_usb_tx_string("Power Left: ");
     m_usb_tx_int(100 * power_left);
+    if(direction == FORWARDS) {
+      m_usb_tx_string(" forwards");
+    } else {
+      m_usb_tx_string(" backwards");
+    }
     m_usb_tx_string("\r\n");
 
     leftON(power_left, direction);
@@ -432,6 +437,8 @@ void setRight(float power) {
         direction = BACKWARDS;
     }
 
+
+
     //m_usb_tx_string("Power Right (filter, raw): ");
     //m_usb_tx_int(100 * power);
     //m_usb_tx_string(",");
@@ -440,7 +447,15 @@ void setRight(float power) {
     //m_usb_tx_int(100 * power);
     //m_usb_tx_string("\r\n");
 
-    power_right = P_ALPHA * power + (1.0f - P_ALPHA) * power_right; 
+    power_right = P_ALPHA * power + (1.0f - P_ALPHA) * power_right;
+    m_usb_tx_string("Power Right: ");
+    m_usb_tx_int(100 * power_right);
+    if(direction == FORWARDS) {
+      m_usb_tx_string(" forwards");
+    } else {
+      m_usb_tx_string(" backwards");
+    }
+    m_usb_tx_string("\r\n");
     rightON(power_right, direction);
 }
 

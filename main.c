@@ -70,6 +70,12 @@ void avoid_wall() {
     }*/
 }
 
+void wait_for_play() {
+  while(current_state == PAUSE) {
+    m_wait(10);
+  }
+}
+
 void test_kicker() {
   kick();
   m_wait(3000);
@@ -105,12 +111,12 @@ void update_indicators(){
   int i = 0;
     for (i = 0; i < 3; i++){
       if (indicators[0] == current_state){
-          clear(PORTD, 5);
-          set(PORTD, 7);
+        clear(PORTD, 5);
+        set(PORTD, 7);
       }
       else if (indicators[1] == current_state){
-          set(PORTD, 5);
-          set(PORTD, 7);
+        set(PORTD, 5);
+        set(PORTD, 7);
       }
       else {
         clear(PORTD, 5);
@@ -120,14 +126,17 @@ void update_indicators(){
 }
 
 void testMotors() {
-    setRight(0.5);
-    setLeft(0.5);
+    setRight(0.85);
+    m_wait(3000);
+    setLeft(0.85);
     m_wait(3000);
     stop();
     m_wait(3000);
-    setRight(-0.5);
-    setLeft(-0.5);
+    setRight(-0.85);
+    setLeft(-0.85);
     m_wait(3000);
+    stop();
+    m_wait(5000);
 }
 
 void fullTestMotor() {
@@ -182,6 +191,7 @@ void goalie() {
         case PAUSE:
             clear(PORTD, LED_pin); // TURN OFF positioning LED
             stop();
+            wait_for_play();
             break;
         case PLAY:
             current_state = GOTO_GUARD;
@@ -240,7 +250,10 @@ void goalie() {
             if (!get_see_puck()) {
                 current_state = GOTO_GUARD;
             }
-
+            if (puck_middle()) {
+              current_state = GOTO_GOAL;
+              resetGoTo();
+            }
             if(getPosition()[0] > 200) {
                 //kick();
             }
@@ -276,6 +289,7 @@ void forward() {
         case PAUSE:
             clear(PORTD, LED_pin); // TURN OFF positioning LED
             stop();
+            wait_for_play();
             break;
 
         case PLAY:
@@ -312,7 +326,6 @@ void forward() {
                 goToHeadingVel(0.5f, -get_puck_angle() - offset_angle, 0.0f, 1.2f, 0.7f);
             } else {
                 goToHeadingVel(0.6f, -get_puck_angle(), 0.0f, 1.2f, 0.7f);
-
             }
 
             if (puck_middle()) {
@@ -325,8 +338,8 @@ void forward() {
             }
 
             if (!get_see_puck()) {
-                current_state = SEARCHING;
-                resetGoTo();
+              current_state = SEARCHING;
+              resetGoTo();
             }
 
             break;
@@ -377,17 +390,10 @@ void forward() {
 void main()
 {
     initialize();
-    m_wait(30);
-    localize_update();
-    int wait = 0;
-    for(wait = 0; wait < 200; wait++) {localize_update();}
-    GUARD_X = getPosition()[0];
-    GUARD_Y = getPosition()[1];
-    resetGoTo(); // Ensure that PD loops are set to 0
 
-    //TODO: Change this back to PAUSE for real play
-    current_state = PAUSE;
-    current_role = STARTING_ROLE;
+
+
+
     while (1) {
         if(TICK_HAPPENED) {
             // Get the current position and orientation
@@ -426,9 +432,17 @@ void main()
                 m_usb_tx_string("FATAL ERROR: INVALID ROLE\r\n");
             }
 
+            if(fabs(getPosition()[0])> WALL_X+50 || fabs(getPosition()[1]> WALL_Y+50))
+            {
+              clear(PORTD, 7);
+            }
+            else{
+              set(PORTD,7);
+            }
+
             if(KICK_TICKS > 0){KICK_TICKS--;}
             if(TX_counter > TX_INTERMISSION) {
-              sendRfRobotInfo();
+              //sendRfRobotInfo();
               TX_counter = 0;
             } else {
               TX_counter++;
@@ -523,6 +537,18 @@ void initialize() {
     interupt0(1);
     ADC_init();
     localize_init(TEAM_RED);
+
+    //initialize state machine
+    current_state = STARTING_STATE;
+    current_role = STARTING_ROLE;
+
+    //spaghetti code
+    m_wait(30);
+    int wait = 0;
+    for(wait = 0; wait < 200; wait++) {localize_update();}
+    GUARD_X = getPosition()[0];
+    GUARD_Y = getPosition()[1];
+    resetGoTo(); // Ensure that PD loops are set to 0
 }
 
 

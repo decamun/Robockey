@@ -10,6 +10,7 @@
 
 #define DRIVE_PI 3.14159f
 #define STARTING_ROLE FORWARD
+#define STARTING_STATE PAUSE
 
 
 #define FORCE_USB 1
