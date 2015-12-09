@@ -36,7 +36,7 @@ int KICK_TICKS = 0;
 int LED_pin = 2;
 int OFF_LED_Pin = 3;
 
-int indicators[3] = {0,1,2};
+int indicators[2] = {0,1};
 
 float GUARD_X ;
 float GUARD_Y ;
@@ -49,8 +49,10 @@ typedef enum {SEARCHING = 0, ACQUIRE, GOTO_GOAL, PUCK_TURN, PAUSE, PLAY, GOTO_ZE
               GOTO_GUARD, SEARCH_LEFT, SEARCH_RIGHT, TRACK, FACE_GUARD} robot_state;
 typedef enum {FORWARD, GOALIE} robot_role;
 
-robot_state current_state = PAUSE;
+robot_state current_state = PLAY;
 robot_role current_role = STARTING_ROLE;
+
+
 
 void avoid_wall() {
   //TODO fix this
@@ -103,21 +105,19 @@ void set_indicators(robot_state _01, robot_state _11){
 }
 
 void update_indicators(){
-  int i = 0;
-    for (i = 0; i < 3; i++){
-      if (indicators[0] == current_state){
-          clear(PORTD, 5);
-          set(PORTD, 7);
-      }
-      else if (indicators[1] == current_state){
-          set(PORTD, 5);
-          set(PORTD, 7);
-      }
-      else {
-        clear(PORTD, 5);
-        clear(PORTD, 7);
-      }
-    }
+
+  if (indicators[0] == current_state){
+      clear(PORTD, 5);
+      set(PORTD, 7);
+  }
+  else if (indicators[1] == current_state){
+      set(PORTD, 5);
+      set(PORTD, 7);
+  }
+  else {
+    clear(PORTD, 5);
+    clear(PORTD, 7);
+  }
 }
 
 void testMotors() {
@@ -386,7 +386,8 @@ void main()
     resetGoTo(); // Ensure that PD loops are set to 0
 
     //TODO: Change this back to PAUSE for real play
-    current_state = PAUSE;
+    current_state = PLAY;
+    update_indicators();
     current_role = STARTING_ROLE;
     while (1) {
         if(TICK_HAPPENED) {
@@ -434,6 +435,8 @@ void main()
               TX_counter++;
             }
 
+            update_indicators();
+
             // We're done until the next clock update
             TICK_HAPPENED = 0;
         }
@@ -442,8 +445,6 @@ void main()
             //handle new RF info
             RF_READ = 0;
             rf_comm(buffer);
-
-
         }
 
     }
@@ -456,6 +457,8 @@ void initialize() {
     set(PORTB, 4);
     clear(DDRB, 5);
     set(PORTB, 5);
+
+
 
     //Changing Output pin for different team
     if(puck_left() || puck_right()) {

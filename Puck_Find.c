@@ -39,6 +39,9 @@ void update_puck_angle ()
   //m_usb_tx_string("\n\r");
   //PT_values[3] = ADC;
   PT_values[1] = ADC;
+  if(ROBOT_NUMBER == 1){
+    PT_values[1] = PT_values[1]-225;
+  }
   ADC4();
   //m_usb_tx_string("ADC4: ");
   //m_usb_tx_int(ADC);
@@ -51,6 +54,8 @@ void update_puck_angle ()
   //m_usb_tx_string("\n\r");
   //PT_values[1] = ADC;
   PT_values[3] = ADC;
+  PT_values[3] = 0;
+
   ADC6();
   //m_usb_tx_string("ADC6: ");
   //m_usb_tx_int(ADC);
@@ -74,11 +79,11 @@ void update_puck_angle ()
   total = 0;
 
   for(i = 0; i<7; i++){
-      if(SHITTY){
-        PT_values[i] = PT_values[i] * 2;
-      }
-      if(PT_values[i] < 10) {
+      if(PT_values[i] < 15) {
           PT_values[i] = 0;
+      }
+      else if(PT_values[i]< 0) {
+        PT_values[i] = 0;
       }
 
       puck_angle += PT_values[i]*PT_angles[i];
