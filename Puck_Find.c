@@ -7,7 +7,7 @@
 #include "options.h"
 
 #define PT_THRESHOLD 93
-#define MIN_PUCK_DIST 3.0f
+#define MIN_PUCK_DIST 1.0f
 
 static float puck_angle = 0;
 static int see_puck = 0;
@@ -141,8 +141,12 @@ void update_puck_angle ()
 
 //maps a distance to a total intensity value from Puck_Find
 void update_puck_distance(int total_adc) {
-  float x = ((float)total_adc)/1000;
-  puck_distance_cm = 50/powf(x,0.6) -23;
+  if (ROBOT_NUMBER == 3 || ROBOT_NUMBER == 1) {
+      puck_distance_cm = -36.69f * log(total_adc) + 309.26f; 
+  } else {
+      float x = ((float)total_adc)/1000.0f;
+      puck_distance_cm = 50.0f/powf(x,0.6) -23.0f;
+  }
 }
 
 float get_puck_distance() {
@@ -166,7 +170,7 @@ int puck_right(){
 }
 int puck_middle(){
     bool middle = ((int)!check(PIND, 3));
-    bool min_dist = (int)(get_puck_distance() < MIN_PUCK_DIST);
+    bool min_dist = (ROBOT_NUMBER == 3) ? -3 : (int)(get_puck_distance() < MIN_PUCK_DIST);
     bool min_angle = fabs(get_puck_angle()) < 0.3f;
   return (middle || (min_dist && min_angle));
 }

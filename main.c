@@ -203,7 +203,7 @@ void goalie() {
         case SEARCH_LEFT:
             setRight(-0.5f);
             setLeft(0.5f);
-                if(angle > (DRIVE_PI / 2.0f) && angle < DRIVE_PI) {
+                if(angle > (M_PI_2 / 2.0f) && angle < M_PI) {
                     current_state = SEARCH_RIGHT;
                 }
 
@@ -235,7 +235,7 @@ void goalie() {
             }
             break;
         case ACQUIRE:
-            goToHeadingVel(0.6f, -(1.2f * get_puck_angle()), 0.0f, 3.0f, 2.0f);
+            goToHeadingVel(0.5f, -get_puck_angle(), 0.0f, 1.2f, 0.7f);
 
             if (!get_see_puck()) {
                 current_state = GOTO_GUARD;
@@ -243,6 +243,11 @@ void goalie() {
 
             if(getPosition()[0] > 200) {
                 //kick();
+            }
+
+            if (puck_middle()) {
+                current_state = GOTO_GOAL;
+                resetGoTo();
             }
 
             break;
@@ -332,7 +337,7 @@ void forward() {
             break;
 
         case GOTO_GOAL:
-            goToPosition(getPosition(), 0.3f, 0.9f, GOAL_X, GOAL_Y);
+            goToPosition(getPosition(), 0.3f, 0.8f, GOAL_X, GOAL_Y);
             if(getPosition()[0] > 100 && fabs(getPosition()[1]) < 70 && negpi2pi(getPosition()[2]) < 1) {
               kick();
               stop();
@@ -380,14 +385,17 @@ void main()
     m_wait(30);
     localize_update();
     int wait = 0;
-    for(wait = 0; wait < 200; wait++) {localize_update();}
+    for(wait = 0; wait < 50; wait++) {localize_update();}
     GUARD_X = getPosition()[0];
     GUARD_Y = getPosition()[1];
     resetGoTo(); // Ensure that PD loops are set to 0
 
     //TODO: Change this back to PAUSE for real play
-    current_state = PAUSE;
+    current_state = STARTING_STATE;
     current_role = STARTING_ROLE;
+
+    while(current_state = PAUSE) { }
+
     while (1) {
         if(TICK_HAPPENED) {
             // Get the current position and orientation
