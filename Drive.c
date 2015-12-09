@@ -137,21 +137,35 @@ void trackHeading(float target_angle, float current_angle) {
 void goToHeadingVel(float base_power, float target_angle, float current_angle, float KP, float KD) {
     float power = getAnglePID2(target_angle, current_angle, KP, KD);
 
-    //float base_power = 0.87f;
+    power = fmin(power, 0.8f);
+
+    float right_power = 0.0f;
+    float left_power = 0.0f;
+
+    float delta = target_angle - current_angle; 
+    float delta_power = (1.0f - (fabs(delta) / DRIVE_PI));
+
+    float error_x = fabs(target_x - position[0]); 
+    float error_y = fabs(target_y - position[1]);
+
+    float dist = sqrt(error_x * error_x + error_y * error_y);
+
+    float dist_power =  ((fmin(200.0, dist) / 200.0));
+    float forward_power = fmin(delta_power, dist_power);
 
     float right_power = 0.0f;
     float left_power = 0.0f;
 
     if (power < 0.0f) {
         right_power = -power;
-        left_power = power * 0.5f; 
+        left_power = power; 
     } else {
         left_power = power;
-        right_power = -power * 0.5f;
+        right_power = -power;
     }
 
-    left_power += base_power;
-    right_power += base_power;
+    left_power += forward_power;
+    right_power += forward_power;
 
     setLeft(left_power);
     setRight(right_power);
@@ -195,27 +209,44 @@ void goToPosition(float* position, float base_power, float K, float target_x, fl
     //curr_angle = (curr_angle > DRIVE_PI) ? -(2 * DRIVE_PI - curr_angle) : curr_angle;
 
     float power = getAnglePID2(delta, 0, 1.0f, 0.5f);
+    power = fmin(power, K);
 
     float right_power = 0.0f;
     float left_power = 0.0f;
 
-    float delta_power = K * (1.0f - (fabs(delta) / DRIVE_PI));
+    float delta_power = (1.0f - (fabs(delta) / DRIVE_PI));
 
-    if (delta_power < base_power) {
-        delta_power = base_power;
-    }
+    float error_x = fabs(target_x - position[0]); 
+    float error_y = fabs(target_y - position[1]);
+    float dist = sqrt(error_x * error_x + error_y * error_y);
+
+    float dist_power =  ((fmin(200.0, dist) / 200.0));
+    float forward_power = fmin(delta_power, dist_power);
 
     if (power < 0) {
         right_power = -power;
-        left_power = power * 0.4f; 
+        left_power = power; 
     } else {
         left_power = power;
-        right_power = -power * 0.4f;
+        right_power = -power;
     }
+    left_power += forward_power; 
+    right_power += forward_power; 
 
-    left_power += delta_power;
-    right_power += delta_power;
-
+    m_usb_tx_string("goToPosition (angle, dist, delta, forward, left, right): ");
+    m_usb_tx_int(100 * power);
+    m_usb_tx_string(", ");
+    m_usb_tx_int(100 * dist_power);
+    m_usb_tx_string(", ");
+    m_usb_tx_int(100 * delta_power);
+    m_usb_tx_string(", ");
+    m_usb_tx_int(100 * forward_power);
+    m_usb_tx_string(", ");
+    m_usb_tx_int(100 * left_power);
+    m_usb_tx_string(", ");
+    m_usb_tx_int(100 * right_power);
+    m_usb_tx_string("\r\n");
+    
     setLeft(left_power);
     setRight(right_power);
 

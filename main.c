@@ -38,8 +38,13 @@ int OFF_LED_Pin = 3;
 
 int indicators[3] = {0,1,2};
 
-float GUARD_X ;
-float GUARD_Y ;
+#define NUM_SEARCH_POS 4
+float search_pos_x[NUM_SEARCH_POS] = {0, 100, 100, -100};
+float search_pos_y[NUM_SEARCH_POS] = {0, 60, 60, 60};
+int search_pos = 0;
+
+float GUARD_X;
+float GUARD_Y;
 
 void report_error(const char *err);
 void initialize();
@@ -104,20 +109,18 @@ void set_indicators(robot_state _01, robot_state _11){
 
 void update_indicators(){
   int i = 0;
-    for (i = 0; i < 3; i++){
-      if (indicators[0] == current_state){
-          clear(PORTD, 5);
-          set(PORTD, 7);
-      }
-      else if (indicators[1] == current_state){
-          set(PORTD, 5);
-          set(PORTD, 7);
-      }
-      else {
-        clear(PORTD, 5);
-        clear(PORTD, 7);
-      }
-    }
+  if (indicators[0] == current_state){
+      clear(PORTD, 5);
+      set(PORTD, 7);
+  }
+  else if (indicators[1] == current_state){
+      set(PORTD, 5);
+      set(PORTD, 7);
+  }
+  else {
+      clear(PORTD, 5);
+      clear(PORTD, 7);
+  }
 }
 
 void testMotors() {
@@ -192,6 +195,7 @@ void goalie() {
             if (fabs(getPosition()[0] - GUARD_X) < eps && fabs(getPosition()[1] - GUARD_Y) < eps) {
                 current_state = FACE_GUARD;
             }
+
             break;
         case FACE_GUARD:
             setLeft(0.6f);
@@ -199,6 +203,11 @@ void goalie() {
             if (fabs(getPosition()[2]) < 0.1f || fabs(getPosition()[2]) > 6.18f) {
                 current_state = SEARCH_LEFT ;
             }
+
+            if (get_see_puck()) {
+                current_state = TRACK;
+            }
+
             break;
         case SEARCH_LEFT:
             setRight(-0.5f);
@@ -241,10 +250,6 @@ void goalie() {
                 current_state = GOTO_GUARD;
             }
 
-            if(getPosition()[0] > 200) {
-                //kick();
-            }
-
             break;
         case GOTO_GOAL:
           goToPosition(getPosition(), 0.3f, 0.9f, GOAL_X, GOAL_Y);
@@ -284,23 +289,29 @@ void forward() {
             break;
 
         case SEARCHING:
-            spin();
+            if (is_at_position(getPosition(), search_pos_x[ROBOT_NUMBER], search_pos_y[ROBOT_NUMBER], 50.0f)) {
+                spin(); 
+            } else {
+                goToPosition(getPosition(), 0.4f, 0.8f, search_pos_x[ROBOT_NUMBER], search_pos_y[ROBOT_NUMBER]);
+            }
+
             avoid_wall();
+
             if(get_see_puck())  {
                 current_state = ACQUIRE;
             }
             break;
 
         case ACQUIRE:
-
             if(get_puck_distance() < 45.0f) {
                 float angle_factor = negpi2pi(getPosition()[2]);
-                if(angle_factor > 3.14159f/2) {
+                if(angle_factor > 3.14159f/2.0f) {
                   angle_factor = 3.14159f - angle_factor;
-                } else if(-angle_factor < -3.14159f/2) {
+                } else if(-angle_factor < -3.14159f/2.0f) {
                   angle_factor = -3.14159f - angle_factor;
                 }
 
+                k
                 float offset_angle = (get_puck_angle() + angle_factor) * 0.2;
                 m_usb_tx_string("Heading Offset: ");
                 m_usb_tx_int((int16_t)(offset_angle * 100));
@@ -312,7 +323,6 @@ void forward() {
                 goToHeadingVel(0.5f, -get_puck_angle() - offset_angle, 0.0f, 1.2f, 0.7f);
             } else {
                 goToHeadingVel(0.6f, -get_puck_angle(), 0.0f, 1.2f, 0.7f);
-
             }
 
             if (puck_middle()) {
@@ -381,12 +391,13 @@ void main()
     localize_update();
     int wait = 0;
     for(wait = 0; wait < 200; wait++) {localize_update();}
+
     GUARD_X = getPosition()[0];
     GUARD_Y = getPosition()[1];
     resetGoTo(); // Ensure that PD loops are set to 0
 
     //TODO: Change this back to PAUSE for real play
-    current_state = PAUSE;
+    current_state = STARTING_STATE;
     current_role = STARTING_ROLE;
     while (1) {
         if(TICK_HAPPENED) {
@@ -428,6 +439,7 @@ void main()
 
             if(KICK_TICKS > 0){KICK_TICKS--;}
             if(TX_counter > TX_INTERMISSION) {
+
               sendRfRobotInfo();
               TX_counter = 0;
             } else {
@@ -666,12 +678,13 @@ void sendRfRobotInfo(){
   char rf_buffer[10];
   rf_buffer[0] = 0xAA;
   rf_buffer[1] = PASSCODE;
-  rf_buffer[2] = (char)ROBOT_NUMBER;
-  rf_buffer[3] = (char)current_state;
-  rf_buffer[4] = 1; //TODO make this report position (GOALIE OR FORWARD)
-  rf_buffer[5] = (char)localize_location()[0];
-  rf_buffer[6] = (char)localize_location()[1];
-  rf_buffer[7] = (char)localize_location()[2];
+  rf_buffer[2] = (char) ROBOT_NUMBER;
+  rf_buffer[3] = (char) current_state;
+  rf_buffer[4] = (char) current_role;
+  rf_buffer[5] = (char) localize_location()[0];
+  rf_buffer[6] = (char) localize_location()[1];
+  rf_buffer[7] = (char) localize_location()[2];
+  // RESERVED
   rf_buffer[8] = 0;
   rf_buffer[9] = 0;
   rf_buffer[10] = 0;

@@ -277,6 +277,16 @@ float* localize_location() {
   return location;
 }
 
+int is_at_position(float* position, float target_x, float target_y, float eps) {
+    float error_x = fabs(target_x - position[0]);
+    float error_y = fabs(target_y - position[1]);
+    if(error_x*error_x + error_y*error_y < eps*eps) {
+        return 1;
+    } else {
+        return 0;
+    }
+}
+
 int localize_heading_for_wall() {
   //float x_heading = location[0] + WALL_AVOIDANCE_PX * cosf(location[2]);
   float y_heading = getPosition()[1] + WALL_AVOIDANCE_PX * sinf(location[2]);

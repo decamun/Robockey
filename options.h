@@ -16,7 +16,6 @@
 #define MATLAB_GRAPH 0
 #define INDICATE_STATES GOTO_GOAL, SEARCHING
 
-
 #define INITIAL_POWER 1
 
 #define SHITTY 0
@@ -28,8 +27,6 @@
 #define PASSCODE 0x69
 
 #define TICK_FREQUENCY 200
-#define TICK_LENGTH 0.0128.0f
-#define TICKS_PER_SECOND 78.125.0f
 
 #define BUFFER_SIZE 10
 
@@ -38,9 +35,6 @@
 
 #define GOAL_X 330.0f
 #define GOAL_Y 0.0f
-
-//#define GUARD_X -270.0f
-//#define GUARD_Y 0.0f
 
 #define WALL_X 0.0f
 #define WALL_Y 100.0f

@@ -14,5 +14,7 @@ float* localize_location();
 int localize_heading_for_wall();
 int localize_current();
 
+int is_at_position(float* position, float target_x, float target_y, float eps);
+
 
 #endif
