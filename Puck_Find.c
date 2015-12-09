@@ -7,13 +7,14 @@
 #include "options.h"
 
 #define PT_THRESHOLD 93
-#define MIN_PUCK_DIST 1.0f
+//#define MIN_PUCK_DIST 1.0f
 
 static float puck_angle = 0;
 static int see_puck = 0;
 static int puck_behind = 0;
 static float puck_distance_cm;
 static float puck_position[3] = {0,0,0};
+int MIN_PUCK_DIST = 1.0f;
 
 void update_puck_angle ()
 {
@@ -167,15 +168,24 @@ int get_puck_behind() {
 }
 
 float get_puck_angle() {
-	return puck_angle;
+  //TODO fix the issue in robot 1 that flips the negative
+  if(ROBOT_NUMBER == 1 && isForward()){
+    return -puck_angle;
+  } else {
+    return puck_angle;
+  }
 }
 
 int puck_right(){
   return (int)(!check(PINB, 4));
 }
 int puck_middle(){
+
+    if(ROBOT_NUMBER == 1 || 3){
+      MIN_PUCK_DIST = 0.0f;
+    }
     bool middle = ((int)!check(PIND, 3));
-    bool min_dist = (ROBOT_NUMBER == 3) ? -3 : (int)(get_puck_distance() < MIN_PUCK_DIST);
+    bool min_dist = (int)(get_puck_distance() < MIN_PUCK_DIST);
     bool min_angle = fabs(get_puck_angle()) < 0.3f;
   return (middle || (min_dist && min_angle));
 }

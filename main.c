@@ -84,6 +84,11 @@ void test_kicker() {
   m_wait(3000);
 }
 
+//TODO remove this abomination of nature (linked to Puck_Find.c [get_puck_angle()])
+void isForward() {
+  return (current_role == FORWARD);
+}
+
 void usb_debug(){
   m_usb_tx_string("State, Role: ");
   m_usb_tx_int(current_state);
@@ -423,7 +428,6 @@ void forward() {
 void main()
 {
   initialize();
-
   while (1) {
     if(RF_READ) {
         //handle new RF info
@@ -451,10 +455,10 @@ void main()
       m_usb_tx_hex(buffer[0]);
       m_usb_tx_string("\r\n");
     }
-    usb_debug();
 
     if(TICK_HAPPENED && current_state != PAUSE) {
       // Get the current position and orientation
+      usb_debug();
       localize_update();
       update_puck_angle();
       if (current_role == FORWARD) {
@@ -562,6 +566,7 @@ void initialize() {
 
     m_usb_tx_string("RF Address: ");
     m_usb_tx_hex(address);
+    m_usb_tx_string("\n\r");
     m_rf_open(CHANNEL, address, BUFFER_SIZE);
 
     //initialize USB
