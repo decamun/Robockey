@@ -1,7 +1,7 @@
 #ifndef OPTIONS
 #define OPTIONS
 
-#define ROBOT_NUMBER 1
+#define ROBOT_NUMBER 2
 #define MASTER_NUMBER 2
 #define ROBOT_1_ADDRESS 0x14
 #define ROBOT_2_ADDRESS 0x15
@@ -9,7 +9,11 @@
 #define TX_INTERMISSION 30
 
 #define DRIVE_PI 3.14159f
+<<<<<<< HEAD
 #define STARTING_ROLE GOALIE 
+=======
+#define STARTING_ROLE FORWARD
+>>>>>>> 381cf00c0ea3eee73e9526e3f8c08ea7b18dd450
 
 
 #define FORCE_USB 1

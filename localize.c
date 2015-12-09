@@ -262,6 +262,13 @@ int localize_current() {
   return (dropped_frames < 20);
 }
 
+float negpi2pi(float angle) {
+  if(angle > 3.14159f) {
+    angle = angle - 2 * 3.14159f;
+  }
+  return angle;
+}
+
 float* localize_location() {
   int flip = (TEAM_RED) ? 1 : -1;
   location[0] = flip * LOCALIZE_CENTER_XY[0];
