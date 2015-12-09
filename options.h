@@ -2,14 +2,17 @@
 #define OPTIONS
 
 #define ROBOT_NUMBER 1
+#define STARTING_ROLE  GOALIE
+#define STARTING_STATE  PAUSE
+
 #define MASTER_NUMBER 2
+
 #define ROBOT_1_ADDRESS 0x14
 #define ROBOT_2_ADDRESS 0x15
 #define ROBOT_3_ADDRESS 0x16
 #define TX_INTERMISSION 30
 
 #define DRIVE_PI 3.14159f
-#define STARTING_ROLE FORWARD
 
 #define FORCE_USB 1
 #define USB_DEBUG 0
@@ -18,8 +21,6 @@
 
 
 #define INITIAL_POWER 1
-
-#define SHITTY 0
 
 #define RF_DEBUG 0
 #define RF_DEBUG_ADDRESS 0x16
