@@ -247,8 +247,23 @@ void goalie() {
 
             break;
         case GOTO_GOAL:
-            //TODO: SHOULD WE GOTO GOAL?
-            break;
+          goToPosition(getPosition(), 0.3f, 0.9f, GOAL_X, GOAL_Y);
+          if(getPosition()[0] > 100 && fabs(getPosition()[1]) < 70 && negpi2pi(getPosition()[2]) < 1) {
+            kick();
+            stop();
+            m_wait(1000);
+            current_state = SEARCHING;
+          }
+
+        if(!(puck_middle())) {
+            current_state = ACQUIRE;
+            resetGoTo();
+        } else if (!get_see_puck()) {
+            current_state = SEARCHING;
+            resetGoTo();
+        }
+
+        break;
         default:
             current_state = PLAY;
             break;
@@ -371,7 +386,7 @@ void main()
     resetGoTo(); // Ensure that PD loops are set to 0
 
     //TODO: Change this back to PAUSE for real play
-    current_state = PLAY;
+    current_state = PAUSE;
     current_role = STARTING_ROLE;
     while (1) {
         if(TICK_HAPPENED) {
