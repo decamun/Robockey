@@ -88,11 +88,6 @@ void test_kicker() {
   m_wait(3000);
 }
 
-//TODO remove this abomination of nature (linked to Puck_Find.c [get_puck_angle()])
-void isForward() {
-  return (current_role == FORWARD);
-}
-
 void usb_debug(){
   m_usb_tx_string("State, Role: ");
   m_usb_tx_int(current_state);
@@ -231,7 +226,10 @@ void goalie() {
             //wait_for_play();
             break;
         case PLAY:
-            current_state = GOTO_GUARD;
+            //current_state = GOTO_GUARD;
+            if(get_see_puck()){
+              current_state = TRACK;
+            }
             break;
         case GOTO_GUARD:
             goToPosition(getPosition(), 0.5f, 0.5f, GUARD_X, GUARD_Y);
@@ -277,27 +275,24 @@ void goalie() {
                 current_state = SEARCH_LEFT;
             }
 
-            if (get_puck_position()[0] < -200 || get_puck_distance() < 10) {
+            /*if (get_puck_position()[0] < -200 || get_puck_distance() < 10) {
                 current_state = ACQUIRE;
+            }*/
+            if(get_puck_distance() < 50) {
+              current_state = ACQUIRE;
             }
             break;
         case ACQUIRE:
-            goToHeadingVel(0.5f, -get_puck_angle(), 0.0f, 1.2f, 0.7f);
+            goToHeadingVel(0.8f, -get_puck_angle(), 0.0f, 1.2f, 0.7f);
 
             if (!get_see_puck()) {
-                current_state = GOTO_GUARD;
+              current_state = SEARCHING;//GOTO_GUARD;
+              current_role = FORWARD;
             }
             if (puck_middle()) {
               current_state = GOTO_GOAL;
+              current_role = FORWARD;
               resetGoTo();
-            }
-            if(getPosition()[0] > 200) {
-                //kick();
-            }
-
-            if (puck_middle()) {
-                current_state = GOTO_GOAL;
-                resetGoTo();
             }
 
             break;
