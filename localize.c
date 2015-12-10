@@ -295,3 +295,7 @@ int localize_heading_for_wall() {
     return 0;
   }
 }
+
+int localize_in_position(float* position,  float x, float y, float range) {
+  return (fabs(position[0] - x) < range && fabs(position[1] - y < range));
+}

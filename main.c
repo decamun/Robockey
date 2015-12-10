@@ -36,6 +36,7 @@ int SEARCH_MODE = 0;
 int ii = 0;
 
 int KICK_TICKS = 0;
+int SEARCHING_TICKS = 0;
 int LED_pin = 2;
 int OFF_LED_Pin = 3;
 
@@ -46,13 +47,14 @@ float GUARD_Y ;
 float MIDFIELD_SEARCH_X;
 float MIDFIELD_SEARCH_Y;
 int LAUNCH_timout = 0;
+float ROBOT_SEARCH_TARGETS[2][2];
 
 void report_error(const char *err);
 void initialize();
 void kick();
 
 typedef enum {SEARCHING = 0, ACQUIRE, GOTO_GOAL, PUCK_TURN, PAUSE, PLAY, GOTO_ZERO,
-              GOTO_GUARD, SEARCH_LEFT, SEARCH_RIGHT, TRACK, FACE_GUARD, LAUNCH} robot_state;
+              GOTO_GUARD, SEARCH_LEFT, SEARCH_RIGHT, TRACK, FACE_GUARD, LAUNCH, SEARCH_UP_FIELD, SEARCH_DOWN_FIELD} robot_state;
 typedef enum {FORWARD, GOALIE} robot_role;
 
 robot_state current_state = PLAY;
@@ -220,6 +222,10 @@ void slave() {
 
 }
 
+void reset_search() {
+  SEARCHING_TICKS = 0;
+}
+
 void goalie() {
     float angle = getPosition()[2];
 
@@ -288,6 +294,7 @@ void goalie() {
 
             if (!get_see_puck()) {
               current_state = SEARCHING;//GOTO_GUARD;
+              reset_search();
               current_role = FORWARD;
             }
             if (puck_middle()) {
@@ -305,6 +312,7 @@ void goalie() {
             wdt_reset();
             m_wait(1000);
             current_state = SEARCHING;
+            reset_search();
           }
 
         if(!(puck_middle())) {
@@ -312,6 +320,7 @@ void goalie() {
             resetGoTo();
         } else if (!get_see_puck()) {
             current_state = SEARCHING;
+            reset_search();
             resetGoTo();
         }
 
@@ -347,6 +356,7 @@ void forward() {
               LAUNCH_timout++;
             } else {
               current_state = SEARCHING;
+              reset_search();
             }
 
             if(puck_middle()) {
@@ -359,8 +369,37 @@ void forward() {
             break;
 
         case SEARCHING:
-            spin();
-            avoid_wall();
+            if(SEARCHING_TICKS < SEARCH_ATTENTION_SPAN) {
+              spin();
+              avoid_wall();
+              SEARCHING_TICKS++;
+            } else {
+              //search routine
+              current_state = SEARCH_UP_FIELD;
+
+            }
+            if(get_see_puck())  {
+                current_state = ACQUIRE;
+            }
+            break;
+        case SEARCH_UP_FIELD:
+            if(localize_in_position(getPosition(), ROBOT_SEARCH_TARGETS[0][0], ROBOT_SEARCH_TARGETS[0][1], 50)){
+              current_state = SEARCH_DOWN_FIELD;
+            } else {
+              //go to position
+              goToPosition(getPosition(), 0.5f, 0.5f, ROBOT_SEARCH_TARGETS[0][0], ROBOT_SEARCH_TARGETS[0][1]);
+            }
+            if(get_see_puck())  {
+                current_state = ACQUIRE;
+            }
+            break;
+        case SEARCH_DOWN_FIELD:
+            if(localize_in_position(getPosition(), ROBOT_SEARCH_TARGETS[1][0], ROBOT_SEARCH_TARGETS[1][1], 50)){
+              current_state = SEARCH_UP_FIELD;
+            } else {
+              //go to position
+              goToPosition(getPosition(), 0.5f, 0.5f, ROBOT_SEARCH_TARGETS[1][0], ROBOT_SEARCH_TARGETS[1][1]);
+            }
             if(get_see_puck())  {
                 current_state = ACQUIRE;
             }
@@ -400,6 +439,7 @@ void forward() {
 
             if (!get_see_puck()) {
               current_state = SEARCHING;
+              reset_search();
               resetGoTo();
             }
 
@@ -412,6 +452,7 @@ void forward() {
               stop();
               m_wait(1000);
               current_state = SEARCHING;
+              reset_search();
             }
 
             if(!(puck_middle())) {
@@ -419,6 +460,7 @@ void forward() {
                 resetGoTo();
             } else if (!get_see_puck()) {
                 current_state = SEARCHING;
+                reset_search();
                 resetGoTo();
             }
 
@@ -459,6 +501,7 @@ void midfield() {
         case PLAY:
             set(PORTD, LED_pin);
             current_state = SEARCHING;
+            reset_search();
             break;
 
         case SEARCHING:
@@ -506,6 +549,7 @@ void midfield() {
 
             if (!get_see_puck()) {
               current_state = SEARCHING;
+              reset_search();
               resetGoTo();
             }
 
@@ -518,6 +562,7 @@ void midfield() {
               stop();
               m_wait(1000);
               current_state = SEARCHING;
+              reset_search();
             }
 
             if(!(puck_middle())) {
@@ -525,6 +570,7 @@ void midfield() {
                 resetGoTo();
             } else if (!get_see_puck()) {
                 current_state = SEARCHING;
+                reset_search();
                 resetGoTo();
             }
 
@@ -560,27 +606,11 @@ void main()
   while (1) {
     wdt_reset();
     if(RF_READ) {
-        //handle new RF info
+      //handle new RF info
       RF_READ = 0;
-
-      //TODO figure out what rf_comm() is and if it should be there
-      //rf_comm(buffer);
-
       uint8_t value = (uint8_t) buffer[0];
       uint8_t passcode = (uint8_t) buffer[1];
       handleRfGamestate(value);
-      /*
-      if(value == 0xA8 && validateString(passcode)) { // Robot Game State Command
-        handleRfCommand(buffer);
-      } else if(value == 0xA9 && validateString(passcode)) { // Puck Location
-        handleRfPuckLocation(buffer);
-      } else if(value == 0xAA && validateString(passcode)) { // Robot Info
-        handleRfRobotInfo(buffer);
-      } else {
-
-      }
-      */
-
       m_usb_tx_string("RF: ");
       m_usb_tx_hex(buffer[0]);
       m_usb_tx_string("\r\n");
@@ -715,10 +745,23 @@ void initialize() {
     char address;
     if(ROBOT_NUMBER == 1) {
       address = ROBOT_1_ADDRESS;
+      ROBOT_SEARCH_TARGETS[0][0] = ROBOT_1_SEARCH_TARGET_UP_FIELD_X;
+      ROBOT_SEARCH_TARGETS[0][1] = ROBOT_1_SEARCH_TARGET_UP_FIELD_Y;
+      ROBOT_SEARCH_TARGETS[1][0] = ROBOT_1_SEARCH_TARGET_DOWN_FIELD_X;
+      ROBOT_SEARCH_TARGETS[1][1] = ROBOT_1_SEARCH_TARGET_DOWN_FIELD_Y;
+
     } else if(ROBOT_NUMBER == 2) {
       address = ROBOT_2_ADDRESS;
+      ROBOT_SEARCH_TARGETS[0][0] = ROBOT_2_SEARCH_TARGET_UP_FIELD_X;
+      ROBOT_SEARCH_TARGETS[0][1] = ROBOT_2_SEARCH_TARGET_UP_FIELD_Y;
+      ROBOT_SEARCH_TARGETS[1][0] = ROBOT_2_SEARCH_TARGET_DOWN_FIELD_X;
+      ROBOT_SEARCH_TARGETS[1][1] = ROBOT_2_SEARCH_TARGET_DOWN_FIELD_Y;
     } else {
       address = ROBOT_3_ADDRESS;
+      ROBOT_SEARCH_TARGETS[0][0] = ROBOT_3_SEARCH_TARGET_UP_FIELD_X;
+      ROBOT_SEARCH_TARGETS[0][1] = ROBOT_3_SEARCH_TARGET_UP_FIELD_Y;
+      ROBOT_SEARCH_TARGETS[1][0] = ROBOT_3_SEARCH_TARGET_DOWN_FIELD_X;
+      ROBOT_SEARCH_TARGETS[1][1] = ROBOT_3_SEARCH_TARGET_DOWN_FIELD_Y;
     }
     ROBOT_ADDRESSES[0] = ROBOT_1_ADDRESS;
     ROBOT_ADDRESSES[1] = ROBOT_2_ADDRESS;
