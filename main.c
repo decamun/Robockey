@@ -1,4 +1,5 @@
 #include <avr/io.h>
+#include <avr/wdt.h>
 #include "options.h"
 #include "m_general.h"
 #include "globalVariables.h"
@@ -87,6 +88,7 @@ void wait_for_play() {
 void test_kicker() {
   kick();
   m_wait(3000);
+  wdt_reset();
 }
 
 void usb_debug(){
@@ -131,6 +133,7 @@ void test_rf() {
   m_usb_tx_string("\n\r");
   m_green(TOGGLE);
   m_wait(1000);
+  wdt_reset();
 }
 
 void set_indicators(robot_state _01, robot_state _11){
@@ -159,7 +162,7 @@ void update_indicators(){
     }
 }
 
-void testMotors() {
+void testMotors() { //TODO don't use this!
     setRight(0.85);
     m_wait(3000);
     setLeft(0.85);
@@ -173,7 +176,7 @@ void testMotors() {
     m_wait(5000);
 }
 
-void fullTestMotor() {
+void fullTestMotor() { //TODO don't use this
     float i = 0;
     for(i = 0; i < 1; i += 0.01) {
         setRight(i);
@@ -299,6 +302,7 @@ void goalie() {
           if(getPosition()[0] > 100 && fabs(getPosition()[1]) < 70 && negpi2pi(getPosition()[2]) < 1) {
             kick();
             stop();
+            wdt_reset();
             m_wait(1000);
             current_state = SEARCHING;
           }
@@ -554,6 +558,7 @@ void main()
 {
   initialize();
   while (1) {
+    wdt_reset();
     if(RF_READ) {
         //handle new RF info
       RF_READ = 0;
@@ -595,7 +600,8 @@ void main()
       }
 
 
-      if(KICK_TICKS > 0){KICK_TICKS--;}
+      if(KICK_TICKS > 0){KICK_TICKS--;} //awful spaghetti code TODO lol
+
       if(TX_counter > TX_INTERMISSION) {
         //sendRfRobotInfo();
         TX_counter = 0;
@@ -620,6 +626,11 @@ void main()
 
 void initialize() {
     m_clockdivide(0);
+
+    //set watchdog timer
+    wdt_reset();
+    wdt_enable(WDTO_2S);
+
     //enable inputs for switches
     clear(DDRB, 4);
     set(PORTB, 4);
@@ -794,6 +805,7 @@ void handleRfGamestate(uint8_t value) {
         m_wait(200);
         set(PORTB,3);
         m_wait(200);
+        wdt_reset();
       }
 
     } else {
@@ -803,6 +815,7 @@ void handleRfGamestate(uint8_t value) {
         m_wait(200);
         set(PORTB,2);
         m_wait(200);
+        wdt_reset();
       }
     }
 
@@ -935,3 +948,50 @@ ISR(TIMER0_OVF_vect) {
         }
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//TODO Why not THANK YOU, MARK ZUCKERBERG, for your forward-thinking generosity! And congrats on becoming a dad! Mark Zuckerberg has announced that he is giving away $45 billion of Facebook stock. What you may not have heard is that he plans to give 10% of it away to people like YOU and ME! All you have to do is copy and paste this message into a post IMMEDIATELY. At midnight PST, Facebook will search through the day's posts and award 1000 people with $4.5 million EACH as a way of saying thank you for making Facebook such a powerful vehicle for connection and philanthropy. I hope someone I know gets a piece of the pie--let me know if you do!!!
+
+//TODO What the fuck did you just fucking say about me, you little bitch? I’ll have you know I graduated top of my class in the Navy Seals, and I’ve been involved in numerous secret raids on Al-Quaeda, and I have over 300 confirmed kills. I am trained in gorilla warfare and I’m the top sniper in the entire US armed forces. You are nothing to me but just another target. I will wipe you the fuck out with precision the likes of which has never been seen before on this Earth, mark my fucking words. You think you can get away with saying that shit to me over the Internet? Think again, fucker. As we speak I am contacting my secret network of spies across the USA and your IP is being traced right now so you better prepare for the storm, maggot. The storm that wipes out the pathetic little thing you call your life. You’re fucking dead, kid. I can be anywhere, anytime, and I can kill you in over seven hundred ways, and that’s just with my bare hands. Not only am I extensively trained in unarmed combat, but I have access to the entire arsenal of the United States Marine Corps and I will use it to its full extent to wipe your miserable ass off the face of the continent, you little shit. If only you could have known what unholy retribution your little “clever” comment was about to bring down upon you, maybe you would have held your fucking tongue. But you couldn’t, you didn’t, and now you’re paying the price, you goddamn idiot. I will shit fury all over you and you will drown in it. You’re fucking dead, kiddo.
