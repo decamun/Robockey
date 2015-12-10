@@ -23,6 +23,8 @@ char buffer[BUFFER_SIZE];
 int RF_READ = 0;
 int TICK_HAPPENED = 0;
 int TEAM_RED = 0;
+int SIDE_RED = 0;
+int SECOND_HALF = 0;
 char ROBOT_ADDRESSES[3];
 int ROBOT_INFO[3][7];
 unsigned int TX_counter = 0;
@@ -593,7 +595,8 @@ void main()
         TX_counter++;
       }
 
-      update_indicators();
+      //doesnt work 
+      //update_indicators();
 
       // We're done until the next clock update
       TICK_HAPPENED = 0;
@@ -615,14 +618,18 @@ void initialize() {
     clear(DDRB, 5);
     set(PORTB, 5);
 
+    //enable outputs for green LEDs
+    set(DDRD, 5);
+    set(DDRD, 7);
 
 
     //Changing Output pin for different team
-    if(puck_left() || puck_right()) {
+    if(puck_left()) {
       TEAM_RED = 1;
     } else {
       TEAM_RED = 0;
     }
+    
 
     set(DDRB, 2);
     set(DDRB, 3);
@@ -633,6 +640,32 @@ void initialize() {
     } else {
       set(PORTB, 2);
       clear(PORTB, 3);
+    }
+
+
+    // Changing Output pin for different half
+    if(puck_right()) {
+      SECOND_HALF = 1;
+    } else {
+      SECOND_HALF = 0;
+    }
+
+    if(SECOND_HALF){
+      set(PORTD, 5);
+      set(PORTD, 7);
+    }
+    else {
+      set(PORTD, 5);
+      clear(PORTD, 7);
+    }
+
+    //determining the side (protect red or blue goal)
+
+    if (TEAM_RED && !SECOND_HALF){
+      SIDE_RED = 1;
+    }
+    else if (!TEAM_RED && SECOND_HALF){
+      SIDE_RED = 1;
     }
 
     clear(DDRD, 3);
@@ -686,7 +719,7 @@ void initialize() {
     start0(TICK_FREQUENCY);
     interupt0(1);
     ADC_init();
-    localize_init(TEAM_RED);
+    localize_init(SIDE_RED);
 
     //initialize state machine
     current_state = STARTING_STATE;
@@ -745,7 +778,7 @@ void handleRfGamestate(uint8_t value) {
     m_green(TOGGLE);
     m_wait(500);
 
-    if(TEAM_RED) // Flashing light for comm test
+    if(SIDE_RED) // Flashing light for comm test
     {
       for(ii = 0; ii<2; ii++){
 
@@ -782,17 +815,6 @@ void handleRfGamestate(uint8_t value) {
 
     } else if(value == 0xA6) { // halftime
       current_state = PAUSE;
-
-        if (TEAM_RED) {
-            TEAM_RED = 0;
-            clear(PORTB,3); // Change LED color at halftime
-            set(PORTB,2);
-        }
-        else {
-            TEAM_RED = 1;
-            clear(PORTB,2);
-            set(PORTB,3);
-        }
 
     } else if(value == 0xA7) { // Game Over
       current_state = PAUSE;
