@@ -168,12 +168,7 @@ int get_puck_behind() {
 }
 
 float get_puck_angle() {
-  //TODO fix the issue in robot 1 that flips the negative
-  if(ROBOT_NUMBER == 1 && isForward()){
-    return -puck_angle;
-  } else {
-    return puck_angle;
-  }
+  return puck_angle;
 }
 
 int puck_right(){

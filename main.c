@@ -40,6 +40,8 @@ int indicators[2] = {0,1};
 
 float GUARD_X ;
 float GUARD_Y ;
+float MIDFIELD_SEARCH_X;
+float MIDFIELD_SEARCH_Y;
 
 void report_error(const char *err);
 void initialize();
@@ -425,6 +427,112 @@ void forward() {
     }
 }
 
+void midfield() {
+    switch(current_state) {
+        case PAUSE:
+            clear(PORTD, LED_pin); // TURN OFF positioning LED
+            stop();
+            //wait_for_play();
+            break;
+
+        case PLAY:
+            set(PORTD, LED_pin);
+            current_state = SEARCHING;
+            break;
+
+        case SEARCHING:
+
+
+
+          if(fabs(getPosition()[0] - MIDFIELD_SEARCH_X) < 50 && fabs(getPosition()[1] - MIDFIELD_SEARCH_Y) < 50) {
+            spin();
+          } else {
+            goToPosition(getPosition(), 0.7f, 0.8f, MIDFIELD_SEARCH_X, MIDFIELD_SEARCH_Y);
+          }
+          avoid_wall();
+          if(get_see_puck())  {
+              current_state = ACQUIRE;
+          }
+          break;
+
+        case ACQUIRE:
+
+            if(get_puck_position()[0] < getPosition()[0]) {
+              float position_offset_y = 0;
+              if(fabs(getPosition()[1] - get_puck_position()[1]) > 50) {
+                //do nothing
+              } else if(getPosition()[1] > get_puck_position()[1]) {
+                position_offset_y = -100;
+              } else {
+                position_offset_y = 100;
+              }
+              MIDFIELD_SEARCH_X = get_puck_position()[0] - 50;
+              MIDFIELD_SEARCH_Y = getPosition()[1] + position_offset_y;
+              goToPosition(getPosition(), 0.7f, 0.8f, MIDFIELD_SEARCH_X, MIDFIELD_SEARCH_Y);
+
+            } else {
+              goToHeadingVel(0.9f, -get_puck_angle(), 0.0f, 1.2f, 0.7f);
+            }
+
+            if (puck_middle()) {
+              current_state = GOTO_GOAL;
+              resetGoTo();
+            }
+            if (puck_left() || puck_right()) {
+              current_state = PUCK_TURN;
+              resetGoTo();
+            }
+
+            if (!get_see_puck()) {
+              current_state = SEARCHING;
+              resetGoTo();
+            }
+
+            break;
+
+        case GOTO_GOAL:
+            goToPosition(getPosition(), 0.3f, 0.7f, GOAL_X, GOAL_Y);
+            if(getPosition()[0] > 100 && fabs(getPosition()[1]) < 70 && negpi2pi(getPosition()[2]) < 1) {
+              kick();
+              stop();
+              m_wait(1000);
+              current_state = SEARCHING;
+            }
+
+            if(!(puck_middle())) {
+                current_state = ACQUIRE;
+                resetGoTo();
+            } else if (!get_see_puck()) {
+                current_state = SEARCHING;
+                resetGoTo();
+            }
+
+            break;
+
+        case PUCK_TURN:
+            if (puck_left()) {
+                setRight(0.85f);
+                setLeft(0.0f);
+            } else if (puck_right()) {
+                setLeft(0.85f);
+                setRight(0.0f);
+            } else if (puck_middle()) {
+                current_state = GOTO_GOAL;
+            } else {
+                current_state = ACQUIRE;
+            }
+            break;
+
+        case GOTO_ZERO:
+            goToPosition(getPosition(), 0.7f, 0.8f, GOAL_X, GOAL_Y);
+            avoid_wall();
+            break;
+        default:
+            current_state = PLAY;
+            break;
+    }
+}
+
 void main()
 {
   initialize();
@@ -584,6 +692,9 @@ void initialize() {
     current_state = STARTING_STATE;
     current_role = STARTING_ROLE;
 
+    MIDFIELD_SEARCH_X = MIDFIELD_START_X;
+    MIDFIELD_SEARCH_Y = MIDFIELD_START_Y;
+
     //spaghetti code
     m_wait(30);
     int wait = 0;
@@ -669,7 +780,7 @@ void handleRfGamestate(uint8_t value) {
     } else if(value == 0xA5) { // detangle
       current_state = PAUSE;
 
-    } else if(value == 0xA6) { // Halftime
+    } else if(value == 0xA6) { // halftime
       current_state = PAUSE;
 
         if (TEAM_RED) {

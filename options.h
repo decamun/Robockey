@@ -40,6 +40,9 @@
 #define GOAL_X 330.0f
 #define GOAL_Y 0.0f
 
+#define MIDFIELD_START_X 0
+#define MIDFIELD_START_Y 0
+
 //#define GUARD_X -270.0f
 //#define GUARD_Y 0.0f
 
