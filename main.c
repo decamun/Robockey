@@ -579,13 +579,6 @@ void main()
         m_usb_tx_string("FATAL ERROR: INVALID ROLE\r\n");
       }
 
-      if(fabs(getPosition()[0])> WALL_X+50 || fabs(getPosition()[1]> WALL_Y+50))
-      {
-        clear(PORTD, 7);
-      }
-      else{
-        set(PORTD,7);
-      }
 
       if(KICK_TICKS > 0){KICK_TICKS--;}
       if(TX_counter > TX_INTERMISSION) {
