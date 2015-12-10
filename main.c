@@ -275,7 +275,7 @@ void goalie() {
             /*if (get_puck_position()[0] < -200 || get_puck_distance() < 10) {
                 current_state = ACQUIRE;
             }*/
-            if(get_puck_distance() < 50) {
+            if(get_puck_distance() < 60/*50*/) {
               current_state = LAUNCH;
               current_role = FORWARD;
             }

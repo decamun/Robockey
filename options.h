@@ -1,9 +1,9 @@
 #ifndef OPTIONS
 #define OPTIONS
 
-#define ROBOT_NUMBER 1
+#define ROBOT_NUMBER 3
 #define STARTING_ROLE  GOALIE
-#define STARTING_STATE  PLAY
+#define STARTING_STATE  PAUSE
 
 #define MASTER_NUMBER 2
 
