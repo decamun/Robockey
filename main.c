@@ -786,7 +786,7 @@ void handleRfGamestate(uint8_t value) {
     m_green(TOGGLE);
     m_wait(500);
 
-    if(SIDE_RED) // Flashing light for comm test
+    if(TEAM_RED) // Flashing light for comm test
     {
       for(ii = 0; ii<2; ii++){
 
