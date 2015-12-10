@@ -44,13 +44,14 @@ float GUARD_X ;
 float GUARD_Y ;
 float MIDFIELD_SEARCH_X;
 float MIDFIELD_SEARCH_Y;
+int LAUNCH_timout = 0;
 
 void report_error(const char *err);
 void initialize();
 void kick();
 
 typedef enum {SEARCHING = 0, ACQUIRE, GOTO_GOAL, PUCK_TURN, PAUSE, PLAY, GOTO_ZERO,
-              GOTO_GUARD, SEARCH_LEFT, SEARCH_RIGHT, TRACK, FACE_GUARD} robot_state;
+              GOTO_GUARD, SEARCH_LEFT, SEARCH_RIGHT, TRACK, FACE_GUARD, LAUNCH} robot_state;
 typedef enum {FORWARD, GOALIE} robot_role;
 
 robot_state current_state = PLAY;
@@ -271,15 +272,12 @@ void goalie() {
         case TRACK:
             trackHeading(-get_puck_angle(), 0.0f);
 
-            if (!get_see_puck()) {
-                current_state = SEARCH_LEFT;
-            }
-
             /*if (get_puck_position()[0] < -200 || get_puck_distance() < 10) {
                 current_state = ACQUIRE;
             }*/
             if(get_puck_distance() < 50) {
-              current_state = ACQUIRE;
+              current_state = LAUNCH;
+              current_role = FORWARD;
             }
             break;
         case ACQUIRE:
@@ -324,14 +322,36 @@ void goalie() {
 void forward() {
     switch(current_state) {
         case PAUSE:
-            clear(PORTD, LED_pin); // TURN OFF positioning LED
             stop();
             //wait_for_play();
             break;
 
         case PLAY:
-            set(PORTD, LED_pin);
-            current_state = SEARCHING;
+            current_state = LAUNCH;
+            break;
+
+        case LAUNCH:
+            if(get_see_puck() && LAUNCH_timout < 100){
+              if(get_puck_distance() < 50.0f){
+                goToHeadingVel(0.95f + (get_puck_distance() - 50.0f)/200.0f, -get_puck_angle(), 0.0f, 1.2f, 0.7f);
+              } else {
+                goToHeadingVel(0.95f, -get_puck_angle(), 0.0f, 1.2f, 0.7f);
+              }
+            } else if(LAUNCH_timout < 25){
+              setLeft(1.0f);
+              setRight(1.0f);
+              LAUNCH_timout++;
+            } else {
+              current_state = SEARCHING;
+            }
+
+            if(puck_middle()) {
+              current_state = GOTO_GOAL;
+            }
+
+            if(puck_left() || puck_right()) {
+              current_state = PUCK_TURN;
+            }
             break;
 
         case SEARCHING:
@@ -583,7 +603,7 @@ void main()
         TX_counter++;
       }
 
-      //doesnt work 
+      //doesnt work
       //update_indicators();
 
       // We're done until the next clock update
@@ -617,7 +637,7 @@ void initialize() {
     } else {
       TEAM_RED = 0;
     }
-    
+
 
     set(DDRB, 2);
     set(DDRB, 3);
